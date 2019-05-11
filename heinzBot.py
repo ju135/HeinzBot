@@ -104,7 +104,7 @@ def daily_timer(bot, update, job_queue):
 
 
 def main():
-    updater = Updater('591013299:AAFY2MB00d0bRs6Sdi8byo1uZZUANSf-RHs')
+    updater = Updater('API_KEY')
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('bop', bop))
     dp.add_handler(CommandHandler('ask', ask))
