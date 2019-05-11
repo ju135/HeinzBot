@@ -9,8 +9,6 @@ def sendFirstAppointmentOfDay():
     c = Calendar(urlopen(url).read().decode('utf-8'))
     e = c.events[0]
     current_time = datetime.datetime.now()
-    filter_obj = filter(lambda x: x.begin.timestamp > current_time.timestamp(), c.events)
-    filtered_list = list(filter_obj)
 
     filter_current_day = filter(
         lambda x: ((x.begin.datetime.day == current_time.day) & (x.begin.datetime.month == current_time.month)),
@@ -24,6 +22,3 @@ def sendFirstAppointmentOfDay():
                 + "Uhr im \"" + sorted_events[0].location + "\"!\nBG HB"
         return text
 
-
-if __name__ == '__main__':
-    main()
