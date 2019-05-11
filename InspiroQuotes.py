@@ -1,0 +1,13 @@
+import requests
+
+
+def receive_quote(bot, update):
+    r = requests.get('https://inspirobot.me/api?generate=true')
+    chat_id = update.message.chat_id
+    img = r.text
+    print("Hello")
+    bot.send_photo(chat_id=chat_id, photo=img)
+
+
+if __name__ == '__main__':
+    receive_quote()
