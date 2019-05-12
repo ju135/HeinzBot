@@ -5,13 +5,11 @@ import random
 
 from telegram import ChatAction, InlineQueryResultArticle, InputTextMessageContent
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
-
 from CalenderRead import sendFirstAppointmentOfDay
 from RandomText import get_random_ask_answer
 from GoogleSearch import get_image, get_gif, get_youtube
 from SendingActions import send_photo_action, send_video_action
-from InspireBot import inspire
-from InspiroQuotes import receive_quote
+from InspireBot import receive_quote
 
 import requests
 import logging
@@ -104,7 +102,7 @@ def daily_timer(bot, update, job_queue):
 
 
 def main():
-    updater = Updater('API_KEY')
+    updater = Updater('API-KEY')
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('bop', bop))
     dp.add_handler(CommandHandler('ask', ask))
@@ -115,7 +113,6 @@ def main():
     dp.add_handler(CommandHandler('who', who_is_muted))
     dp.add_handler(CommandHandler('allow', allow))
     dp.add_handler(CommandHandler('reverse', reverse))
-    dp.add_handler(CommandHandler('inspireMe', inspire))
     dp.add_handler(CommandHandler('quote', quote))
     daily_handler = CommandHandler('start', daily_timer, pass_job_queue=True)
     updater.dispatcher.add_handler(daily_handler)
