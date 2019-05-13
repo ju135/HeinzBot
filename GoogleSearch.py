@@ -3,9 +3,7 @@ import requests
 import urllib.request
 from urllib.request import urlopen
 from apiclient.discovery import build
-from apiclient.errors import HttpError
 import logging
-
 import json
 
 DEVELOPER_KEY = "YOUTUBE API KEY"
@@ -24,22 +22,23 @@ def get_image(bot, update):
     url = "https://www.google.co.in/search?q=" + query + "&tbm=isch"
     print(url)
     header = {
-        'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36"
+        'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/43.0.2357.134 Safari/537.36 "
     }
     soup = get_soup(url, header)
 
-    ActualImages = []  # contains the link for Large original images, type of  image
+    actual_images = []  # contains the link for Large original images, type of  image
     for a in soup.find_all("div", {"class": "rg_meta"}):
         link, Type = json.loads(a.text)["ou"], json.loads(a.text)["ity"]
-        ActualImages.append((link, Type))
+        actual_images.append((link, Type))
         break
 
-    print("there are total", len(ActualImages), "images")
+    print("there are total", len(actual_images), "images")
     chat_id = update.message.chat_id
-    if len(ActualImages) < 1:
+    if len(actual_images) < 1:
         update.message.reply_text("Leider nix gfunden ☹")
         return
-    for i, (img, Type) in enumerate(ActualImages):
+    for i, (img, Type) in enumerate(actual_images):
         bot.send_photo(chat_id=chat_id, photo=img)
 
 
@@ -53,22 +52,23 @@ def get_gif(bot, update):
     url = "https://www.google.co.in/search?q=" + query + "&tbm=isch&tbs=itp:animated"
     print(url)
     header = {
-        'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36"
+        'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/43.0.2357.134 Safari/537.36 "
     }
     soup = get_soup(url, header)
 
-    ActualImages = []  # contains the link for Large original images, type of  image
+    actual_images = []  # contains the link for Large original images, type of  image
     for a in soup.find_all("div", {"class": "rg_meta"}):
         link, Type = json.loads(a.text)["ou"], json.loads(a.text)["ity"]
-        ActualImages.append((link, Type))
+        actual_images.append((link, Type))
         break
 
-    print("there are total", len(ActualImages), "gifs")
-    if len(ActualImages) < 1:
+    print("there are total", len(actual_images), "gifs")
+    if len(actual_images) < 1:
         update.message.reply_text("Leider nix gfunden ☹️")
         return
     chat_id = update.message.chat_id
-    for i, (img, Type) in enumerate(ActualImages):
+    for i, (img, Type) in enumerate(actual_images):
         bot.send_animation(chat_id=chat_id, animation=img)
 
 
@@ -87,7 +87,6 @@ def get_youtube(bot, update):
         update.message.reply_text("parameter angeben bitte...")
         return
 
-    #query = percent_encoding(query)
     url = youtube_search(query)
     if url != "":
         bot.send_message(chat_id=update.message.chat_id, text=url)
