@@ -13,6 +13,7 @@ from InspireBot import receive_quote
 from Rule34Bot import fetch_porn
 from OENachrichtenBot import get_newest_news
 from APIKeyReader import read_key
+from CatBot import receive_cat
 
 import requests
 import logging
@@ -51,6 +52,13 @@ def gif(bot, update):
     if not (has_rights(update)):
         return
     get_gif(bot, update)
+
+
+@send_video_action
+def cat(bot, update):
+    if not (has_rights(update)):
+        return
+    receive_cat(bot, update)
 
 
 @send_photo_action
@@ -123,6 +131,7 @@ def main():
     dp.add_handler(CommandHandler('yt', yt))
     dp.add_handler(CommandHandler('mute', mute))
     dp.add_handler(CommandHandler('who', who_is_muted))
+    dp.add_handler(CommandHandler('cat', cat))
     dp.add_handler(CommandHandler('rule34', rule34))
     dp.add_handler(CommandHandler('allow', allow))
     dp.add_handler(CommandHandler('news', get_news))
