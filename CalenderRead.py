@@ -1,11 +1,11 @@
 from ics import Calendar
 import datetime
-
+from APIKeyReader import read_key
 from urllib.request import urlopen   # py3
 
 
 def send_first_appointment_of_day():
-    url = "http://stundenplan.fh-ooe.at/ics/478e9a7c4017434979.ics"
+    url = read_key("ics-file-link")
     c = Calendar(urlopen(url).read().decode('utf-8'))
     e = c.events[0]
     current_time = datetime.datetime.now()
