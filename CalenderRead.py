@@ -4,7 +4,7 @@ import datetime
 from urllib.request import urlopen   # py3
 
 
-def sendFirstAppointmentOfDay():
+def send_first_appointment_of_day():
     url = "http://stundenplan.fh-ooe.at/ics/478e9a7c4017434979.ics"
     c = Calendar(urlopen(url).read().decode('utf-8'))
     e = c.events[0]

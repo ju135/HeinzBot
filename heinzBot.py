@@ -5,7 +5,7 @@ import random
 
 from telegram import ChatAction, InlineQueryResultArticle, InputTextMessageContent
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
-from CalenderRead import sendFirstAppointmentOfDay
+from CalenderRead import send_first_appointment_of_day
 from RandomText import get_random_ask_answer
 from GoogleSearch import get_image, get_gif, get_youtube
 from SendingActions import send_photo_action, send_video_action
@@ -95,7 +95,7 @@ def ask(bot, update):
 
 
 def daily_call(bot, job):
-    appointment = sendFirstAppointmentOfDay()
+    appointment = send_first_appointment_of_day()
     if appointment:
         bot.send_message(chat_id=job.context, text=appointment)
 
