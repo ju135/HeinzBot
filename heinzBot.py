@@ -10,6 +10,8 @@ from RandomText import get_random_ask_answer
 from GoogleSearch import get_image, get_gif, get_youtube
 from SendingActions import send_photo_action, send_video_action
 from InspireBot import receive_quote
+from Rule34Bot import fetch_porn
+from OENachrichtenBot import get_newest_news
 
 import requests
 import logging
@@ -51,10 +53,19 @@ def gif(bot, update):
 
 
 @send_photo_action
+def rule34(bot, update):
+    fetch_porn(bot, update)
+
+
+@send_photo_action
 def quote(bot, update):
     if not (has_rights(update)):
         return
     receive_quote(bot, update)
+
+
+def get_news(bot, update):
+    get_newest_news(bot, update)
 
 
 def unknown(but, update):
@@ -102,7 +113,7 @@ def daily_timer(bot, update, job_queue):
 
 
 def main():
-    updater = Updater('API-KEY')
+    updater = Updater('API_KEY')
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('bop', bop))
     dp.add_handler(CommandHandler('ask', ask))
@@ -111,7 +122,9 @@ def main():
     dp.add_handler(CommandHandler('yt', yt))
     dp.add_handler(CommandHandler('mute', mute))
     dp.add_handler(CommandHandler('who', who_is_muted))
+    dp.add_handler(CommandHandler('rule34', rule34))
     dp.add_handler(CommandHandler('allow', allow))
+    dp.add_handler(CommandHandler('news', get_news))
     dp.add_handler(CommandHandler('reverse', reverse))
     dp.add_handler(CommandHandler('quote', quote))
     daily_handler = CommandHandler('start', daily_timer, pass_job_queue=True)
