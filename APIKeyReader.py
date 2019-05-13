@@ -2,6 +2,7 @@ import json
 keyFileName = "api-keys.json"
 
 
-def read_telegram_key():
+def read_key(key_name) -> str:
     f = open(keyFileName, "r")
-    datastore = json.load(f)
+    key_data = json.load(f)
+    return key_data[key_name]

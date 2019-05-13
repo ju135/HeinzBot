@@ -12,6 +12,7 @@ from SendingActions import send_photo_action, send_video_action
 from InspireBot import receive_quote
 from Rule34Bot import fetch_porn
 from OENachrichtenBot import get_newest_news
+from APIKeyReader import read_key
 
 import requests
 import logging
@@ -113,7 +114,7 @@ def daily_timer(bot, update, job_queue):
 
 
 def main():
-    updater = Updater('API_KEY')
+    updater = Updater(read_key("telegram"))
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('bop', bop))
     dp.add_handler(CommandHandler('ask', ask))

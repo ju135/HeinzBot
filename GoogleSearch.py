@@ -3,10 +3,11 @@ import requests
 import urllib.request
 from urllib.request import urlopen
 from apiclient.discovery import build
+from APIKeyReader import read_key
 import logging
 import json
 
-DEVELOPER_KEY = "YOUTUBE API KEY"
+DEVELOPER_KEY = read_key("youtube")
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 logging.getLogger('googleapicliet.discovery_cache').setLevel(logging.ERROR)
