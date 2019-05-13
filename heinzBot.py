@@ -14,6 +14,7 @@ from Rule34Bot import fetch_porn
 from OENachrichtenBot import get_newest_news
 from APIKeyReader import read_key
 from CatBot import receive_cat
+from MemeBot import receive_meme
 
 import requests
 import logging
@@ -63,7 +64,16 @@ def cat(bot, update):
 
 @send_photo_action
 def rule34(bot, update):
+    if not (has_rights(update)):
+        return
     fetch_porn(bot, update)
+
+
+@send_photo_action
+def meme(bot, update):
+    if not (has_rights(update)):
+        return
+    receive_meme(bot, update)
 
 
 @send_photo_action
@@ -74,13 +84,13 @@ def quote(bot, update):
 
 
 def get_news(bot, update):
+    if not (has_rights(update)):
+        return
     get_newest_news(bot, update)
 
 
 def unknown(but, update):
     if not (has_rights(update)):
-        update.message.reply_text(
-            '..hot wer wos gsogt?')
         return
     update.message.reply_text("Wos wüsd? Red deitsch mit mir.")
 
@@ -137,6 +147,7 @@ def main():
     dp.add_handler(CommandHandler('news', get_news))
     dp.add_handler(CommandHandler('reverse', reverse))
     dp.add_handler(CommandHandler('quote', quote))
+    dp.add_handler(CommandHandler('meme', meme))
     daily_handler = CommandHandler('start', daily_timer, pass_job_queue=True)
     updater.dispatcher.add_handler(daily_handler)
     inline_caps_handler = InlineQueryHandler(inline_caps)
