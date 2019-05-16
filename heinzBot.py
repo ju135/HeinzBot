@@ -140,17 +140,10 @@ def daily_timer(bot, update, job_queue):
     job_queue.run_daily(daily_call, time_now, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id, name="Daily")
 
 
-def timer(bot, update):
-    if not (has_rights(update)):
-        return
-    setup_day_ended()
-
-
 def main():
     updater = Updater(read_key("telegram"))
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('bop', bop))
-    dp.add_handler(CommandHandler('timer', timer))
     dp.add_handler(CommandHandler('ask', ask))
     dp.add_handler(CommandHandler('image', image))
     dp.add_handler(CommandHandler('gif', gif))
