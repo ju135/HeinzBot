@@ -1,5 +1,6 @@
 from ics import Calendar
 import datetime
+from datetime import datetime as d
 from APIKeyReader import read_key
 from urllib.request import urlopen   # py3
 
@@ -14,14 +15,14 @@ def send_first_appointment_of_day():
         return text
 
 
-def setup_day_ended(job_queue, update):
+def setup_day_ended(job):
     sorted_events = get_current_day_events()
     if not sorted_events:
         return
     last_event = sorted_events.pop()
-    time = last_event.end.datetime
+    time = d.fromtimestamp(last_event.end.timestamp+2)
     #current_time = datetime.datetime.now() + datetime.timedelta(seconds=5)
-    job_queue.run_once(send_day_ended_sticker, time, context=update.message.chat_id)
+    job.job_queue.run_once(send_day_ended_sticker, time, context=job.context)
 
 
 def send_day_ended_sticker(bot, job):

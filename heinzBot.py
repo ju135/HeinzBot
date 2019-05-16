@@ -15,6 +15,7 @@ from OENachrichtenBot import get_newest_news
 from APIKeyReader import read_key
 from CatBot import receive_cat
 from MemeBot import receive_meme
+from CalenderRead import send_day_ended_sticker
 
 import requests
 import logging
@@ -119,6 +120,12 @@ def daily_call(bot, job):
 
     if appointment:
         bot.send_message(chat_id=job.context, text=appointment)
+        setup_day_ended(job)
+    else:
+        # send day is ended, if its a week day without appointment
+        d = datetime.datetime.now()
+        if d.isoweekday() in range(1, 6):
+            send_day_ended_sticker(bot, job)
 
 
 def daily_timer(bot, update, job_queue):
@@ -131,7 +138,6 @@ def daily_timer(bot, update, job_queue):
 
     time_now = datetime.time(8, 20, 0, 0)
     job_queue.run_daily(daily_call, time_now, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id, name="Daily")
-    setup_day_ended(job_queue, update)
 
 
 def timer(bot, update):
