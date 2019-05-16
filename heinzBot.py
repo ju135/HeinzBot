@@ -93,7 +93,7 @@ def get_news(bot, update):
 def unknown(but, update):
     if not (has_rights(update)):
         return
-    update.message.reply_text("Ich nix verstehen. 😢")
+    update.message.reply_text("Ich nix verstehen... 😢")
 
 
 def bop(bot, update):
