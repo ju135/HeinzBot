@@ -3,7 +3,7 @@ from xml.dom import minidom
 
 
 def fetch_porn(bot, update):
-    query = get_command_parameter("/rule34", update)
+    query = query = '&'.join(get_command_parameter("/rule34", update).split())
     r = requests.get("https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags=" + query)
     parsed = minidom.parseString(r.text)
     try:
