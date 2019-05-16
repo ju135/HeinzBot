@@ -2,7 +2,7 @@ import requests
 import json
 import requests
 
-# random not working
+# random not working test2
 def receive_meme(bot, update):
     chat_id = update.message.chat_id
     url = 'https://api.memeload.us/v1/random'
