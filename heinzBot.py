@@ -3,9 +3,9 @@
 import datetime
 import random
 
-from telegram import ChatAction, InlineQueryResultArticle, InputTextMessageContent
+from telegram import ChatAction, InlineQueryResultArticle, InputTextMessageContent, Sticker
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
-from CalenderRead import send_first_appointment_of_day
+from CalenderRead import send_first_appointment_of_day, setup_day_ended
 from RandomText import get_random_ask_answer
 from GoogleSearch import get_image, get_gif, get_youtube
 from SendingActions import send_photo_action, send_video_action
@@ -98,9 +98,10 @@ def unknown(but, update):
 def bop(bot, update):
     if not (has_rights(update)):
         return
+    chat_id = update.message.chat_id
     contents = requests.get('https://random.dog/woof.json').json()
     url = contents['url']
-    chat_id = update.message.chat_id
+
     bot.send_photo(chat_id=chat_id, photo=url)
 
 
@@ -115,6 +116,7 @@ def ask(bot, update):
 
 def daily_call(bot, job):
     appointment = send_first_appointment_of_day()
+
     if appointment:
         bot.send_message(chat_id=job.context, text=appointment)
 
@@ -129,12 +131,20 @@ def daily_timer(bot, update, job_queue):
 
     time_now = datetime.time(8, 20, 0, 0)
     job_queue.run_daily(daily_call, time_now, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id, name="Daily")
+    setup_day_ended(job_queue, update)
+
+
+def timer(bot, update):
+    if not (has_rights(update)):
+        return
+    setup_day_ended()
 
 
 def main():
     updater = Updater(read_key("telegram"))
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('bop', bop))
+    dp.add_handler(CommandHandler('timer', timer))
     dp.add_handler(CommandHandler('ask', ask))
     dp.add_handler(CommandHandler('image', image))
     dp.add_handler(CommandHandler('gif', gif))
@@ -149,7 +159,7 @@ def main():
     dp.add_handler(CommandHandler('quote', quote))
     dp.add_handler(CommandHandler('meme', meme))
     daily_handler = CommandHandler('start', daily_timer, pass_job_queue=True)
-    updater.dispatcher.add_handler(daily_handler)
+    dp.add_handler(daily_handler)
     inline_caps_handler = InlineQueryHandler(inline_caps)
     dp.add_handler(inline_caps_handler)
 
