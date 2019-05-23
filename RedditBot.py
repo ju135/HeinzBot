@@ -16,9 +16,6 @@ def send_subreddit_submission(bot, update):
     if not query:
         update.message.reply_text("parameter angeben bitte...")
         return
-    reddit = praw.Reddit(client_id=CLIENT_ID,
-                         client_secret=CLIENT_SECRET,
-                         user_agent='linux:at.heinzbot.janisch:v1.0.0 (by /u/so-oag)')
     submission = get_submission_for_subreddit(query, 5)
     if submission is None:
         update.message.reply_text("Sorry, nix gfunden.😢")
@@ -50,11 +47,14 @@ def get_submission_for_subreddit(subreddit_name, limit):
     subreddit = reddit.subreddit(subreddit_name)
     hot_submissions = subreddit.hot(limit=limit)
     submissionlist = list()
-    for submission in hot_submissions:
-        if submission.post_hint == "image":
-            submissionlist.append(submission)
-        if submission.is_video:
-            submissionlist.append(submission)
+    try:
+        for submission in hot_submissions:
+            if submission.post_hint == "image":
+                submissionlist.append(submission)
+            if submission.is_video:
+                submissionlist.append(submission)
+    except:
+        return None
 
     if len(submissionlist) == 0:
         return None
