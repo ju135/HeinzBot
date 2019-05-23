@@ -16,7 +16,7 @@ from APIKeyReader import read_key
 from CatBot import receive_cat
 from MemeBot import receive_meme
 from CalenderRead import send_day_ended_sticker
-from RedditBot import send_funny_submission
+from RedditBot import send_funny_submission, send_subreddit_submission
 
 import requests
 import logging
@@ -89,6 +89,12 @@ def funny(bot, update):
     if not (has_rights(update)):
         return
     send_funny_submission(bot, update)
+
+
+def reddit(bot, update):
+    if not (has_rights(update)):
+        return
+    send_subreddit_submission(bot, update)
 
 
 def get_news(bot, update):
@@ -165,6 +171,7 @@ def main():
     dp.add_handler(CommandHandler('quote', quote))
     dp.add_handler(CommandHandler('meme', meme))
     dp.add_handler(CommandHandler('funny', funny))
+    dp.add_handler(CommandHandler('reddit', reddit))
     daily_handler = CommandHandler('start', daily_timer, pass_job_queue=True)
     dp.add_handler(daily_handler)
     inline_caps_handler = InlineQueryHandler(inline_caps)

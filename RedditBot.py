@@ -2,6 +2,7 @@ import random
 
 import praw
 from APIKeyReader import read_key
+from GoogleSearch import get_command_parameter
 import telegram
 import logging
 
@@ -9,43 +10,67 @@ CLIENT_ID = read_key("reddit-client-id")
 CLIENT_SECRET = read_key("reddit-client-secret")
 
 
-def send_funny_submission(bot, update):
+def send_subreddit_submission(bot, update):
     chat_id = update.message.chat_id
-    submission = get_funny_submission()
+    query = get_command_parameter("/reddit", update)
+    if not query:
+        update.message.reply_text("parameter angeben bitte...")
+        return
+    reddit = praw.Reddit(client_id=CLIENT_ID,
+                         client_secret=CLIENT_SECRET,
+                         user_agent='linux:at.heinzbot.janisch:v1.0.0 (by /u/so-oag)')
+    submission = get_submission_for_subreddit(query, 5)
     if submission is None:
         update.message.reply_text("Sorry, nix gfunden.😢")
     else:
         if submission.is_video:
-            send_video(bot, chat_id, submission.media['reddit_video']['fallback_url'], submission.title)
+            print(submission.media['reddit_video']['fallback_url'])
+            send_video(bot, update, submission.media['reddit_video']['fallback_url'], submission.title)
+        else:
+            send_photo(bot, chat_id, submission.url, submission.title)
+
+
+def send_funny_submission(bot, update):
+    chat_id = update.message.chat_id
+    submission = get_submission_for_subreddit("funny", 25)
+    if submission is None:
+        update.message.reply_text("Sorry, nix gfunden.😢")
+    else:
+        if submission.is_video:
+            send_video(bot, update, submission.media['reddit_video']['fallback_url'], submission.title)
         else:
             send_photo(bot, chat_id, submission.url, submission.title)
         # bot.send_photo(chat_id=chat_id, photo=url, caption=title)
 
 
-def get_funny_submission():
+def get_submission_for_subreddit(subreddit_name, limit):
     reddit = praw.Reddit(client_id=CLIENT_ID,
                          client_secret=CLIENT_SECRET,
                          user_agent='linux:at.heinzbot.janisch:v1.0.0 (by /u/so-oag)')
-    subreddit = reddit.subreddit("funny")
-    # subreddit = reddit.subreddit("MyPeopleNeedMe")
-    hot_submissions = subreddit.hot(limit=25)
+    subreddit = reddit.subreddit(subreddit_name)
+    hot_submissions = subreddit.hot(limit=limit)
     submissionlist = list()
     for submission in hot_submissions:
-        if submission.post_hint == "image" or submission.is_video:
+        if submission.post_hint == "image":
             submissionlist.append(submission)
-        else:
-            print(submission.post_hint)
+        if submission.is_video:
+            submissionlist.append(submission)
+
     if len(submissionlist) == 0:
         return None
-    # subimglist = list(filter(lambda x: x.post_hint == "image", submissionlist))
     index = random.randint(0, len(submissionlist) - 1)
     return submissionlist[index]
 
 
-def send_video(bot, chat_id, url, caption):
+def send_video(bot, update, url, caption):
+    chat_id = update.message.chat_id
     bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_VIDEO)
-    bot.send_video(chat_id=chat_id, video=url,
-                   caption=caption, supports_streaming=True)
+    new_url = url[:url.rindex('/')+1] + "DASH_360"
+    try:
+        bot.send_video(chat_id=chat_id, video=new_url,
+                       caption=caption, supports_streaming=True)
+    except:
+        update.message.reply_text("Irgendwos hot do ned highaut ☹️")
 
 
 def send_photo(bot, chat_id, url, caption):
