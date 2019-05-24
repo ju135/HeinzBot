@@ -49,9 +49,9 @@ def get_submission_for_subreddit(subreddit_name, limit):
     submissionlist = list()
     try:
         for submission in hot_submissions:
-            if submission.post_hint == "image":
+            if hasattr(submission, "post_hint") and submission.post_hint == "image":
                 submissionlist.append(submission)
-            if submission.is_video:
+            if hasattr(submission, "is_video") and submission.is_video:
                 submissionlist.append(submission)
     except:
         return None
