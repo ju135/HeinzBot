@@ -16,7 +16,8 @@ def send_subreddit_submission(bot, update):
     if not query:
         update.message.reply_text("parameter angeben bitte...")
         return
-    submission = get_submission_for_subreddit(query, 30)
+    (subredditpath, index) = get_subreddit_and_index(query)
+    submission = get_submission_for_subreddit(subredditpath, 30, index)
     if submission is None:
         update.message.reply_text("Sorry, nix gfunden.😢")
     else:
@@ -29,7 +30,7 @@ def send_subreddit_submission(bot, update):
 
 def send_funny_submission(bot, update):
     chat_id = update.message.chat_id
-    submission = get_submission_for_subreddit("funny", 25)
+    submission = get_submission_for_subreddit("funny", 25, None)
     if submission is None:
         update.message.reply_text("Sorry, nix gfunden.😢")
     else:
@@ -40,7 +41,7 @@ def send_funny_submission(bot, update):
         # bot.send_photo(chat_id=chat_id, photo=url, caption=title)
 
 
-def get_submission_for_subreddit(subreddit_name, limit):
+def get_submission_for_subreddit(subreddit_name, limit, index):
     reddit = praw.Reddit(client_id=CLIENT_ID,
                          client_secret=CLIENT_SECRET,
                          user_agent='linux:at.heinzbot.janisch:v1.0.0 (by /u/so-oag)')
@@ -58,7 +59,9 @@ def get_submission_for_subreddit(subreddit_name, limit):
 
     if len(submissionlist) == 0:
         return None
-    index = random.randint(0, len(submissionlist) - 1)
+
+    if index is None or index > len(submissionlist)-1:
+        index = random.randint(0, len(submissionlist) - 1)
     return submissionlist[index]
 
 
@@ -81,12 +84,6 @@ def send_photo(bot, chat_id, url, caption):
     bot.send_photo(chat_id=chat_id, photo=url, caption=caption)
 
 
-def main():
-    (url, title) = get_funny_image()
-    print(url)
-    print(title)
-
-
 def start_logger():
     handler = logging.StreamHandler()
     handler.setLevel(logging.DEBUG)
@@ -95,5 +92,12 @@ def start_logger():
     logger.addHandler(handler)
 
 
-if __name__ == '__main__':
-    main()
+def get_subreddit_and_index(query) -> (str, int):
+    query_parts = query.split()
+    subreddit = query_parts[0]
+    if len(query_parts) > 1:
+        if query_parts[1].isdigit():
+            index = int(query_parts[1])
+            return subreddit, index
+    return subreddit, None
+
