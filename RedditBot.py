@@ -16,7 +16,7 @@ def send_subreddit_submission(bot, update):
     if not query:
         update.message.reply_text("parameter angeben bitte...")
         return
-    submission = get_submission_for_subreddit(query, 5)
+    submission = get_submission_for_subreddit(query, 30)
     if submission is None:
         update.message.reply_text("Sorry, nix gfunden.😢")
     else:
@@ -65,7 +65,10 @@ def get_submission_for_subreddit(subreddit_name, limit):
 def send_video(bot, update, url, caption):
     chat_id = update.message.chat_id
     bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_VIDEO)
-    new_url = url[:url.rindex('/')+1] + "DASH_360"
+    resolution = int(url[url.rindex('DASH_')+5:].split('?')[0])
+    new_url = url
+    if resolution > 360:
+        new_url = url[:url.rindex('/')+1] + "DASH_360"
     try:
         bot.send_video(chat_id=chat_id, video=new_url,
                        caption=caption, supports_streaming=True)
