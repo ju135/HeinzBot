@@ -6,10 +6,10 @@ import random
 from telegram import ChatAction, InlineQueryResultArticle, InputTextMessageContent, Sticker
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
 from CalenderRead import send_first_appointment_of_day, setup_day_ended
-from RandomText import get_random_ask_answer
+from RandomText import get_random_ask_answer, get_random_quote_text
 from GoogleSearch import get_image, get_gif, get_youtube
 from SendingActions import send_photo_action, send_video_action
-from InspireBot import receive_quote
+from InspireBot import receive_quote, send_quote_with_text
 from Rule34Bot import fetch_porn
 from OENachrichtenBot import get_newest_news
 from APIKeyReader import read_key
@@ -22,6 +22,7 @@ import requests
 import logging
 
 mutedAccounts = list()
+running_job_queue = None
 
 
 def has_rights(update):
@@ -136,9 +137,12 @@ def daily_call(bot, job):
         setup_day_ended(job)
     else:
         # send day is ended, if its a week day without appointment
-        d = datetime.datetime.now()
-        if d.isoweekday() in range(1, 6):
-            send_day_ended_sticker(bot, job)
+        #d = datetime.datetime.now()
+        #if d.isoweekday() in range(1, 6):
+        #    send_day_ended_sticker(bot, job)
+
+        # send quote of the day instead
+        send_quote_with_text(bot, job, get_random_quote_text())
 
 
 def daily_timer(bot, update, job_queue):
@@ -149,8 +153,10 @@ def daily_timer(bot, update, job_queue):
     bot.send_message(chat_id=update.message.chat_id,
                      text='Jawohl Chef, bot is augstart!')
 
-    time_now = datetime.time(8, 20, 0, 0)
+    time_now = datetime.time(9, 0, 0, 0)
     job_queue.run_daily(daily_call, time_now, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id, name="Daily")
+    global running_job_queue
+    running_job_queue = job_queue
 
 
 def main():
@@ -172,6 +178,7 @@ def main():
     dp.add_handler(CommandHandler('meme', meme))
     dp.add_handler(CommandHandler('funny', funny))
     dp.add_handler(CommandHandler('reddit', reddit))
+    dp.add_handler(CommandHandler('help', help))
     daily_handler = CommandHandler('start', daily_timer, pass_job_queue=True)
     dp.add_handler(daily_handler)
     inline_caps_handler = InlineQueryHandler(inline_caps)
@@ -261,6 +268,25 @@ def get_command_parameter(command: str, update) -> str:
 
 def get_random_string(l: [str]) -> str:
     return l[random.randint(0, len(l) - 1)]
+
+
+def help(bot, update):
+    commandlist = """/image - Googlet noch an foto und schickts 👌🏼
+/gif - Googlet noch an gif und schickts 👌🏼
+/yt - Schickt as erste youtube video wos findt. 
+/reverse - reversiert den übergebenen Text.
+/ask - Entscheidungshilfe bei ja/nein fragen.
+/rule34 - Schickt a Rule34 Bild zu gegebene Begriffe.
+/news - Schickt a gegebene Anzahl an OÖ News. 
+/quote - Schickt a Bild mit an inspirierenden Spruch.. ✍🏼
+/cat - Schickt a katzal-gif mit an Text drüber. 🐈
+/meme - Schickt a random meme. 🧙‍♂️
+/reddit - Wennsd an subreddit angibst schick i da ans vo die top 30 hot bilder oder videos. 😎 als 2. parameter kanns an index angeben.
+/funny - i schick da funny reddit submissions. 👌
+/start - Bot starten (Täglicher Vorlesungs-Reminder)"""
+    if not (has_rights(update)):
+        return
+    update.message.reply_text(commandlist)
 
 
 if __name__ == '__main__':

@@ -50,5 +50,19 @@ def get_random_ask_answer() -> str:
     ])
 
 
+def get_random_quote_text() -> str:
+    return get_random_string([
+        "Quote of the day - hobts an schenan tog. :)",
+        "qotd, bg hb.",
+        "as heutige zitat - gönnts euch eure ferien.",
+        "As heutige Zitat ~ BG HB",
+        "***QUOTE OF THE DAY*** ***QUOTE OF THE DAY*** ***QUOTE OF THE DAY*** BG WM",
+        "Hob wieder a zitat für eich.",
+        "Heitiges Zitat, i hoff ihr vergessts mi ned über die ferien :(",
+        "Wos mochtsn ihr heit so? hob a zitat für eich.. :)",
+        "Zitat des Tages."
+    ])
+
+
 def get_random_string(l: [str]) -> str:
     return l[random.randint(0, len(l)-1)]
