@@ -17,12 +17,12 @@ from CatBot import receive_cat
 from MemeBot import receive_meme
 from CalenderRead import send_day_ended_sticker
 from RedditBot import send_funny_submission, send_subreddit_submission
+from CommicBot import receive_comic, send_comic_if_new
 
 import requests
 import logging
 
 mutedAccounts = list()
-running_job_queue = None
 
 
 def has_rights(update):
@@ -120,6 +120,12 @@ def bop(bot, update):
     bot.send_photo(chat_id=chat_id, photo=url)
 
 
+def comic(bot, update):
+    if not (has_rights(update)):
+        return
+    receive_comic(bot, update)
+
+
 def ask(bot, update):
     if not (has_rights(update)):
         return
@@ -129,7 +135,7 @@ def ask(bot, update):
     update.message.reply_text(get_random_ask_answer())
 
 
-def daily_call(bot, job):
+def daily_quote(bot, job):
     appointment = send_first_appointment_of_day()
 
     if appointment:
@@ -145,18 +151,22 @@ def daily_call(bot, job):
         send_quote_with_text(bot, job, get_random_quote_text())
 
 
+def daily_comic(bot, job):
+    send_comic_if_new(bot, job)
+
+
 def daily_timer(bot, update, job_queue):
-    if job_queue.get_jobs_by_name("Daily"):
+    if job_queue.get_jobs_by_name("Daily_Quote"):
         bot.send_message(chat_id=update.message.chat_id,
                          text='Da bot laft eh scho.')
         return
     bot.send_message(chat_id=update.message.chat_id,
                      text='Jawohl Chef, bot is augstart!')
 
-    time_now = datetime.time(9, 0, 0, 0)
-    job_queue.run_daily(daily_call, time_now, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id, name="Daily")
-    global running_job_queue
-    running_job_queue = job_queue
+    time_nine = datetime.time(9, 0, 0, 0)
+    job_queue.run_daily(daily_quote, time_nine, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id, name="Daily_Quote")
+    time_twelve = datetime.time(hour=12, minute=00, second=0)
+    job_queue.run_daily(daily_comic, time_twelve, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id, name="Daily_Comic")
 
 
 def main():
@@ -178,6 +188,7 @@ def main():
     dp.add_handler(CommandHandler('meme', meme))
     dp.add_handler(CommandHandler('funny', funny))
     dp.add_handler(CommandHandler('reddit', reddit))
+    dp.add_handler(CommandHandler('comic', comic))
     dp.add_handler(CommandHandler('help', help))
     daily_handler = CommandHandler('start', daily_timer, pass_job_queue=True)
     dp.add_handler(daily_handler)

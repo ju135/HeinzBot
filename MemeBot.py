@@ -1,6 +1,5 @@
 import requests
 import json
-import requests
 
 # random not working test2
 def receive_meme(bot, update):

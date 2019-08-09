@@ -21,3 +21,14 @@ An implementation of a Telegram Bot with the following capabilities:
 * cataas - Cat as a Service
 * Memeload API
 * RSS Service from Nachrichten.at
+* xkcd.com
+
+
+## Dependencies
+
+* python-telegram-bot
+* requests
+* beautifulsoup4
+* google-api-python-client
+* ics
+* PRAW
