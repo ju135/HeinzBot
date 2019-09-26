@@ -10,6 +10,7 @@ An implementation of a Telegram Bot with the following capabilities:
 * Performs youtube searches and sends a link to the best match.
 * Contains various yes/no answers to help decision making.
 * Sends various quote images.
+* Sends various comics
 
 
 ## Used APIs
