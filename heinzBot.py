@@ -6,7 +6,7 @@ import random
 from telegram import ChatAction, InlineQueryResultArticle, InputTextMessageContent, Sticker
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
 from CalenderRead import send_first_appointment_of_day, setup_day_ended
-from RandomText import get_random_ask_answer, get_random_quote_text
+from RandomText import get_random_ask_answer, get_random_quote_text, get_random_free_text
 from GoogleSearch import get_image, get_gif, get_youtube
 from SendingActions import send_photo_action, send_video_action
 from InspireBot import receive_quote, send_quote_with_text
@@ -135,7 +135,7 @@ def ask(bot, update):
     update.message.reply_text(get_random_ask_answer())
 
 
-def daily_quote(bot, job):
+def daily_appointment(bot, job):
     appointment = send_first_appointment_of_day()
 
     if appointment:
@@ -143,12 +143,16 @@ def daily_quote(bot, job):
         setup_day_ended(job)
     else:
         # send day is ended, if its a week day without appointment
-        #d = datetime.datetime.now()
-        #if d.isoweekday() in range(1, 6):
-        #    send_day_ended_sticker(bot, job)
+        d = datetime.datetime.now()
+        if d.isoweekday() in range(1, 6):
+            bot.send_message(chat_id=job.context,
+                             text=get_random_free_text())
+            send_day_ended_sticker(bot, job)
 
-        # send quote of the day instead
-        send_quote_with_text(bot, job, get_random_quote_text())
+
+def daily_quote(bot, job):
+    # send quote of the day
+    send_quote_with_text(bot, job, get_random_quote_text())
 
 
 def daily_comic(bot, job):
@@ -163,8 +167,11 @@ def daily_timer(bot, update, job_queue):
     bot.send_message(chat_id=update.message.chat_id,
                      text='Jawohl Chef, bot is augstart!')
 
-    time_nine = datetime.time(9, 0, 0, 0)
-    job_queue.run_daily(daily_quote, time_nine, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id, name="Daily_Quote")
+    time_morning = datetime.time(8, 15, 0, 0)
+    job_queue.run_daily(daily_appointment, time_morning, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
+                        name="Daily_Appointment")
+    time_ten = datetime.time(10, 0, 0, 0)
+    job_queue.run_daily(daily_quote, time_ten, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id, name="Daily_Quote")
     time_twelve = datetime.time(hour=12, minute=00, second=0)
     job_queue.run_daily(daily_comic, time_twelve, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id, name="Daily_Comic")
 
