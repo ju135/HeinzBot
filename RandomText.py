@@ -54,13 +54,29 @@ def get_random_quote_text() -> str:
     return get_random_string([
         "Quote of the day - hobts an schenan tog. :)",
         "qotd, bg hb.",
-        "as heutige zitat - gönnts euch eure ferien.",
+        "as heutige zitat.",
         "As heutige Zitat ~ BG HB",
         "***QUOTE OF THE DAY*** ***QUOTE OF THE DAY*** ***QUOTE OF THE DAY*** BG WM",
         "Hob wieder a zitat für eich.",
-        "Heitiges Zitat, i hoff ihr vergessts mi ned über die ferien :(",
-        "Wos mochtsn ihr heit so? hob a zitat für eich.. :)",
-        "Zitat des Tages."
+        "Heitiges Zitat",
+        "Quote",
+        "Zitat des Tages.",
+        "Zitat von Heinz.",
+        "Hört, hört.",
+        "Zitat eines weisen Menschen.",
+        "Error! Exception in 'QuoteGenerator.asm': Sent quote may be meaningless."
+    ])
+
+
+def get_random_free_text() -> str:
+    return get_random_string([
+        "Ich habe heute leider kein Appointment für euch.",
+        "Keine Vorlesung heute.",
+        "gg wp",
+        "schlofts eich aus, weil heit is frei.",
+        "Für heit steht nix im Kalender.",
+        "Heite hobts frei.",
+        "Schenan FH-freien tog wünsch i eich."
     ])
 
 
