@@ -2,7 +2,7 @@
 import random
 import json
 import datetime 
-from datetime import date
+from datetime import date, timedelta
 
 
 def receive_comic(bot, update):
@@ -22,8 +22,8 @@ def send_comic_if_new(bot, job):
     chat_id = job.context
     comic_data = receive_current_comic_data()
     comic_release_date = datetime.date(int(comic_data["year"]), int(comic_data["month"]), int(comic_data["day"])) 
-    today = date.today()
-    if today == comic_release_date:
+    yesterday = date.today() - timedelta(days=1)
+    if yesterday == comic_release_date:
         bot.send_photo(chat_id=chat_id, photo=comic_data["img"], caption=("Neuer Comic: " + comic_data["title"]))
     
 
