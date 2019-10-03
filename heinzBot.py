@@ -18,6 +18,7 @@ from MemeBot import receive_meme
 from CalenderRead import send_day_ended_sticker
 from RedditBot import send_funny_submission, send_subreddit_submission
 from CommicBot import receive_comic, send_comic_if_new
+from MittagBot import receive_menue
 
 import requests
 import logging
@@ -102,6 +103,11 @@ def get_news(bot, update):
     if not (has_rights(update)):
         return
     get_newest_news(bot, update)
+
+def food(bot, update):
+    if not (has_rights(update)):
+        return
+    receive_menue(bot, update)
 
 
 def unknown(but, update):
@@ -196,6 +202,7 @@ def main():
     dp.add_handler(CommandHandler('funny', funny))
     dp.add_handler(CommandHandler('reddit', reddit))
     dp.add_handler(CommandHandler('comic', comic))
+    dp.add_handler(CommandHandler('moizeit', food))
     dp.add_handler(CommandHandler('help', help))
     daily_handler = CommandHandler('start', daily_timer, pass_job_queue=True)
     dp.add_handler(daily_handler)
@@ -301,6 +308,7 @@ def help(bot, update):
 /meme - Schickt a random meme. 🧙‍♂️
 /reddit - Wennsd an subreddit angibst schick i da ans vo die top 30 hot bilder oder videos. 😎 als 2. parameter kanns an index angeben.
 /funny - i schick da funny reddit submissions. 👌
+/moizeit - Wos heid in Hagenberg zum fuadan gibt
 /start - Bot starten (Täglicher Vorlesungs-Reminder)"""
     if not (has_rights(update)):
         return
