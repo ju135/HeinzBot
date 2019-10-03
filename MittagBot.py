@@ -1,5 +1,6 @@
 import json
 import requests
+import telegram
 from APIKeyReader import read_key
 
 base_url = "https://www.mittag.at/"
@@ -20,12 +21,12 @@ def receive_menue(bot, update):
     for singleRestaurant in menue_data["menus"]:
         # just select campina, nsquare and gasthaus-lamplmair
         if (singleRestaurant["restaurant"]["id"] == "campina") or (singleRestaurant["restaurant"]["id"] == "nsquare") or (singleRestaurant["restaurant"]["id"] == "gasthaus-lamplmair"):
-            replyText += ("*" + singleRestaurant["restaurant"]["name"] + ":*")
-            replyText += (singleRestaurant["menu"])
+            replyText += ("*" + singleRestaurant["restaurant"]["name"] + ":*\n")
+            replyText += (singleRestaurant["menu"] + "\n")
             if("prices" in singleRestaurant["restaurant"]):
-                replyText += ("\n_Preise laut mittag.at:_")
+                replyText += "\n_Preise laut mittag.at:_\n"
                 for price in singleRestaurant["restaurant"]["prices"]:
-                    replyText += (price["description"] + ": " + str("{0:.2f}".format(price["price"])) + "€")
+                    replyText += (price["description"] + ": " + str("{0:.2f}".format(price["price"])) + "€\n")
             replyText += "\n"
 
     chat_id = update.message.chat_id
