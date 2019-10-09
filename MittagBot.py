@@ -5,6 +5,7 @@ from APIKeyReader import read_key
 
 base_url = "https://www.mittag.at/"
 
+
 def receive_menue(bot, update):
     access_token = get_access_token()
     # defining address of campina to show up first
@@ -20,10 +21,12 @@ def receive_menue(bot, update):
 
     for singleRestaurant in menue_data["menus"]:
         # just select campina, nsquare and gasthaus-lamplmair
-        if (singleRestaurant["restaurant"]["id"] == "campina") or (singleRestaurant["restaurant"]["id"] == "nsquare") or (singleRestaurant["restaurant"]["id"] == "gasthaus-lamplmair"):
+        if (singleRestaurant["restaurant"]["id"] == "campina") or (
+                singleRestaurant["restaurant"]["id"] == "nsquare") or (
+                singleRestaurant["restaurant"]["id"] == "gasthaus-lamplmair"):
             replyText += ("*" + singleRestaurant["restaurant"]["name"] + ":*\n")
             replyText += (singleRestaurant["menu"] + "\n")
-            if("prices" in singleRestaurant["restaurant"]):
+            if ("prices" in singleRestaurant["restaurant"]):
                 replyText += "\n_Preise laut mittag.at:_\n"
                 for price in singleRestaurant["restaurant"]["prices"]:
                     replyText += (price["description"] + ": " + str("{0:.2f}".format(price["price"])) + "€\n")
@@ -35,19 +38,20 @@ def receive_menue(bot, update):
 
     bot.send_message(chat_id=chat_id, text=replyText, parse_mode=telegram.ParseMode.MARKDOWN)
 
+
 def add_standard_meals(text):
-    standard_meals = """Lavinya Pizzeria & Kebap
-                        Kebap: 4€
-                        Dürüm: 4.50€
-                        Pizzen von 6-8€
-                        Bei Abholung billiger!
+    standard_meals = """*Lavinya Pizzeria & Kebap*
+Kebap: 4€
+Dürüm: 4,50€
+Pizzen von 6-8€
+Bei Abholung billiger!
                         
-                        Restaurant Sonne Mittagsbuffet
-                        von 11:30 - 14:00
-                        Preis: 8.50€
-                        """
+*Restaurant Sonne Mittagsbuffet*
+von 11:30 - 14:00
+Preis: 8,50€"""
     text += "\n" + standard_meals
     return text
+
 
 def get_access_token() -> str:
     authorization_payload = {'client_id': read_key("mittag_client_id"),
