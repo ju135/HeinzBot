@@ -40,15 +40,15 @@ def receive_menue(bot, update):
 
 
 def add_standard_meals(text):
-    standard_meals = """Lavinya Pizzeria & Kebap
+    standard_meals = """*Lavinya Pizzeria & Kebap*
 Kebap: 4€
-Dürüm: 4.50€
+Dürüm: 4,50€
 Pizzen von 6-8€
 Bei Abholung billiger!
                         
-Restaurant Sonne Mittagsbuffet
+*Restaurant Sonne Mittagsbuffet*
 von 11:30 - 14:00
-Preis: 8.50€"""
+Preis: 8,50€"""
     text += "\n" + standard_meals
     return text
 
