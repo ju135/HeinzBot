@@ -1,0 +1,6 @@
+{
+  "LetMeGoogleBot": {
+    "enabled": true,
+    "command": "google"
+  }
+}
