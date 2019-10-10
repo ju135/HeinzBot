@@ -12,14 +12,17 @@ def create_google_request(bot, update):
     query3 = get_command_parameter("/ddg", update)
 
     if query1 is not None:
+        query1 = query1.replace(" ", "+")
         chat_id = update.message.chat_id
         bot.send_message(chat_id=chat_id, text=base_url + "?q=" + query1)
 
     if query2 is not None:
+        query2 = query2.replace(" ", "+")
         chat_id = update.message.chat_id
         bot.send_message(chat_id=chat_id, text=base_url + "?q=" + query2 + "&s=y&t=w")
 
     if query3 is not None:
+        query3 = query3.replace(" ", "+")
         chat_id = update.message.chat_id
         bot.send_message(chat_id=chat_id, text=base_url + "?q=" + query3 + "&s=d&t=w")
 
