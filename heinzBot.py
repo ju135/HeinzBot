@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import datetime
+import json
 import random
+import inspect
 
 from telegram import ChatAction, InlineQueryResultArticle, InputTextMessageContent, Sticker
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
@@ -19,11 +21,14 @@ from CalenderRead import send_day_ended_sticker
 from RedditBot import send_funny_submission, send_subreddit_submission
 from CommicBot import receive_comic, send_comic_if_new
 from MittagBot import receive_menue
+from Modules.LetMeGoogleBot import create_google_request
 
 import requests
 import logging
 
 mutedAccounts = list()
+configFile = "config.json"
+modules = []
 
 
 def has_rights(update):
@@ -73,6 +78,13 @@ def rule34(bot, update):
     fetch_porn(bot, update)
 
 
+# LetMeGoogleThatBot
+def google(bot, update):
+    if not (has_rights(update)):
+        return
+    create_google_request(bot, update)
+
+
 @send_photo_action
 def meme(bot, update):
     if not (has_rights(update)):
@@ -103,6 +115,7 @@ def get_news(bot, update):
     if not (has_rights(update)):
         return
     get_newest_news(bot, update)
+
 
 def food(bot, update):
     if not (has_rights(update)):
@@ -177,9 +190,28 @@ def daily_timer(bot, update, job_queue):
     job_queue.run_daily(daily_appointment, time_morning, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
                         name="Daily_Appointment")
     time_ten = datetime.time(10, 0, 0, 0)
-    job_queue.run_daily(daily_quote, time_ten, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id, name="Daily_Quote")
+    job_queue.run_daily(daily_quote, time_ten, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
+                        name="Daily_Quote")
     time_twelve = datetime.time(hour=12, minute=00, second=0)
-    job_queue.run_daily(daily_comic, time_twelve, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id, name="Daily_Comic")
+    job_queue.run_daily(daily_comic, time_twelve, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
+                        name="Daily_Comic")
+
+
+def read_config():
+    f = open(configFile, "r")
+    modules = json.load(f)
+    for module in modules:
+        data = modules[module]
+        if data["enabled"]:
+            modules[data["command"]] = True
+            load_module(module)
+
+
+def load_module(name):
+    path = "Modules." + name
+    module = __import__(name=path)
+
+    pass
 
 
 def main():
@@ -204,6 +236,12 @@ def main():
     dp.add_handler(CommandHandler('comic', comic))
     dp.add_handler(CommandHandler('moizeit', food))
     dp.add_handler(CommandHandler('help', help))
+    dp.add_handler(CommandHandler('google', google))
+    dp.add_handler(CommandHandler('ya', google))
+    dp.add_handler(CommandHandler('ddg', google))
+
+    #read_config()
+
     daily_handler = CommandHandler('start', daily_timer, pass_job_queue=True)
     dp.add_handler(daily_handler)
     inline_caps_handler = InlineQueryHandler(inline_caps)
