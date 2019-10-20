@@ -79,6 +79,45 @@ def get_random_free_text() -> str:
         "Schenan FH-freien tog wünsch i eich."
     ])
 
+def get_random_coffee_starter() -> str:
+    return get_random_string([
+        "En $ gustats nach am Kaffee!",
+        "$ hätte Appettit auf ein koffeeinhaltiges Heißgetränk.",
+        "Zahts wen Kaffee? $ frogat.",
+        "Die Bohnen rufen! Frogts en $, dea hods a ghead!",
+        "Covfefe! ☕",
+        "Er wärmt von innen, er wärmt von außen, er sozialisiert alle Studenten da draußen. $ dad a Kaffee zahn!",
+        "☕? $ frogt."
+    ])
+
+ends = {
+    "host": 
+        ["Wie wads mid TOP $?",
+        "Treff ma uns in TOP $?",
+        "Er gabat an aus in TOP $.",
+        "Hört hört, der Veranstaltungsort beläuft sich auf TOP № $.",
+        "Irgendwie ziagts mi zu $.",
+        '''Heads ia des? I glaub es is Halloween. Do hea i a paar Geister rufen, "Kuuuuumds zu $!". Es a?''',
+        "I glaub d'Kaffeemaschin' in TOP $ rennd scho.",
+        "De Kaffeemaschin' aus TOP $ hea i bis do auffa, i glaub do gibts boid an.",
+        "Trompeter bitte indn Partyraum. Kaffeetrinker bitte in TOP $."],
+    "other":
+        ["Gibts in dem Haus irgendwo Kaffeemaschinen?",
+        "Zahts wen hosten?",
+        "GET /coffeeLocation.html HTTP/1.1\nServer: Du?",
+        "Wo soin ma?",
+        "Hod wea an Kaffee fia de armen Studenten?"],
+    "FH":
+        ["Ob en Julian sei Chip nu wos draufhat?",
+        "Hod da Julian zufällig sein Chip aufgladn?",
+        "Wo is do da nächste Automat in da FH?",
+        "Man lasset die FH-Plastikbecher klingen.",
+        "A irish coffee in da FH wad a wos. Is do eig Rum drin?"
+        ]
+}
+def get_random_coffee_end(type) -> str:
+    return get_random_string(ends[type])
+
 
 def get_random_string(l: [str]) -> str:
     return l[random.randint(0, len(l)-1)]
