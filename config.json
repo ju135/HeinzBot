@@ -1,6 +1,11 @@
 {
   "LetMeGoogleBot": {
-    "enabled": true,
-    "command": "google"
+    "enabled": true
+  },
+  "SpoontacularBot": {
+    "enabled": true
+  },
+  "DefaultModule": {
+    "enabled": true
   }
 }

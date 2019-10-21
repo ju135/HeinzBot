@@ -1,36 +1,41 @@
 import json
 import requests
 import telegram
+from telegram.ext import CommandHandler
+from Modules.DefaultModule import DefaultModule
+
 from APIKeyReader import read_key
 
 base_url = "https://de.lmgtfy.com/"
 
 
-def create_google_request(bot, update):
-    query1 = get_command_parameter("/google", update)
-    query2 = get_command_parameter("/ya", update)
-    query3 = get_command_parameter("/ddg", update)
+class LetMeGoogleBot(DefaultModule):
+    def add_command(self, dp):
+        instance = LetMeGoogleBot()
+        dp.add_handler(CommandHandler('google', instance.create_google_request))
+        dp.add_handler(CommandHandler('ya', instance.create_google_request))
+        dp.add_handler(CommandHandler('ddg', instance.create_google_request))
+        return dp
 
-    if query1 is not None:
-        query1 = query1.replace(" ", "+")
-        chat_id = update.message.chat_id
-        bot.send_message(chat_id=chat_id, text=base_url + "?q=" + query1)
+    def create_google_request(self, bot, update):
+        if not self.has_rights(update):
+            return
 
-    if query2 is not None:
-        query2 = query2.replace(" ", "+")
-        chat_id = update.message.chat_id
-        bot.send_message(chat_id=chat_id, text=base_url + "?q=" + query2 + "&s=y&t=w")
+        query1 = self.get_command_parameter("/google", update)
+        query2 = self.get_command_parameter("/ya", update)
+        query3 = self.get_command_parameter("/ddg", update)
 
-    if query3 is not None:
-        query3 = query3.replace(" ", "+")
-        chat_id = update.message.chat_id
-        bot.send_message(chat_id=chat_id, text=base_url + "?q=" + query3 + "&s=d&t=w")
+        if query1 is not None:
+            query1 = query1.replace(" ", "+")
+            chat_id = update.message.chat_id
+            bot.send_message(chat_id=chat_id, text=base_url + "?q=" + query1)
 
+        if query2 is not None:
+            query2 = query2.replace(" ", "+")
+            chat_id = update.message.chat_id
+            bot.send_message(chat_id=chat_id, text=base_url + "?q=" + query2 + "&s=y&t=w")
 
-def get_command_parameter(command: str, update) -> str:
-    text = update.message.text
-    b = update.message.bot.name
-    if text.startswith(command + " "):
-        return text[len(command) + 1:]
-    if text.startswith(command + b + " "):
-        return text[len(command + b) + 1:]
+        if query3 is not None:
+            query3 = query3.replace(" ", "+")
+            chat_id = update.message.chat_id
+            bot.send_message(chat_id=chat_id, text=base_url + "?q=" + query3 + "&s=d&t=w")
