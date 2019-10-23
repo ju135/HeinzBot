@@ -21,7 +21,6 @@ from CalenderRead import send_day_ended_sticker
 from RedditBot import send_funny_submission, send_subreddit_submission
 from CommicBot import receive_comic, send_comic_if_new
 from MittagBot import receive_menue
-from Modules.LetMeGoogleBot import create_google_request
 from Modules.CoffeeBot import sendCoffeeInvitation, sendCoffeeLocation
 from constants.members import getTOP, getName
 
