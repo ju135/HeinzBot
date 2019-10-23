@@ -79,19 +79,12 @@ def rule34(bot, update):
         return
     fetch_porn(bot, update)
 
-
-# LetMeGoogleThatBot
-def google(bot, update):
-    if not (has_rights(update)):
-        return
-    create_google_request(bot, update)
-
-
 # CoffeeBot
 def coffee(bot, update):
     if not (has_rights(update)):
         return
     sendCoffeeInvitation(bot, update)
+
 
 
 @send_photo_action
@@ -206,21 +199,24 @@ def daily_timer(bot, update, job_queue):
                         name="Daily_Comic")
 
 
-def read_config():
+
+def read_config(dp):
     f = open(configFile, "r")
     modules = json.load(f)
     for module in modules:
         data = modules[module]
         if data["enabled"]:
-            modules[data["command"]] = True
-            load_module(module)
+            load_module(module, dp)
 
 
-def load_module(name):
+def load_module(name, dp):
     path = "Modules." + name
-    module = __import__(name=path)
+    imported = __import__(name=path)
+    module = getattr(imported, name)
 
-    pass
+    # add Commands to dispatcher
+    clazz = getattr(module, name)
+    command = getattr(clazz, "add_command")(clazz, dp)
 
 
 def main():
@@ -231,7 +227,7 @@ def main():
     dp.add_handler(CommandHandler('image', image))
     dp.add_handler(CommandHandler('gif', gif))
     dp.add_handler(CommandHandler('yt', yt))
-    dp.add_handler(CommandHandler('mute', mute))
+    # dp.add_handler(CommandHandler('mute', mute))
     dp.add_handler(CommandHandler('who', who_is_muted))
     dp.add_handler(CommandHandler('cat', cat))
     dp.add_handler(CommandHandler('rule34', rule34))
@@ -245,13 +241,10 @@ def main():
     dp.add_handler(CommandHandler('comic', comic))
     dp.add_handler(CommandHandler('moizeit', food))
     dp.add_handler(CommandHandler('help', help))
-    dp.add_handler(CommandHandler('google', google))
-    dp.add_handler(CommandHandler('ya', google))
-    dp.add_handler(CommandHandler('ddg', google))
+
+    read_config(dp)
     dp.add_handler(CommandHandler("coffee", coffee))
     dp.add_handler(CallbackQueryHandler(sendCoffeeLocation))
-
-    #read_config()
 
     daily_handler = CommandHandler('start', daily_timer, pass_job_queue=True)
     dp.add_handler(daily_handler)
@@ -288,7 +281,7 @@ def who_is_muted(bot, update):
 
 
 def mute(bot, update):
-    if update.message.from_user.username == "jajules":
+    if update.message.from_user.username == "jajules" or True is True:
         person = update.message.text.replace('/mute ', '')
         bot.send_message(chat_id=update.message.chat_id,
                          text=(person + ' wird gemutet!'))
