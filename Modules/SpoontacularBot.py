@@ -27,7 +27,7 @@ class SpoontacularBot(DefaultModule):
 
         for recipe in jsonData['recipes']:
             response += "*" + recipe['title'] + "*" + "\n"
-            response += recipe['spoonacularSourceUrl'] + "\n"
+            response += recipe['sourceUrl'] + "\n"
             response += "\n"
 
         bot.send_message(chat_id=chat_id, text=response, parse_mode=telegram.ParseMode.MARKDOWN)
