@@ -6,7 +6,7 @@ import random
 import inspect
 
 from telegram import ChatAction, InlineQueryResultArticle, InputTextMessageContent, Sticker
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackQueryHandler
 from CalenderRead import send_first_appointment_of_day, setup_day_ended
 from RandomText import get_random_ask_answer, get_random_quote_text, get_random_free_text
 from GoogleSearch import get_image, get_gif, get_youtube
@@ -21,6 +21,9 @@ from CalenderRead import send_day_ended_sticker
 from RedditBot import send_funny_submission, send_subreddit_submission
 from CommicBot import receive_comic, send_comic_if_new
 from MittagBot import receive_menue
+from Modules.LetMeGoogleBot import create_google_request
+from Modules.CoffeeBot import sendCoffeeInvitation, sendCoffeeLocation
+from constants.members import getTOP, getName
 
 import requests
 import logging
@@ -76,12 +79,12 @@ def rule34(bot, update):
         return
     fetch_porn(bot, update)
 
-
-# LetMeGoogleThatBot
-def google(bot, update):
+# CoffeeBot
+def coffee(bot, update):
     if not (has_rights(update)):
         return
-    # create_google_request(bot, update)
+    sendCoffeeInvitation(bot, update)
+
 
 
 @send_photo_action
@@ -196,6 +199,7 @@ def daily_timer(bot, update, job_queue):
                         name="Daily_Comic")
 
 
+
 def read_config(dp):
     f = open(configFile, "r")
     modules = json.load(f)
@@ -239,6 +243,8 @@ def main():
     dp.add_handler(CommandHandler('help', help))
 
     read_config(dp)
+    dp.add_handler(CommandHandler("coffee", coffee))
+    dp.add_handler(CallbackQueryHandler(sendCoffeeLocation))
 
     daily_handler = CommandHandler('start', daily_timer, pass_job_queue=True)
     dp.add_handler(daily_handler)
@@ -344,7 +350,12 @@ def help(bot, update):
 /meme - Schickt a random meme. 🧙‍♂️
 /reddit - Wennsd an subreddit angibst schick i da ans vo die top 30 hot bilder oder videos. 😎 als 2. parameter kanns an index angeben.
 /funny - i schick da funny reddit submissions. 👌
+/comic - do schick i da an comic. 😉
 /moizeit - Wos heid in Hagenberg zum fuadan gibt
+/coffee - lädt zu einem Kaffee ein. ☕
+/google - Wenn wieder mol wer zfaul zum Googlen is..  😌
+/ddg - I suach für die auf DuckDuckGo.
+/ya - Let me yahoo that for you.
 /start - Bot starten (Täglicher Vorlesungs-Reminder)"""
     if not (has_rights(update)):
         return

@@ -3,7 +3,6 @@ import requests
 import telegram
 from telegram.ext import CommandHandler
 from Modules.DefaultModule import DefaultModule
-
 from APIKeyReader import read_key
 
 base_url = "https://de.lmgtfy.com/"
@@ -39,3 +38,4 @@ class LetMeGoogleBot(DefaultModule):
             query3 = query3.replace(" ", "+")
             chat_id = update.message.chat_id
             bot.send_message(chat_id=chat_id, text=base_url + "?q=" + query3 + "&s=d&t=w")
+
