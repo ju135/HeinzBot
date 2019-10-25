@@ -180,7 +180,8 @@ def daily_comic(bot, job):
 
 
 def daily_timer(bot, update, job_queue):
-    if job_queue.get_jobs_by_name("Daily_Quote"):
+    chat_id=str(update.message.chat_id)
+    if job_queue.get_jobs_by_name("Daily_Quote"+chat_id):
         bot.send_message(chat_id=update.message.chat_id,
                          text='Da bot laft eh scho.')
         return
@@ -189,13 +190,13 @@ def daily_timer(bot, update, job_queue):
 
     time_morning = datetime.time(8, 15, 0, 0)
     job_queue.run_daily(daily_appointment, time_morning, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
-                        name="Daily_Appointment")
+                        name="Daily_Appointment"+chat_id)
     time_ten = datetime.time(10, 0, 0, 0)
     job_queue.run_daily(daily_quote, time_ten, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
-                        name="Daily_Quote")
+                        name="Daily_Quote"+chat_id)
     time_twelve = datetime.time(hour=12, minute=00, second=0)
     job_queue.run_daily(daily_comic, time_twelve, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
-                        name="Daily_Comic")
+                        name="Daily_Comic"+chat_id)
 
 
 
