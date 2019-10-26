@@ -1,9 +1,12 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 from constants.members import getName, getTOP
 from RandomText import get_random_coffee_starter, get_random_coffee_end
 
+currentUpdate = None # the current invitation we are editing
 
+
+# sends a coffee invitation with inline keyboard
 def sendCoffeeInvitation(bot, update):
     userid = update.message.from_user.id
     name = getName(userid)
@@ -14,26 +17,36 @@ def sendCoffeeInvitation(bot, update):
         InlineKeyboardButton("wo anders", callback_data=str("other")),
         InlineKeyboardButton("FH", callback_data=str("FH"))]
     ]
-    replyMarkup = InlineKeyboardMarkup(keyboard)
+    markup = InlineKeyboardMarkup(keyboard)
 
     firstText = get_random_coffee_starter().replace("$", name)
-    update.message.reply_text(firstText, reply_markup=replyMarkup)
+    update.message.reply_text(firstText, reply_markup=markup)
+    global currentUpdate # set the current update users will reply to
+    currentUpdate = update
 
 
+# will send a variety of coffee stickers
 def sendCoffeeSticker(bot, update):
     #chatid = update.message.chat.id
     pass
 
 
+"""called when a location button in the inline keyboard was clicked,
+will update the message with the location"""
 def sendCoffeeLocation(bot, update):
     query = update.callback_query
-    userid = query.from_user.id
-    text = query.message.text
-    text += "\n\n"
+    clickingUserID = query.from_user.id
 
-    end = get_random_coffee_end(query.data)
-    if query.data == "host":
-        end = end.replace("$", str(getTOP(userid)))
-    text += end
+    if currentUpdate == None or clickingUserID == currentUpdate.message.from_user.id:
+        text = query.message.text   
+        text += "\n\n"
 
-    query.edit_message_text(text=text)
+        end = get_random_coffee_end(query.data)
+        if query.data == "host": # if hosting, fill in the name, too.
+            end = end.replace("$", str(getTOP(clickingUserID)))
+        text += end
+
+        query.edit_message_text(text=text)
+    else:
+        bot.send_message(chat_id=currentUpdate.message.chat.id,
+                         text="Herst {}, hab i mid dia gredt?".format(getName(clickingUserID)))
