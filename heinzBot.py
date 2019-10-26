@@ -21,7 +21,6 @@ from CalenderRead import send_day_ended_sticker
 from RedditBot import send_funny_submission, send_subreddit_submission
 from CommicBot import receive_comic, send_comic_if_new
 from MittagBot import receive_menue
-from Modules.LetMeGoogleBot import create_google_request
 from Modules.CoffeeBot import sendCoffeeInvitation, sendCoffeeLocation
 from constants.members import getTOP, getName
 
@@ -79,19 +78,12 @@ def rule34(bot, update):
         return
     fetch_porn(bot, update)
 
-
-# LetMeGoogleThatBot
-def google(bot, update):
-    if not (has_rights(update)):
-        return
-    create_google_request(bot, update)
-
-
 # CoffeeBot
 def coffee(bot, update):
     if not (has_rights(update)):
         return
     sendCoffeeInvitation(bot, update)
+
 
 
 @send_photo_action
@@ -188,7 +180,8 @@ def daily_comic(bot, job):
 
 
 def daily_timer(bot, update, job_queue):
-    if job_queue.get_jobs_by_name("Daily_Quote"):
+    chat_id=str(update.message.chat_id)
+    if job_queue.get_jobs_by_name("Daily_Quote"+chat_id):
         bot.send_message(chat_id=update.message.chat_id,
                          text='Da bot laft eh scho.')
         return
@@ -197,30 +190,33 @@ def daily_timer(bot, update, job_queue):
 
     time_morning = datetime.time(8, 15, 0, 0)
     job_queue.run_daily(daily_appointment, time_morning, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
-                        name="Daily_Appointment")
+                        name="Daily_Appointment"+chat_id)
     time_ten = datetime.time(10, 0, 0, 0)
     job_queue.run_daily(daily_quote, time_ten, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
-                        name="Daily_Quote")
+                        name="Daily_Quote"+chat_id)
     time_twelve = datetime.time(hour=12, minute=00, second=0)
     job_queue.run_daily(daily_comic, time_twelve, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
-                        name="Daily_Comic")
+                        name="Daily_Comic"+chat_id)
 
 
-def read_config():
+
+def read_config(dp):
     f = open(configFile, "r")
     modules = json.load(f)
     for module in modules:
         data = modules[module]
         if data["enabled"]:
-            modules[data["command"]] = True
-            load_module(module)
+            load_module(module, dp)
 
 
-def load_module(name):
+def load_module(name, dp):
     path = "Modules." + name
-    module = __import__(name=path)
+    imported = __import__(name=path)
+    module = getattr(imported, name)
 
-    pass
+    # add Commands to dispatcher
+    clazz = getattr(module, name)
+    command = getattr(clazz, "add_command")(clazz, dp)
 
 
 def main():
@@ -231,7 +227,7 @@ def main():
     dp.add_handler(CommandHandler('image', image))
     dp.add_handler(CommandHandler('gif', gif))
     dp.add_handler(CommandHandler('yt', yt))
-    dp.add_handler(CommandHandler('mute', mute))
+    # dp.add_handler(CommandHandler('mute', mute))
     dp.add_handler(CommandHandler('who', who_is_muted))
     dp.add_handler(CommandHandler('cat', cat))
     dp.add_handler(CommandHandler('rule34', rule34))
@@ -245,13 +241,10 @@ def main():
     dp.add_handler(CommandHandler('comic', comic))
     dp.add_handler(CommandHandler('moizeit', food))
     dp.add_handler(CommandHandler('help', help))
-    dp.add_handler(CommandHandler('google', google))
-    dp.add_handler(CommandHandler('ya', google))
-    dp.add_handler(CommandHandler('ddg', google))
+
+    read_config(dp)
     dp.add_handler(CommandHandler("coffee", coffee))
     dp.add_handler(CallbackQueryHandler(sendCoffeeLocation))
-
-    #read_config()
 
     daily_handler = CommandHandler('start', daily_timer, pass_job_queue=True)
     dp.add_handler(daily_handler)
@@ -288,7 +281,7 @@ def who_is_muted(bot, update):
 
 
 def mute(bot, update):
-    if update.message.from_user.username == "jajules":
+    if update.message.from_user.username == "jajules" or True is True:
         person = update.message.text.replace('/mute ', '')
         bot.send_message(chat_id=update.message.chat_id,
                          text=(person + ' wird gemutet!'))
