@@ -24,6 +24,9 @@ def send_subreddit_submission(bot, update):
         if submission.is_video:
             print(submission.media['reddit_video']['fallback_url'])
             send_video(bot, update, submission.media['reddit_video']['fallback_url'], submission.title)
+        elif get_external_video_link(submission) is not None:
+            link = get_external_video_link(submission)
+            send_video(bot, update, link, submission.title)
         else:
             send_photo(bot, chat_id, submission.url, submission.title)
 
@@ -54,6 +57,8 @@ def get_submission_for_subreddit(subreddit_name, limit, index):
                 submissionlist.append(submission)
             if hasattr(submission, "is_video") and submission.is_video:
                 submissionlist.append(submission)
+            if get_external_video_link(submission) is not None:
+                submissionlist.append(submission)
     except:
         return None
 
@@ -63,6 +68,13 @@ def get_submission_for_subreddit(subreddit_name, limit, index):
     if index is None or index > len(submissionlist)-1:
         index = random.randint(0, len(submissionlist) - 1)
     return submissionlist[index]
+
+
+def get_external_video_link(submission):
+    if hasattr(submission, "post_hint") and hasattr(submission, "preview") \
+            and "reddit_video_preview" in submission.preview and "fallback_url" in submission.preview["reddit_video_preview"]:
+        return submission.preview["reddit_video_preview"]["fallback_url"]
+    return None
 
 
 def send_video(bot, update, url, caption):
