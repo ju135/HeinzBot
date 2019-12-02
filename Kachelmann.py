@@ -23,8 +23,8 @@ regionen = {
     "RI":   "ried-im-innkreis",
     "RO":   "rohrbach-im-muehlkreis",
     "SD":   "schaerding",
-    "SE":   "steyr",
-    "SR":   "steyr-land",
+    "SR":   "steyr",
+    "SE":   "steyr-land",
     "UU":   "urfahr-umgebung",
     "VB":   "voecklabruck",
     "WE":   "wels",
@@ -48,6 +48,11 @@ def radar(bot, update):
     if not query:
         update.message.reply_text("Parameter angeben bitte! Mögliche Regionen:\n" + ", ".join(regionen.keys()))
         return
+    try:
+        location = regionen[query.upper()]
+    except KeyError:
+        update.message.reply_text("De Region kenn i ned 🙄")
+        return
 
     time = datetime.datetime.utcnow()
     diff = time.minute % 5
@@ -55,7 +60,7 @@ def radar(bot, update):
 
     timestring = time.strftime("%Y%m%d-%H%M")
 
-    url = "https://kachelmannwetter.com/at/regenradar/freistadt/{}z.html".format(timestring)
+    url = "https://kachelmannwetter.com/at/regenradar/{}/{}z.html".format(location, timestring)
     header = {
         'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64)"
     }
