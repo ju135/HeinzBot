@@ -25,7 +25,7 @@ def receive_menue(bot, update):
                 singleRestaurant["restaurant"]["id"] == "nsquare") or (
                 singleRestaurant["restaurant"]["id"] == "gasthaus-lamplmair"):
             replyText += ("*" + singleRestaurant["restaurant"]["name"] + ":*\n")
-            replyText += (singleRestaurant["menu"] + "\n")
+            replyText += (singleRestaurant["menu"] + "\----------\n")
             if ("prices" in singleRestaurant["restaurant"]):
                 replyText += "\n_Preise laut mittag.at:_\n"
                 for price in singleRestaurant["restaurant"]["prices"]:
@@ -45,7 +45,7 @@ Kebap: 4€
 Dürüm: 4,50€
 Pizzen von 6-8€
 Bei Abholung billiger!
-                        
+\----------
 *Restaurant Sonne Mittagsbuffet*
 von 11:30 - 14:00
 Preis: 8,50€"""
