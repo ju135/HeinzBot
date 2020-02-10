@@ -14,7 +14,10 @@ An implementation of a Telegram Bot with the following capabilities:
   * daily check for new XKCD comics.
 * Sends the daily menue of good restaurants in hagenberg.
 * Can invite colleagues for coffee at multiple locations.
-* Can show a rainfall radar for the selected region.
+* Can show a a variety of weather information for the selected region:
+  * Rain radar
+  * Strom tracking
+  * Wind gusts and average
 
 
 ## Used APIs

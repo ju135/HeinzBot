@@ -351,8 +351,9 @@ def help(bot, update):
 /comic - do schick i da an comic. 😉
 /moizeit - Wos heid in Hagenberg zum fuadan gibt
 /coffee - lädt zu einem Kaffee ein. ☕
-/radar - zagt a Niederschlagsradar für de angegebene Region"
-/tracking - zagt des Sturmtracking für de angegebene Region"
+/radar - zagt a Niederschlagsradar für de angegebene Region
+/tracking - zagt des Sturmtracking für de angegebene Region
+/wind - zagt Windböen oder Mittelwind für de angegebene Region
 /google - Wenn wieder mol wer zfaul zum Googlen is..  😌
 /ddg - I suach für die auf DuckDuckGo.
 /ya - Let me yahoo that for you.
