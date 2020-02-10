@@ -1,5 +1,9 @@
 from telegram.ext import CommandHandler
 
+from bs4 import BeautifulSoup
+import urllib.request
+from urllib.request import urlopen
+
 
 class DefaultModule():
     mutedAccounts = list()
@@ -35,3 +39,9 @@ class DefaultModule():
             return text[len(command) + 1:]
         if text.startswith(command + b + " "):
             return text[len(command + b) + 1:]
+
+    def get_soup(self, url, header):
+        req = urllib.request.Request(url, headers=header)
+        openurl = urlopen(req)
+        soup = BeautifulSoup(openurl, "html.parser")
+        return soup
