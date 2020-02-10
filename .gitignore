@@ -11,6 +11,7 @@ api-keys.json
 
 ### VSCode ###
 .vscode/settings.json
+.vscode/launch.json
 
 ### PyCharm ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
