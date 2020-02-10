@@ -21,7 +21,7 @@ from CalenderRead import send_day_ended_sticker
 from RedditBot import send_funny_submission, send_subreddit_submission
 from CommicBot import receive_comic, send_comic_if_new
 from MittagBot import receive_menue
-from Kachelmann import radar
+#from Kachelmann import radar, tracking
 from Modules.CoffeeBot import sendCoffeeInvitation, sendCoffeeLocation
 from constants.members import getTOP, getName
 
@@ -86,12 +86,17 @@ def coffee(bot, update):
     sendCoffeeInvitation(bot, update)
 
 # WetterBot
-@send_photo_action
-def send_radar(bot, update):
-    if not (has_rights(update)):
-        return
-    radar(bot, update)
+# @send_photo_action
+# def send_radar(bot, update):
+#     if not (has_rights(update)):
+#         return
+#     radar(bot, update)
 
+# @send_photo_action
+# def send_tracking(bot, update):
+#     if not (has_rights(update)):
+#         return
+#     tracking(bot, update)
 
 @send_photo_action
 def meme(bot, update):
@@ -247,7 +252,8 @@ def main():
     dp.add_handler(CommandHandler('reddit', reddit))
     dp.add_handler(CommandHandler('comic', comic))
     dp.add_handler(CommandHandler('moizeit', food))
-    dp.add_handler(CommandHandler('radar', send_radar))
+    #dp.add_handler(CommandHandler('radar', send_radar))
+    #dp.add_handler(CommandHandler('tracking', send_tracking))
     dp.add_handler(CommandHandler('help', help))
 
     read_config(dp)
@@ -362,6 +368,7 @@ def help(bot, update):
 /moizeit - Wos heid in Hagenberg zum fuadan gibt
 /coffee - lädt zu einem Kaffee ein. ☕
 /radar - zagt a Niederschlagsradar für de angegebene Region"
+/tracking - zagt des Sturmtracking für de angegebene Region"
 /google - Wenn wieder mol wer zfaul zum Googlen is..  😌
 /ddg - I suach für die auf DuckDuckGo.
 /ya - Let me yahoo that for you.

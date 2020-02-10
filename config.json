@@ -5,6 +5,9 @@
   "SpoontacularBot": {
     "enabled": true
   },
+  "KachelmannBot": {
+    "enabled": true
+  },
   "DefaultModule": {
     "enabled": true
   }

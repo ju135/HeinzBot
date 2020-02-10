@@ -47,34 +47,82 @@ regionen = {
 }
 
 
-def radar(bot, update):
-    global regionen
-    query = get_command_parameter("/radar", update)
-    if not query:
-        update.message.reply_text("Parameter angeben bitte! Mögliche Regionen:\n" + ", ".join(regionen.keys()))
-        return
-    try:
-        location = regionen[query.upper()]
-    except KeyError:
-        update.message.reply_text("De Region kenn i ned 🙄")
-        return
-
+def get5MinTime():
     time = datetime.datetime.utcnow()
     diff = time.minute % 5
     time = time - datetime.timedelta(minutes=diff)
 
     timestring = time.strftime("%Y%m%d-%H%M")
+    return timestring
 
-    url = "https://kachelmannwetter.com/at/regenradar/{}/{}z.html".format(location, timestring)
+
+def getKachelmannImage(pageURL):
     header = {
         'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64)"
     }
-    soup = get_soup(url, header)
+    soup = get_soup(pageURL, header)
 
     imageurl = soup.find("meta", property="og:image")
     imageurl = imageurl["content"]
+    return imageurl
+
+
+def getRegion(queryText):
+    global regionen
+    location = ""
+    errorMessage = ""
+    if not queryText:
+        errorMessage = "Parameter angeben bitte! Mögliche Regionen:\n" + ", ".join(regionen.keys())
+        return (location, errorMessage)
+    try:
+        location = regionen[queryText.upper()]
+    except KeyError:
+        errorMessage = "De Region kenn i ned 🙄"
+        return (location, errorMessage)
+
+    return (location, errorMessage)
+
+
+def radar(bot, update):
+    queryText = get_command_parameter("/radar", update)
+
+    location, errorMessage = getRegion(queryText)
+    if errorMessage != "":
+        update.message.reply_text = errorMessage
+        return
+
+    # build page url
+    baseURL = "https://kachelmannwetter.com/at/regenradar"
+    timestring = get5MinTime()
+    pageURL = (baseURL + "/{}/{}z.html").format(location, timestring)
+
+    # get image
+    imageURL = getKachelmannImage(pageURL)
+
+    # send image
     chat_id = update.message.chat_id
-    bot.send_photo(chat_id=chat_id, photo=imageurl)
+    bot.send_photo(chat_id=chat_id, photo=imageURL)
+
+
+def tracking(bot, update):
+    queryText = get_command_parameter("/tracking", update)
+
+    location, errorMessage = getRegion(queryText)
+    if errorMessage != "":
+        update.message.reply_text = errorMessage
+        return
+
+    # build page url
+    baseURL = "https://kachelmannwetter.com/at/stormtracking"
+    timestring = get5MinTime()
+    pageURL = (baseURL + "/{}/blitze-radarhd/{}z.html").format(location, timestring)
+
+    # get image
+    imageURL = getKachelmannImage(pageURL)
+
+    # send image
+    chat_id = update.message.chat_id
+    bot.send_photo(chat_id=chat_id, photo=imageURL)
 
 
 def get_soup(url, header):
