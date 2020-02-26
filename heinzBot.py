@@ -279,7 +279,7 @@ def who_is_muted(bot, update):
 
 
 def mute(bot, update):
-    if update.message.from_user.username == "jajules" or True is True:
+    if update.message.from_user.username == "jajules":
         person = update.message.text.replace('/mute ', '')
         bot.send_message(chat_id=update.message.chat_id,
                          text=(person + ' wird gemutet!'))

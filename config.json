@@ -8,6 +8,9 @@
   "KachelmannBot": {
     "enabled": true
   },
+    "UrbanDictBot": {
+    "enabled": true
+  },
   "DefaultModule": {
     "enabled": true
   }
