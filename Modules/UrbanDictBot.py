@@ -15,7 +15,7 @@ def remove_brackets(text: str) -> str:
 def create_markdown_text(word: str, index: str, definition: str, example: str) -> str:
     # example formatting: *bold* _italic_ `fixed width font` [link](http://google.com).
     markdown_text = f"*{word}* _{index}_\n\n" \
-                    f"`{definition}`\n\n" \
+                    f"{definition}\n\n" \
                     f"Example: \n_{example}_"
 
     return markdown_text
