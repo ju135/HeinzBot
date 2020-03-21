@@ -3,7 +3,7 @@ import requests
 import urllib.request
 from urllib.request import urlopen
 from googleapiclient.discovery import build
-from APIKeyReader import read_key
+from api_key_reader import read_key
 import logging
 import json
 

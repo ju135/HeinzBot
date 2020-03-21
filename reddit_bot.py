@@ -1,8 +1,8 @@
 import random
 
 import praw
-from APIKeyReader import read_key
-from GoogleSearch import get_command_parameter
+from api_key_reader import read_key
+from google_search import get_command_parameter
 import telegram
 import logging
 

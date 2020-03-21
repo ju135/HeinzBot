@@ -1,7 +1,7 @@
 from ics import Calendar
 import datetime
 from datetime import datetime as d
-from APIKeyReader import read_key
+from api_key_reader import read_key
 from urllib.request import urlopen   # py3
 
 

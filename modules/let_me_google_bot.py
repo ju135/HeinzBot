@@ -4,10 +4,10 @@ from multiprocessing.reduction import register
 import requests
 import telegram
 from telegram.ext import CommandHandler
-from Modules.DefaultModule import DefaultModule
+from modules.default_module import DefaultModule
 
-from APIKeyReader import read_key
-from Utils.Decorators import register
+from api_key_reader import read_key
+from utils.decorators import register
 
 base_url = "https://de.lmgtfy.com/"
 

@@ -1,5 +1,5 @@
 import requests
-from GoogleSearch import get_command_parameter, percent_encoding
+from google_search import get_command_parameter, percent_encoding
 
 
 def receive_cat(bot, update):

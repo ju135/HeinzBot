@@ -3,9 +3,9 @@ from telegram.ext import CommandHandler
 import json
 import requests
 
-import APIKeyReader
+import api_key_reader
 
-from Modules.DefaultModule import DefaultModule
+from modules.default_module import DefaultModule
 
 
 class SpoontacularBot(DefaultModule):
@@ -18,7 +18,7 @@ class SpoontacularBot(DefaultModule):
 
     def random_receipt(self, bot, update):
         chat_id = update.message.chat_id
-        key = APIKeyReader.read_key("spoon")
+        key = api_key_reader.read_key("spoon")
         extender = "{}recipes/random?apiKey={}&number=4".format(self.url, key)
         data = requests.get(extender)
         jsonData = json.loads(data.text)

@@ -1,9 +1,9 @@
 import telegram
 from telegram.ext import CommandHandler
-from Modules.DefaultModule import DefaultModule
+from modules.default_module import DefaultModule
 import requests
 import json
-from APIKeyReader import read_key
+from api_key_reader import read_key
 
 url = "https://mashape-community-urban-dictionary.p.rapidapi.com/define"
 

@@ -1,9 +1,9 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from Constants.members import getName, getTOP
-from Utils.RandomText import get_random_string_of_messages_file
+from constants.members import getName, getTOP
+from utils.random_text import get_random_string_of_messages_file
 
 currentUpdate = None # the current invitation we are editing
-coffee_message_constants_file = "Constants/Messages/coffee_messages.json"
+coffee_message_constants_file = "constants/messages/coffee_messages.json"
 
 # sends a coffee invitation with inline keyboard
 def sendCoffeeInvitation(bot, update):

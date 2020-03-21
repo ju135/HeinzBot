@@ -4,9 +4,9 @@ import json
 import requests
 import datetime
 
-import APIKeyReader
+import api_key_reader
 
-from Modules.DefaultModule import DefaultModule
+from modules.default_module import DefaultModule
 
 
 class KachelmannBot(DefaultModule):

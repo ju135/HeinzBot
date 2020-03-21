@@ -7,22 +7,21 @@ import inspect
 
 from telegram import ChatAction, InlineQueryResultArticle, InputTextMessageContent, Sticker
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackQueryHandler
-from CalenderRead import send_first_appointment_of_day, setup_day_ended
-from Modules.DefaultModule import DefaultModule
-from Utils.RandomText import get_random_string_of_messages_file
-from GoogleSearch import get_image, get_gif, get_youtube
-from SendingActions import send_photo_action, send_video_action
-from InspireBot import receive_quote, send_quote_with_text
-from Rule34Bot import fetch_porn
-from OENachrichtenBot import get_newest_news
-from APIKeyReader import read_key
-from CatBot import receive_cat
-from MemeBot import receive_meme
-from CalenderRead import send_day_ended_sticker
-from RedditBot import send_funny_submission, send_subreddit_submission
-from CommicBot import receive_comic, send_comic_if_new
+from calender_read import send_first_appointment_of_day, setup_day_ended
+from modules.default_module import DefaultModule
+from utils.random_text import get_random_string_of_messages_file
+from google_search import get_image, get_gif, get_youtube
+from sending_actions import send_photo_action, send_video_action
+from inspire_bot import receive_quote, send_quote_with_text
+from rule_34_bot import fetch_porn
+from ooe_nachrichten_bot import get_newest_news
+from api_key_reader import read_key
+from cat_bot import receive_cat
+from calender_read import send_day_ended_sticker
+from reddit_bot import send_funny_submission, send_subreddit_submission
+from comic_bot import receive_comic, send_comic_if_new
 from MittagBot import receive_menue
-from Modules.CoffeeBot import sendCoffeeInvitation, sendCoffeeLocation
+from modules.coffee_bot import sendCoffeeInvitation, sendCoffeeLocation
 
 import requests
 import logging
@@ -87,13 +86,6 @@ def coffee(bot, update):
 
 
 @send_photo_action
-def meme(bot, update):
-    if not (has_rights(update)):
-        return
-    receive_meme(bot, update)
-
-
-@send_photo_action
 def quote(bot, update):
     if not (has_rights(update)):
         return
@@ -152,7 +144,7 @@ def ask(bot, update):
     if '?' not in update.message.text:
         update.message.reply_text("des woa jetzt aber ka frog..")
         return
-    update.message.reply_text(get_random_string_of_messages_file("Constants/Messages/ask_answers.json"))
+    update.message.reply_text(get_random_string_of_messages_file("constants/messages/ask_answers.json"))
 
 
 def daily_appointment(bot, job):
@@ -167,13 +159,13 @@ def daily_appointment(bot, job):
         if d.isoweekday() in range(1, 6):
             bot.send_message(chat_id=job.context,
                              text=get_random_string_of_messages_file(
-                                 "Constants/Messages/lecture_free_day_messages.json"))
+                                 "constants/messages/lecture_free_day_messages.json"))
             send_day_ended_sticker(bot, job)
 
 
 def daily_quote(bot, job):
     # send quote of the day
-    send_quote_with_text(bot, job, get_random_string_of_messages_file("Constants/Messages/quote_subtitles.json"))
+    send_quote_with_text(bot, job, get_random_string_of_messages_file("constants/messages/quote_subtitles.json"))
 
 
 def daily_comic(bot, job):
@@ -209,7 +201,7 @@ def read_config(dp):
 
 
 def load_module(name, dp):
-    path = "Modules." + name
+    path = "modules." + name
     imported = __import__(name=path)
     module = getattr(imported, name)
 
@@ -250,7 +242,6 @@ def main():
     dp.add_handler(CommandHandler('news', get_news))
     dp.add_handler(CommandHandler('reverse', reverse))
     dp.add_handler(CommandHandler('quote', quote))
-    dp.add_handler(CommandHandler('meme', meme))
     dp.add_handler(CommandHandler('funny', funny))
     dp.add_handler(CommandHandler('reddit', reddit))
     dp.add_handler(CommandHandler('comic', comic))
@@ -358,7 +349,6 @@ def help(bot, update):
 /news - Schickt a gegebene Anzahl an OÖ News. 
 /quote - Schickt a Bild mit an inspirierenden Spruch.. ✍🏼
 /cat - Schickt a katzal-gif mit an Text drüber. 🐈
-/meme - Schickt a random meme. 🧙‍♂️
 /reddit - Wennsd an subreddit angibst schick i da ans vo die top 30 hot bilder oder videos. 😎 als 2. parameter kanns an index angeben.
 /funny - i schick da funny reddit submissions. 👌
 /comic - do schick i da an comic. 😉

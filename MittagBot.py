@@ -1,7 +1,7 @@
 import json
 import requests
 import telegram
-from APIKeyReader import read_key
+from api_key_reader import read_key
 
 base_url = "https://www.mittag.at/"
 

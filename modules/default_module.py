@@ -4,8 +4,8 @@ import urllib
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext, Dispatcher
 
-from SendingActions import send_photo_action
-from Utils.Decorators import register
+from sending_actions import send_photo_action
+from utils.decorators import register
 
 
 class DefaultModule:
