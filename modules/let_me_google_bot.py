@@ -7,11 +7,12 @@ from telegram.ext import CommandHandler
 from modules.default_module import DefaultModule
 
 from api_key_reader import read_key
-from utils.decorators import register
+from utils.decorators import register_command, register_module
 
 base_url = "https://de.lmgtfy.com/"
 
 
+@register_module(active=False, key="Module")
 class LetMeGoogleBot(DefaultModule):
 
     def add_command(self, dp):
@@ -26,10 +27,10 @@ class LetMeGoogleBot(DefaultModule):
         DefaultModule.commandList += "/ya $term Yahoos the term for you via the 'Let me google that for you API' \n"
         DefaultModule.commandList += "/ddg $term DuckDuckGoes the term for you via the 'Let me google that for you API' \n"
 
-    @register(command="google",
-              text="/google $term Googles the term for you via the 'Let me google that for you API' \n")
-    @register(command="ya",
-              text="/ya $term Yahoos the term for you via the 'Let me google that for you API' \n")
+    @register_command(command="google",
+                      text="/google $term Googles the term for you via the 'Let me google that for you API' \n")
+    @register_command(command="ya",
+                      text="/ya $term Yahoos the term for you via the 'Let me google that for you API' \n")
     def create_google_request(self, bot, update):
         if not self.has_rights(update):
             return
