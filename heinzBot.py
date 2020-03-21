@@ -8,6 +8,7 @@ import inspect
 from telegram import ChatAction, InlineQueryResultArticle, InputTextMessageContent, Sticker
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackQueryHandler
 from CalenderRead import send_first_appointment_of_day, setup_day_ended
+from Modules.DefaultModule import DefaultModule
 from RandomText import get_random_ask_answer, get_random_quote_text, get_random_free_text
 from GoogleSearch import get_image, get_gif, get_youtube
 from SendingActions import send_photo_action, send_video_action
@@ -78,11 +79,13 @@ def rule34(bot, update):
         return
     fetch_porn(bot, update)
 
+
 # CoffeeBot
 def coffee(bot, update):
     if not (has_rights(update)):
         return
     sendCoffeeInvitation(bot, update)
+
 
 @send_photo_action
 def meme(bot, update):
@@ -178,8 +181,7 @@ def daily_comic(bot, job):
 
 
 def daily_timer(bot, update, job_queue):
-    chat_id=str(update.message.chat_id)
-    if job_queue.get_jobs_by_name("Daily_Quote"+chat_id):
+    if job_queue.get_jobs_by_name("Daily_Quote"):
         bot.send_message(chat_id=update.message.chat_id,
                          text='Da bot laft eh scho.')
         return
@@ -188,14 +190,13 @@ def daily_timer(bot, update, job_queue):
 
     time_morning = datetime.time(8, 15, 0, 0)
     job_queue.run_daily(daily_appointment, time_morning, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
-                        name="Daily_Appointment"+chat_id)
+                        name="Daily_Appointment")
     time_ten = datetime.time(10, 0, 0, 0)
     job_queue.run_daily(daily_quote, time_ten, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
-                        name="Daily_Quote"+chat_id)
+                        name="Daily_Quote")
     time_twelve = datetime.time(hour=12, minute=00, second=0)
     job_queue.run_daily(daily_comic, time_twelve, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
-                        name="Daily_Comic"+chat_id)
-
+                        name="Daily_Comic")
 
 
 def read_config(dp):
@@ -212,13 +213,29 @@ def load_module(name, dp):
     imported = __import__(name=path)
     module = getattr(imported, name)
 
-    # add Commands to dispatcher
+    # create Module instance
     clazz = getattr(module, name)
-    command = getattr(clazz, "add_command")(clazz, dp)
+    inst = clazz()
+    # Get callbacks
+
+    methods = inspect.getmembers(inst, predicate=inspect.ismethod)
+    for (key, method) in methods:
+        if hasattr(method, "_command") and hasattr(method, "_text"):
+            dp.add_handler(CommandHandler(method._command, method))
+            help_text_func = getattr(inst, "add_help_text")
+            help_text_func(method._text)
+
+    # for callback in callbacks:
+    #     if "text" not in callback:
+    #         logging.log(level=logging.ERROR, msg="No help text provided")
+    #     else:
+
+            # func = getattr(inst, callback["method"])
+            # attrs = getattr(clazz, callback["method"])
 
 
 def main():
-    updater = Updater(read_key("telegram"))
+    updater = Updater(read_key("telegram"), use_context=True)
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('bop', bop))
     dp.add_handler(CommandHandler('ask', ask))
@@ -238,7 +255,7 @@ def main():
     dp.add_handler(CommandHandler('reddit', reddit))
     dp.add_handler(CommandHandler('comic', comic))
     dp.add_handler(CommandHandler('moizeit', food))
-    dp.add_handler(CommandHandler('help', help))
+    # dp.add_handler(CommandHandler('help', help))
 
     read_config(dp)
     dp.add_handler(CommandHandler("coffee", coffee))
@@ -279,7 +296,7 @@ def who_is_muted(bot, update):
 
 
 def mute(bot, update):
-    if update.message.from_user.username == "jajules":
+    if update.message.from_user.username == "jajules" or True is True:
         person = update.message.text.replace('/mute ', '')
         bot.send_message(chat_id=update.message.chat_id,
                          text=(person + ' wird gemutet!'))
@@ -351,9 +368,6 @@ def help(bot, update):
 /comic - do schick i da an comic. 😉
 /moizeit - Wos heid in Hagenberg zum fuadan gibt
 /coffee - lädt zu einem Kaffee ein. ☕
-/radar - zagt a Niederschlagsradar für de angegebene Region
-/tracking - zagt des Sturmtracking für de angegebene Region
-/wind - zagt Windböen oder Mittelwind für de angegebene Region
 /google - Wenn wieder mol wer zfaul zum Googlen is..  😌
 /ddg - I suach für die auf DuckDuckGo.
 /ya - Let me yahoo that for you.

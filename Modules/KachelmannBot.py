@@ -17,43 +17,42 @@ class KachelmannBot(DefaultModule):
         dp.add_handler(CommandHandler('tracking', instance.tracking))
         dp.add_handler(CommandHandler('wind', instance.wind))
         return dp
-    
+
     REGIONEN = {
-        "BR":   "braunau-am-inn",
-        "EF":   "eferding",  	
-        "FR":   "freistadt",
-        "GM":   "gmunden",	
-        "GR":   "grieskirchen",
-        "KI":   "kirchdorf-an-der-krems",
-        "L" :   "linz",
-        "LL":   "linz-land",	
-        "PE":   "perg", 
-        "RI":   "ried-im-innkreis",
-        "RO":   "rohrbach-im-muehlkreis",
-        "SD":   "schaerding",
-        "SR":   "steyr",
-        "SE":   "steyr-land",
-        "UU":   "urfahr-umgebung",
-        "VB":   "voecklabruck",
-        "WE":   "wels",
-        "WL":   "wels-land",
-        "OÖ":   "oberoesterreich",
-        "NÖ":   "niederoesterreich",
+        "BR": "braunau-am-inn",
+        "EF": "eferding",
+        "FR": "freistadt",
+        "GM": "gmunden",
+        "GR": "grieskirchen",
+        "KI": "kirchdorf-an-der-krems",
+        "L": "linz",
+        "LL": "linz-land",
+        "PE": "perg",
+        "RI": "ried-im-innkreis",
+        "RO": "rohrbach-im-muehlkreis",
+        "SD": "schaerding",
+        "SR": "steyr",
+        "SE": "steyr-land",
+        "UU": "urfahr-umgebung",
+        "VB": "voecklabruck",
+        "WE": "wels",
+        "WL": "wels-land",
+        "OÖ": "oberoesterreich",
+        "NÖ": "niederoesterreich",
         "STMK": "steiermark",
         "WZ": "weiz",
         "G": "graz",
         "BM": "bruck-an-der-mur",
         "LE": "leoben",
         "LI": "liezen",
-        "W":    "wien",
-        "B":    "burgenland",
-        "SBG":  "salzburg",
-        "T":    "tirol",
-        "V":    "vorarlberg",
-        "K":    "kaernten",
-        "AT":   "oesterreich"
+        "W": "wien",
+        "B": "burgenland",
+        "SBG": "salzburg",
+        "T": "tirol",
+        "V": "vorarlberg",
+        "K": "kaernten",
+        "AT": "oesterreich"
     }
-
 
     def __getClosestTime(self, increment):
         time = datetime.datetime.utcnow()
@@ -62,7 +61,6 @@ class KachelmannBot(DefaultModule):
 
         timestring = time.strftime("%Y%m%d-%H%Mz")
         return timestring
-
 
     def __getKachelmannImage(self, pageURL):
         header = {
@@ -73,7 +71,6 @@ class KachelmannBot(DefaultModule):
         imageurl = soup.find("meta", property="og:image")
         imageurl = imageurl["content"]
         return imageurl
-
 
     def __getRegion(self, region):
         errorMessage = ""
@@ -88,7 +85,6 @@ class KachelmannBot(DefaultModule):
 
         return (region, errorMessage)
 
-
     def radar(self, bot, update):
         if not self.has_rights(update):
             return
@@ -97,8 +93,8 @@ class KachelmannBot(DefaultModule):
 
         region, errorMessage = self.__getRegion(queryText)
         if errorMessage != "":
-            bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id, 
-                text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+            bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                             text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
             return
 
         # build page url
@@ -113,7 +109,6 @@ class KachelmannBot(DefaultModule):
         chat_id = update.message.chat_id
         bot.send_photo(chat_id=chat_id, photo=imageURL)
 
-
     def tracking(self, bot, update):
         if not self.has_rights(update):
             return
@@ -123,8 +118,8 @@ class KachelmannBot(DefaultModule):
         region, errorMessage = self.__getRegion(queryText)
         if errorMessage != "":
             # invalid region
-            bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id, 
-                text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+            bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                             text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
             return
 
         # build page url
@@ -138,7 +133,6 @@ class KachelmannBot(DefaultModule):
         # send image
         chat_id = update.message.chat_id
         bot.send_photo(chat_id=chat_id, photo=imageURL)
-
 
     def wind(self, bot, update):
         if not self.has_rights(update):
@@ -154,23 +148,23 @@ class KachelmannBot(DefaultModule):
             windtype, region = queryText.split(maxsplit=2)
         except (ValueError, AttributeError) as e:
             # send syntax error
-            bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id, 
-                text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+            bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                             text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
             return
-        
+
         # get region
         region, errorMessage = self.__getRegion(region)
         if errorMessage != "":
             if region == "böen" or region == "böe" or region == "mittel":
                 # mixed up parameters (/wind at böen), send syntax error
-                bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id, 
-                    text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+                bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                                 text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
             else:
                 # else send unknown region error
-                bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id, 
-                    text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+                bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                                 text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
             return
-        
+
         # check type
         if windtype is not None and (windtype.lower() == 'böen' or windtype.lower() == 'böe'):
             windtype = "windboeen"
@@ -179,8 +173,8 @@ class KachelmannBot(DefaultModule):
         else:
             # unknown type, send error
             errorMessage = "Mechadsd du Böen oder Mittelwind? Schick ma ans vo de zwa: 🌬️\n`/wind böen <Region>`\n`/wind mittel <Region>`"
-            bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id, 
-                text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+            bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                             text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
             return
 
         # build page url
