@@ -9,7 +9,7 @@ from telegram import ChatAction, InlineQueryResultArticle, InputTextMessageConte
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackQueryHandler
 from CalenderRead import send_first_appointment_of_day, setup_day_ended
 from Modules.DefaultModule import DefaultModule
-from RandomText import get_random_ask_answer, get_random_quote_text, get_random_free_text
+from utils.RandomText import get_random_string_of_messages_file
 from GoogleSearch import get_image, get_gif, get_youtube
 from SendingActions import send_photo_action, send_video_action
 from InspireBot import receive_quote, send_quote_with_text
@@ -23,7 +23,6 @@ from RedditBot import send_funny_submission, send_subreddit_submission
 from CommicBot import receive_comic, send_comic_if_new
 from MittagBot import receive_menue
 from Modules.CoffeeBot import sendCoffeeInvitation, sendCoffeeLocation
-from constants.members import getTOP, getName
 
 import requests
 import logging
@@ -153,7 +152,7 @@ def ask(bot, update):
     if '?' not in update.message.text:
         update.message.reply_text("des woa jetzt aber ka frog..")
         return
-    update.message.reply_text(get_random_ask_answer())
+    update.message.reply_text(get_random_string_of_messages_file("constants/messages/ask_answers.json"))
 
 
 def daily_appointment(bot, job):
@@ -167,13 +166,13 @@ def daily_appointment(bot, job):
         d = datetime.datetime.now()
         if d.isoweekday() in range(1, 6):
             bot.send_message(chat_id=job.context,
-                             text=get_random_free_text())
+                             text=get_random_string_of_messages_file("constants/messages/lecture_free_day_messages.json"))
             send_day_ended_sticker(bot, job)
 
 
 def daily_quote(bot, job):
     # send quote of the day
-    send_quote_with_text(bot, job, get_random_quote_text())
+    send_quote_with_text(bot, job, get_random_string_of_messages_file("constants/messages/quote_subtitles.json"))
 
 
 def daily_comic(bot, job):
@@ -296,7 +295,7 @@ def who_is_muted(bot, update):
 
 
 def mute(bot, update):
-    if update.message.from_user.username == "jajules" or True is True:
+    if update.message.from_user.username == "jajules":
         person = update.message.text.replace('/mute ', '')
         bot.send_message(chat_id=update.message.chat_id,
                          text=(person + ' wird gemutet!'))
@@ -348,10 +347,6 @@ def get_command_parameter(command: str, update) -> str:
         return text[len(command + b) + 1:]
 
 
-def get_random_string(l: [str]) -> str:
-    return l[random.randint(0, len(l) - 1)]
-
-
 def help(bot, update):
     commandlist = """/image - Googlet noch an foto und schickts 👌🏼
 /gif - Googlet noch an gif und schickts 👌🏼
@@ -368,6 +363,9 @@ def help(bot, update):
 /comic - do schick i da an comic. 😉
 /moizeit - Wos heid in Hagenberg zum fuadan gibt
 /coffee - lädt zu einem Kaffee ein. ☕
+/radar - zagt a Niederschlagsradar für de angegebene Region
+/tracking - zagt des Sturmtracking für de angegebene Region
+/wind - zagt Windböen oder Mittelwind für de angegebene Region
 /google - Wenn wieder mol wer zfaul zum Googlen is..  😌
 /ddg - I suach für die auf DuckDuckGo.
 /ya - Let me yahoo that for you.

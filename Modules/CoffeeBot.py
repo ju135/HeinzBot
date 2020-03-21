@@ -1,10 +1,9 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 from constants.members import getName, getTOP
-from RandomText import get_random_coffee_starter, get_random_coffee_end
+from utils.RandomText import get_random_string_of_messages_file
 
 currentUpdate = None # the current invitation we are editing
-
+coffee_message_constants_file = "constants/messages/coffee_messages.json"
 
 # sends a coffee invitation with inline keyboard
 def sendCoffeeInvitation(bot, update):
@@ -19,7 +18,7 @@ def sendCoffeeInvitation(bot, update):
     ]
     markup = InlineKeyboardMarkup(keyboard)
 
-    firstText = get_random_coffee_starter().replace("$", name)
+    firstText = get_random_string_of_messages_file(coffee_message_constants_file, ["starter"]).replace("$", name)
     update.message.reply_text(firstText, reply_markup=markup)
     global currentUpdate # set the current update users will reply to
     currentUpdate = update
@@ -41,7 +40,7 @@ def sendCoffeeLocation(bot, update):
         text = query.message.text   
         text += "\n\n"
 
-        end = get_random_coffee_end(query.data)
+        end = get_random_string_of_messages_file(coffee_message_constants_file, ["end", query.data])
         if query.data == "host": # if hosting, fill in the name, too.
             end = end.replace("$", str(getTOP(clickingUserID)))
         text += end
