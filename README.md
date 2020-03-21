@@ -31,6 +31,7 @@ An implementation of a Telegram Bot with the following capabilities:
 * RSS Service from Nachrichten.at
 * xkcd.com
 * Mittag.at API
+* Urban Dictionary API
 
 
 ## Dependencies
