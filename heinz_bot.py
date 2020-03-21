@@ -20,7 +20,7 @@ from cat_bot import receive_cat
 from calender_read import send_day_ended_sticker
 from reddit_bot import send_funny_submission, send_subreddit_submission
 from comic_bot import receive_comic, send_comic_if_new
-from MittagBot import receive_menue
+from mittag_bot import receive_menue
 from modules.coffee_bot import sendCoffeeInvitation, sendCoffeeLocation
 
 import requests
