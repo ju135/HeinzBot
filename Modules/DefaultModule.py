@@ -1,18 +1,77 @@
-from telegram.ext import CommandHandler
+import json
+import urllib
+
+from telegram import Update
+from telegram.ext import CommandHandler, CallbackContext, Dispatcher
+
+from SendingActions import send_photo_action
+from Utils.Decorators import register
 
 
-class DefaultModule():
+class DefaultModule:
     mutedAccounts = list()
+    __commandList = ""
+    keyFileName = "api-keys.json"
 
+    # Call this in your module to register your commands
     def add_command(self, dp):
-        instance = DefaultModule()
-        dp.add_handler(CommandHandler('mute', instance.mute))
+        pass
 
-    def mute(self, bot, update):
+    def add_help_text(self, text):
+        DefaultModule.__commandList += text
+
+    @register(command="help", text="/help Show this help message. \n")
+    def help(self, update: Update, context: CallbackContext):
+        chat_id = self.get_chat_id(update)
+        context.bot.send_message(chat_id=chat_id, text=self.__commandList)
+
+    def get_chat_id(self, update: Update):
+        return update.message.chat_id
+
+    # In Version 12 of the telegram bot some major changes were made.
+    @register(command="default", text="/default Show a default message. \n")
+    def default_command(self, update: Update, context: CallbackContext):
+        # Get the new job handler
+        job = context.job
+
+        # Get the chat id to reply to
+        chat_id = self.get_chat_id(update)
+
+        # Send a message
+        context.bot.send_message(chat_id=chat_id, text="Default command")
+
+        # Send an animation
+        animation_url = "https://media.giphy.com/media/gw3IWyGkC0rsazTi/source.gif"
+        context.bot.send_animation(chat_id=chat_id, animation=animation_url)
+
+        # Send a sticker
+        # Sticker need to have an ID or a file or a URL path
+        file_url = "https://raw.githubusercontent.com/python-telegram-bot/python-telegram-bot/master/tests/data/telegram.webp"
+
+        # Download the file
+        # sticker = urllib.request.urlopen(url=file_url)
+
+        # Or open it
+        # sticker = open(file_url, "rb")
+        context.bot.send_sticker(chat_id=chat_id, sticker=file_url)
+
+    def get_api_key(self, key_name):
+        f = open(self.keyFileName, "r")
+        key_data = json.load(f)
+        try:
+            data = key_data[key_name]
+            return data
+        except:
+            print(key_name + " not found")
+            return ""
+
+    @register(command="mute", text="/mute $user Mute a user")
+    def mute(self, update: Update, context: CallbackContext):
         if update.message.from_user.username == "jajules":
             person = update.message.text.replace('/mute ', '')
-            bot.send_message(chat_id=update.message.chat_id,
-                             text=(person + ' wird gemutet!'))
+
+            context.bot.send_message(chat_id=update.message.chat_id,
+                                     text=(person + ' wird gemutet!'))
             self.mutedAccounts.append(person)
         else:
             update.message.reply_text('Sry du deafst kan muten..')

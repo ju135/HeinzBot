@@ -3,15 +3,27 @@
     "enabled": true
   },
   "SpoontacularBot": {
-    "enabled": true
+    "enabled": false
   },
   "KachelmannBot": {
-    "enabled": true
+    "enabled": false
   },
-    "UrbanDictBot": {
-    "enabled": true
+  "UrbanDictBot": {
+    "enabled": false
   },
   "DefaultModule": {
-    "enabled": true
+    "enabled": true,
+    "callbacks": [
+      {
+        "command": "default",
+        "method": "default_command",
+        "text": "/default Show default messages \n"
+      },
+      {
+        "command": "help",
+        "method": "help",
+        "text": "/help Show this help message \n"
+      }
+    ]
   }
 }

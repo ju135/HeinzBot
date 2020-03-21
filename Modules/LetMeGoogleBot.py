@@ -1,15 +1,19 @@
 import json
+from multiprocessing.reduction import register
+
 import requests
 import telegram
 from telegram.ext import CommandHandler
 from Modules.DefaultModule import DefaultModule
 
 from APIKeyReader import read_key
+from Utils.Decorators import register
 
 base_url = "https://de.lmgtfy.com/"
 
 
 class LetMeGoogleBot(DefaultModule):
+
     def add_command(self, dp):
         instance = LetMeGoogleBot()
         dp.add_handler(CommandHandler('google', instance.create_google_request))
@@ -17,6 +21,15 @@ class LetMeGoogleBot(DefaultModule):
         dp.add_handler(CommandHandler('ddg', instance.create_google_request))
         return dp
 
+    def add_to_command_list(self):
+        DefaultModule.commandList += "/google $term Googles the term for you via the 'Let me google that for you API' \n"
+        DefaultModule.commandList += "/ya $term Yahoos the term for you via the 'Let me google that for you API' \n"
+        DefaultModule.commandList += "/ddg $term DuckDuckGoes the term for you via the 'Let me google that for you API' \n"
+
+    @register(command="google",
+              text="/google $term Googles the term for you via the 'Let me google that for you API' \n")
+    @register(command="ya",
+              text="/ya $term Yahoos the term for you via the 'Let me google that for you API' \n")
     def create_google_request(self, bot, update):
         if not self.has_rights(update):
             return
