@@ -1,30 +1,29 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import datetime
-import json
-import random
 import inspect
-
-from telegram import ChatAction, InlineQueryResultArticle, InputTextMessageContent, Sticker
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackQueryHandler
-from calender_read import send_first_appointment_of_day, setup_day_ended
-from modules.default_module import DefaultModule
-from utils.random_text import get_random_string_of_messages_file
-from google_search import get_image, get_gif, get_youtube
-from sending_actions import send_photo_action, send_video_action
-from inspire_bot import receive_quote, send_quote_with_text
-from rule_34_bot import fetch_porn
-from ooe_nachrichten_bot import get_newest_news
-from api_key_reader import read_key
-from cat_bot import receive_cat
-from calender_read import send_day_ended_sticker
-from reddit_bot import send_funny_submission, send_subreddit_submission
-from comic_bot import receive_comic, send_comic_if_new
-from mittag_bot import receive_menue
-from modules.coffee_bot import sendCoffeeInvitation, sendCoffeeLocation
+import logging
+import os
+import random
 
 import requests
-import logging
+from telegram import InlineQueryResultArticle, InputTextMessageContent
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackQueryHandler
+
+from api_key_reader import read_key
+from calender_read import send_day_ended_sticker
+from calender_read import send_first_appointment_of_day, setup_day_ended
+from cat_bot import receive_cat
+from comic_bot import receive_comic, send_comic_if_new
+from google_search import get_image, get_gif, get_youtube
+from inspire_bot import receive_quote, send_quote_with_text
+from mittag_bot import receive_menue
+from modules.coffee_bot import sendCoffeeInvitation, sendCoffeeLocation
+from ooe_nachrichten_bot import get_newest_news
+from reddit_bot import send_funny_submission, send_subreddit_submission
+from rule_34_bot import fetch_porn
+from sending_actions import send_photo_action, send_video_action
+from utils.random_text import get_random_string_of_messages_file
 
 mutedAccounts = list()
 configFile = "config.json"
@@ -191,39 +190,47 @@ def daily_timer(bot, update, job_queue):
                         name="Daily_Comic")
 
 
-def read_config(dp):
+def load_modules(dp):
     f = open(configFile, "r")
-    modules = json.load(f)
+    modules = os.listdir(os.path.dirname("modules/"))
     for module in modules:
-        data = modules[module]
-        if data["enabled"]:
-            load_module(module, dp)
+        load_module(module, dp)
 
 
 def load_module(name, dp):
+    # [:-3] in order to remove the .py ending
+    name = name[:-3]
     path = "modules." + name
     imported = __import__(name=path)
     module = getattr(imported, name)
 
-    # create Module instance
-    clazz = getattr(module, name)
-    inst = clazz()
-    # Get callbacks
+    # Load all classes inside a module
+    classes = inspect.getmembers(module, inspect.isclass)
+    clazz_name = None
 
+    # pick the class that is inside the module and not imported
+    for (name, clazz) in classes:
+        if clazz.__module__ == path:
+            clazz_name = name
+            break
+    if clazz_name is None:
+        return
+
+        # create class instance
+    clazz = getattr(module, clazz_name)
+    if hasattr(clazz, "_active") and hasattr(clazz, "_key"):
+        if clazz._active is not True or clazz._key != clazz_name:
+            return
+    else:
+        return
+
+    inst = clazz()
     methods = inspect.getmembers(inst, predicate=inspect.ismethod)
     for (key, method) in methods:
         if hasattr(method, "_command") and hasattr(method, "_text"):
             dp.add_handler(CommandHandler(method._command, method))
             help_text_func = getattr(inst, "add_help_text")
             help_text_func(method._text)
-
-    # for callback in callbacks:
-    #     if "text" not in callback:
-    #         logging.log(level=logging.ERROR, msg="No help text provided")
-    #     else:
-
-            # func = getattr(inst, callback["method"])
-            # attrs = getattr(clazz, callback["method"])
 
 
 def main():
@@ -248,7 +255,7 @@ def main():
     dp.add_handler(CommandHandler('moizeit', food))
     # dp.add_handler(CommandHandler('help', help))
 
-    read_config(dp)
+    load_modules(dp)
     dp.add_handler(CommandHandler("coffee", coffee))
     dp.add_handler(CallbackQueryHandler(sendCoffeeLocation))
 

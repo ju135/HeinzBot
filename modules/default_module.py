@@ -5,22 +5,19 @@ from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext, Dispatcher
 
 from sending_actions import send_photo_action
-from utils.decorators import register
+from utils.decorators import register_command, register_module
 
 
+@register_module(active=True, key="DefaultModule")
 class DefaultModule:
     mutedAccounts = list()
     __commandList = ""
     keyFileName = "api-keys.json"
 
-    # Call this in your module to register your commands
-    def add_command(self, dp):
-        pass
-
     def add_help_text(self, text):
         DefaultModule.__commandList += text
 
-    @register(command="help", text="/help Show this help message. \n")
+    @register_command(command="help", text="/help Show this help message. \n")
     def help(self, update: Update, context: CallbackContext):
         chat_id = self.get_chat_id(update)
         context.bot.send_message(chat_id=chat_id, text=self.__commandList)
@@ -29,7 +26,7 @@ class DefaultModule:
         return update.message.chat_id
 
     # In Version 12 of the telegram bot some major changes were made.
-    @register(command="default", text="/default Show a default message. \n")
+    @register_command(command="default", text="/default Show a default message. \n")
     def default_command(self, update: Update, context: CallbackContext):
         # Get the new job handler
         job = context.job
@@ -65,7 +62,7 @@ class DefaultModule:
             print(key_name + " not found")
             return ""
 
-    @register(command="mute", text="/mute $user Mute a user")
+    @register_command(command="mute", text="/mute $user Mute a user")
     def mute(self, update: Update, context: CallbackContext):
         if update.message.from_user.username == "jajules":
             person = update.message.text.replace('/mute ', '')
