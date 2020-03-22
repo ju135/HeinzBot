@@ -76,23 +76,3 @@ class DefaultModule(AbstractModule):
         t = self.get_command_parameter("/reverse", update)
         if t:
             context.bot.send_message(chat_id=update.message.chat_id, text=t[::-1])
-
-    @register_message_watcher(filter=Filters.command)
-    def has_rights(self, update: Update, context: CallbackContext):
-        if update.message.from_user.name in AbstractModule.mutedAccounts:
-            update.message.reply_text('..hot wer wos gsogt?')
-            raise DispatcherHandlerStop()
-        if update.message.from_user.last_name in AbstractModule.mutedAccounts:
-            update.message.reply_text('..hot wer wos gsogt?')
-            raise DispatcherHandlerStop()
-
-    @register_message_watcher(filter=Filters.command)
-    def unknown(self, update: Update, context: CallbackContext):
-        group = 1  # CommandHandler Queue
-        handlers = context.dispatcher.handlers
-
-        for handler in handlers[group]:
-            check = handler.check_update(update)
-            if check is not None and check is not False:
-                return
-        update.message.reply_text("Ich nix verstehen... 😢")
