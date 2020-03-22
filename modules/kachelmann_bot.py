@@ -94,7 +94,7 @@ class KachelmannBot(AbstractModule):
         soup = bs4.BeautifulSoup(open_url, "html.parser")
         return soup
 
-    @register_command(command="radar", text="Shows a radar picture.")
+    @register_command(command="radar", short_desc="Shows the radar", long_desc="", usage=["/radar $region"])
     def radar(self, update: Update, context: CallbackContext):
 
         queryText = self.get_command_parameter("/radar", update)
@@ -117,7 +117,7 @@ class KachelmannBot(AbstractModule):
         chat_id = update.message.chat_id
         context.bot.send_photo(chat_id=chat_id, photo=imageURL)
 
-    @register_command(command="tracking", text="Shows a radar picture.")
+    @register_command(command="tracking", short_desc="Tracks a region", long_desc="", usage=["/tracking $region"])
     def tracking(self, update: Update, context: CallbackContext):
 
         queryText = self.get_command_parameter("/tracking", update)
@@ -141,7 +141,8 @@ class KachelmannBot(AbstractModule):
         chat_id = update.message.chat_id
         context.bot.send_photo(chat_id=chat_id, photo=imageURL)
 
-    @register_command(command="wind", text="Shows a radar picture.")
+    @register_command(command="wind", short_desc="Shows the wind gusts ", long_desc="",
+                      usage=["/wind (böen|mittel) $region"])
     def wind(self, update: Update, context: CallbackContext):
 
         queryText = self.get_command_parameter("/wind", update)
