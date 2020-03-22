@@ -14,7 +14,7 @@ coffee_message_constants_file = "constants/messages/coffee_messages.json"
 @register_module()
 class CoffeeBot(AbstractModule):
     # sends a coffee invitation with inline keyboard
-    @register_command(command="coffee", short_desc="Ask for coffe", long_desc="", usage=["/coffee"])
+    @register_command(command="coffee", text="")
     def sendCoffeeInvitation(self, update: Update, context: CallbackContext):
         userid = update.message.from_user.id
         name = getName(userid)
