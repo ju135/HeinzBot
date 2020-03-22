@@ -8,14 +8,13 @@ from telegram import Update, ChatAction
 from telegram.ext import CallbackContext
 
 from modules.abstract_module import AbstractModule
-from sending_actions import send_action
-from utils.decorators import register_module, register_command, run_daily
+from utils.decorators import register_module, register_command, run_daily, send_action
 
 
 @register_module()
 class ComicBot(AbstractModule):
     @register_command(command="comic", text="TODO")
-    @send_action(action=ChatAction.UPLOAD_VIDEO)
+    @send_action(action=ChatAction.UPLOAD_PHOTO)
     def receive_comic(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
         current_comic_data = receive_current_comic_data()
@@ -35,17 +34,8 @@ class ComicBot(AbstractModule):
         yesterday = date.today() - timedelta(days=1)
         if yesterday == comic_release_date:
             context.bot.send_photo(chat_id=chat_id, photo=comic_data["img"],
-                                   caption=("Neuer Comic: " + comic_data["title"]))
+                                    caption=("Neuer Comic: " + comic_data["title"]))
 
-
-def send_comic_if_new2(bot, job):
-    chat_id = job.context
-    comic_data = receive_current_comic_data()
-    comic_release_date = datetime.date(int(comic_data["year"]), int(comic_data["month"]), int(comic_data["day"]))
-    yesterday = date.today() - timedelta(days=1)
-    if yesterday == comic_release_date:
-        bot.send_photo(chat_id=chat_id, photo=comic_data["img"], caption=("Neuer Comic: " + comic_data["title"]))
-    
 
 def receive_current_comic_data():
     url = "https://xkcd.com/info.0.json"

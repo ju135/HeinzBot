@@ -1,5 +1,5 @@
 import datetime
-
+from functools import wraps
 from telegram.ext import Filters
 
 
@@ -35,3 +35,16 @@ def register_message_watcher(filter: Filters):
         return func
 
     return register_wrapper
+
+
+def send_action(action):
+    """Sends `action` while processing func command."""
+
+    def decorator(func):
+        @wraps(func)
+        def command_func(obj, update, context, *args, **kwargs):
+            context.bot.send_chat_action(chat_id=update.effective_message.chat_id, action=action)
+            return func(obj, update, context, *args, **kwargs)
+
+        return command_func
+    return decorator

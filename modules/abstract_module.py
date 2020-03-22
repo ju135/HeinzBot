@@ -32,3 +32,15 @@ class AbstractModule(ABC):
             return text[len(command) + 1:]
         if text.startswith(command + b + " "):
             return text[len(command + b) + 1:]
+
+    def percent_encoding(self, text: str) -> str:
+        """
+        Encode the text into an url-transferable format.
+        :param text: The text to encode
+        :return: the encoded text
+        """
+        result = ''
+        accepted = [c for c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~'.encode('utf-8')]
+        for char in text.encode('utf-8'):
+            result += chr(char) if char in accepted else '%{}'.format(hex(char)[2:]).upper()
+        return result

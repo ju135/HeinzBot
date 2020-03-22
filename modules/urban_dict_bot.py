@@ -5,7 +5,7 @@ import telegram
 from telegram import Update
 from telegram.ext import CallbackContext
 
-from api_key_reader import read_key
+from utils.api_key_reader import read_key
 from modules.abstract_module import AbstractModule
 from utils.decorators import register_module, register_command
 

@@ -4,7 +4,7 @@ import requests
 import telegram
 from telegram.ext import CommandHandler
 
-import api_key_reader
+from utils import api_key_reader
 from modules.abstract_module import AbstractModule
 from utils.decorators import register_module
 

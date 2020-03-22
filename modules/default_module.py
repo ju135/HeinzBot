@@ -1,12 +1,13 @@
 import json
 import urllib
 
-from telegram import Update, MessageEntity
+import requests
+from telegram import Update, MessageEntity, ChatAction
 from telegram.ext import CommandHandler, CallbackContext, Dispatcher, Filters, DispatcherHandlerStop
 
 from modules.abstract_module import AbstractModule
-from sending_actions import send_photo_action
-from utils.decorators import register_command, register_module, register_message_watcher
+from utils.decorators import register_command, register_module, register_message_watcher, send_action
+from utils.random_text import get_random_string_of_messages_file
 
 
 @register_module()
@@ -54,6 +55,27 @@ class DefaultModule(AbstractModule):
             self.mutedAccounts.append(person)
         else:
             update.message.reply_text('Sry du deafst kan muten..')
+
+    @register_command(command="bop", text="Cute doggo bilder 🐕")
+    @send_action(action=ChatAction.UPLOAD_PHOTO)
+    def bop(self, update: Update, context: CallbackContext):
+        chat_id = update.message.chat_id
+        contents = requests.get('https://random.dog/woof.json').json()
+        url = contents['url']
+        context.bot.send_photo(chat_id=chat_id, photo=url)
+
+    @register_command(command="ask", text="Entscheidungshilfe bei ja/nein fragen.")
+    def ask(self, update: Update, context: CallbackContext):
+        if '?' not in update.message.text:
+            update.message.reply_text("des woa jetzt aber ka frog..")
+            return
+        update.message.reply_text(get_random_string_of_messages_file("constants/messages/ask_answers.json"))
+
+    @register_command(command="reverse", text="Reversiert den übergebenen Text.")
+    def reverse(self, update: Update, context: CallbackContext):
+        t = self.get_command_parameter("/reverse", update)
+        if t:
+            context.bot.send_message(chat_id=update.message.chat_id, text=t[::-1])
 
     @register_message_watcher(filter=Filters.command)
     def has_rights(self, update: Update, context: CallbackContext):

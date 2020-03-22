@@ -19,8 +19,7 @@ class InspireBot(AbstractModule):
         img = r.text
         context.bot.send_photo(chat_id=chat_id, photo=img)
 
-    # TODO Add for daily message
-    @run_daily(name="daily_comic", time=datetime.time(hour=11 - 1, minute=0, second=0))
+    @run_daily(name="daily_quote", time=datetime.time(hour=11 - 1, minute=0, second=0))
     def send_quote_with_text(self, context: CallbackContext, chat_id: str):
         text = get_random_string_of_messages_file("constants/messages/quote_subtitles.json")
         r = requests.get('https://inspirobot.me/api?generate=true')
