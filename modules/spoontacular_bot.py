@@ -1,16 +1,16 @@
+import json
+
+import requests
 import telegram
 from telegram.ext import CommandHandler
-import json
-import requests
 
 import api_key_reader
-
-from modules.default_module import DefaultModule
+from modules.abstract_module import AbstractModule
 from utils.decorators import register_module
 
 
-@register_module(active=False)
-class SpoontacularBot(DefaultModule):
+@register_module()
+class SpoontacularBot(AbstractModule):
     url = "https://api.spoonacular.com/"
 
     def add_command(self, dp):

@@ -3,6 +3,7 @@ import json
 from telegram import Update
 from telegram.ext import CallbackContext
 
+from modules.abstract_module import AbstractModule
 from modules.default_module import DefaultModule
 from utils.decorators import register_module, register_command
 
@@ -60,13 +61,13 @@ def register_methods_in_file(method_tuple_list, dispatcher):
                                        days=(0, 1, 2, 3, 4, 5, 6), context=method, name=job_name)
 
 
-@register_module(active=True)
-class JobRegisterBot(DefaultModule):
+@register_module()
+class JobRegisterBot(AbstractModule):
     @register_command(command="start", text="To start the daily jobs")
     def start_job(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
         json_data = _read_chat_id_json_content()
-        already_subbed = list(filter(lambda x: chat_id in x, json_data))
+        already_subbed = list(filter(lambda x: chat_id in x, json_data)) # TODO ERROR - No error handlers are registered, logging exception.
         not_subbed = list(filter(lambda x: chat_id not in x, json_data))
 
         # read all daily jobs

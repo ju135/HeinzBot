@@ -1,17 +1,14 @@
-import telegram
-from telegram.ext import CommandHandler
-import json
-import requests
 import datetime
 
-import api_key_reader
+import telegram
+from telegram.ext import CommandHandler
 
-from modules.default_module import DefaultModule
+from modules.abstract_module import AbstractModule
 from utils.decorators import register_module
 
 
-@register_module(active=False)
-class KachelmannBot(DefaultModule):
+@register_module()
+class KachelmannBot(AbstractModule):
 
     def add_command(self, dp):
         instance = KachelmannBot()
