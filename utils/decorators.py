@@ -10,9 +10,9 @@ def register_command(command, text):
     return register_wrapper
 
 
-def register_module(active: bool):
+def register_module():
     def register_wrapper(clazz):
-        clazz._active = active
+        clazz._active = True
         return clazz
 
     return register_wrapper

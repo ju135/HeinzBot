@@ -1,5 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from constants.members import getName, getTOP
+from modules.abstract_module import AbstractModule
 from modules.default_module import DefaultModule
 from utils.decorators import register_module
 from utils.random_text import get_random_string_of_messages_file
@@ -53,6 +54,6 @@ def sendCoffeeLocation(bot, update):
                          text="Herst {}, hab i mid dia gredt?".format(getName(clickingUserID)))
 
 
-@register_module(active=False)
-class CoffeeBot(DefaultModule):
+@register_module()
+class CoffeeBot(AbstractModule):
     pass

@@ -1,10 +1,12 @@
+import json
+
+import requests
 import telegram
 from telegram import Update
-from telegram.ext import CommandHandler, CallbackContext
-from modules.default_module import DefaultModule
-import requests
-import json
+from telegram.ext import CallbackContext
+
 from api_key_reader import read_key
+from modules.abstract_module import AbstractModule
 from utils.decorators import register_module, register_command
 
 URL = "https://mashape-community-urban-dictionary.p.rapidapi.com/define"
@@ -62,7 +64,7 @@ def _get_dict_entry_and_send(index, query, bot, update) -> bool:
         definition = __remove_brackets(data_object['definition'])
         word = __remove_brackets(data_object['word'])
         example = __remove_brackets(data_object['example'])
-        indexText = f"({index+1}/{len(dict_data['list'])})"
+        indexText = f"({index + 1}/{len(dict_data['list'])})"
 
         formatted_text = __create_markdown_text(word, indexText, definition, example)
 
@@ -74,9 +76,10 @@ def _get_dict_entry_and_send(index, query, bot, update) -> bool:
         return False
 
 
-@register_module(active=True)
-class UrbanDictBot(DefaultModule):
-    @register_command(command="whatis", text="/whatis Kennst di bei and wort oda a phrasn ned aus? I hüf da weita. 🤓 \n")
+@register_module()
+class UrbanDictBot(AbstractModule):
+    @register_command(command="whatis",
+                      text="/whatis Kennst di bei and wort oda a phrasn ned aus? I hüf da weita. 🤓 \n")
     def what_is(self, update: Update, context: CallbackContext):
         if not self.has_rights(update):
             return

@@ -9,12 +9,12 @@ import random
 import requests
 from telegram import InlineQueryResultArticle, InputTextMessageContent
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackQueryHandler, \
-    CallbackContext
+    CallbackContext, Dispatcher
 
 from api_key_reader import read_key
 from calender_read import send_day_ended_sticker
 from calender_read import send_first_appointment_of_day, setup_day_ended
-#from modules.comic_bot import send_comic_if_new
+# from modules.comic_bot import send_comic_if_new
 from google_search import get_image, get_gif, get_youtube
 from inspire_bot import receive_quote, send_quote_with_text
 from mittag_bot import receive_menue
@@ -169,7 +169,7 @@ def daily_quote(bot, job):
 
 
 def daily_comic(bot, job):
-    #send_comic_if_new(bot, job)
+    # send_comic_if_new(bot, job)
     pass
 
 
@@ -200,7 +200,7 @@ def load_modules(dp):
         load_module(module, dp)
 
 
-def load_module(name, dp):
+def load_module(name, dp: Dispatcher):
     # [:-3] in order to remove the .py ending
     name = name[:-3]
     path = "modules." + name
