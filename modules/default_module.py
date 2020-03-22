@@ -1,5 +1,6 @@
 import json
 import urllib
+from smtpd import usage
 
 import requests
 import telegram
@@ -36,7 +37,7 @@ class DefaultModule(AbstractModule):
         message = "*Commands*\n" \
                   "_For more detailed descriptions write:_ `/help $command`\n\n"
 
-        #longest_cmd_length = max(list(map(lambda x: len(x["command"]), cmd_list)))
+        # longest_cmd_length = max(list(map(lambda x: len(x["command"]), cmd_list)))
         for cmd_desc in cmd_list:
             message += f"/{cmd_desc['command']} - {cmd_desc['short_desc']}\n"
         context.bot.send_message(chat_id=chat_id, text=message, parse_mode=telegram.ParseMode.MARKDOWN)
@@ -116,7 +117,7 @@ class DefaultModule(AbstractModule):
         if t:
             context.bot.send_message(chat_id=update.message.chat_id, text=t[::-1])
 
-    @register_command(command="allow", text=" $user. Reallows a user.")
+    @register_command(command="allow", short_desc="allows a user", long_desc="", usage=["/allow $user"])
     def allow(self, update: Update, context: CallbackContext):
         if update.message.from_user.username == "jajules":
             person = update.message.text.replace('/allow ', '')
@@ -126,7 +127,7 @@ class DefaultModule(AbstractModule):
         else:
             update.message.reply_text('Sry du deafst des ned.. :(')
 
-    @register_command(command="who", text=" Show how is muted")
+    @register_command(command="who", short_desc="Shows who is muted", long_desc="", usage=[""])
     def who_is_muted(self, update: Update, context: CallbackContext):
         text = "Sprechverbot: \n"
         for i in AbstractModule.mutedAccounts:
