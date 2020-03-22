@@ -75,7 +75,7 @@ def add_sub_to_jobs(jobs: [str], chat_id: str):
 @register_module()
 class JobRegisterBot(AbstractModule):
     @register_command(command="start", short_desc="To start the daily jobs.",
-                      long_desc="Enter this command subscribe to notifcations of available jobs.\n"
+                      long_desc="Enter this command to subscribe to notifications of available jobs.\n"
                                 "Specific jobs to start can be specified (see usage).",
                       usage=["/start", "/start $job1", "/start $job1 $job2"])
     def start_job(self, update: Update, context: CallbackContext):

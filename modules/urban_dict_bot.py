@@ -79,8 +79,13 @@ def _get_dict_entry_and_send(index, query, bot, update) -> bool:
 @register_module()
 class UrbanDictBot(AbstractModule):
     @register_command(command="whatis",
-                      short_desc="Kennst di bei and wort oda a phrasn ned aus? I hüf da weita. 🤓",
-                      long_desc="", usage=[""])
+                      short_desc="Sends UrbanDictionary entries. 🤓",
+                      long_desc="Searches [UrbanDictionary](https://www.urbandictionary.com/) for a word-definition "
+                                "with usage examples and returns it. \n"
+                                "The index of the definition to return can also be chosen (starting at 1). "
+                                "This is then indicated in the result. \n"
+                                "E.g: '*Python*(2/10)' would be the second of ten definitions for \"Python\"."
+                                "", usage=["/whatis $word", "/whatis $word $index", "/whatis Python 1"])
     def what_is(self, update: Update, context: CallbackContext):
 
 

@@ -32,7 +32,7 @@ class DefaultModule(AbstractModule):
                                              text=self.__format_detailed_command_description(cmd_desc),
                                              parse_mode=telegram.ParseMode.MARKDOWN)
                     return
-            context.bot.send_message(chat_id=chat_id, text=f"Kommando `{help_command}` existiert nicht.",
+            context.bot.send_message(chat_id=chat_id, text=f"Command `{help_command}` doesn't exist.",
                                      parse_mode=telegram.ParseMode.MARKDOWN)
             return
 
@@ -51,7 +51,7 @@ class DefaultModule(AbstractModule):
 
         message = f"*{command}*\n" \
                   f"{long_des}\n\n" \
-                  f"_Verwendung_:\n"
+                  f"_Usage_:\n"
 
         message += "`"
         for usage in usages:

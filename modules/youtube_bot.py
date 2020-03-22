@@ -12,8 +12,10 @@ YOUTUBE_API_VERSION = "v3"
 
 @register_module()
 class YoutubeBot(AbstractModule):
-    @register_command(command="yt", short_desc="I schick da as erste youtube video wos i findt.",
-                      long_desc="", usage=[""])
+    @register_command(command="yt", short_desc="Sends you a YouTube video. 🎥",
+                      long_desc="Searches YouTube with a given query and returns the most "
+                                "relevant result.",
+                      usage=["/yt $searchString", "/yt Money Boy", "/yt Cute chick with hairy pussy"])
     def get_youtube(self, update: Update, context: CallbackContext):
         query = self.get_command_parameter('/yt', update)
         if not query:

@@ -14,8 +14,11 @@ CLIENT_SECRET = read_key("reddit-client-secret")
 @register_module()
 class RedditBot(AbstractModule):
     @register_command(command="reddit",
-                      short_desc="Wennsd an subreddit angibst schick i da ans vo die top 30 hot bilder oder videos. 😎",
-                      long_desc="", usage=[""])
+                      short_desc="Searches Reddit submissions. 😎",
+                      long_desc="Sends an image or video from one of the top 30 hot submissions"
+                                "related to a given subreddit. The index is chosen randomly or can be specified "
+                                "(starting at 0 for the hottest submission).",
+                      usage=["/reddit $subreddit", "/reddit $subreddit $index", "/reddit memes", "/reddit memes 4"])
     def send_subreddit_submission(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
         query = self.get_command_parameter("/reddit", update)
