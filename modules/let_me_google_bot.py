@@ -11,17 +11,23 @@ base_url = "https://de.lmgtfy.com/"
 class LetMeGoogleBot(AbstractModule):
 
     @register_command(command="google",
-                      short_desc="Googles the term for you via the 'Let me google that for you API'", long_desc="", usage=[""])
+                      short_desc="Let me google that for you!",
+                      long_desc="Googles the term for you via the 'Let me google that for you API'",
+                      usage=["/google $term"])
     def google(self, update: Update, context: CallbackContext):
         self.create_google_request(update, context)
 
     @register_command(command="ya",
-                      short_desc="Yahoos the term for you via the 'Let me google that for you API'", long_desc="", usage=[""])
+                      short_desc="Let me yahoo that for you!",
+                      long_desc="Yahoos the term for you via the 'Let me google that for you API'",
+                      usage=["/ya $term"])
     def yahoo(self, update: Update, context: CallbackContext):
         self.create_google_request(update, context)
 
     @register_command(command="ddg",
-                      short_desc="DuckDuckGoes the term for you via the 'Let me google that for you API'", long_desc="", usage=[""])
+                      short_desc="Let me duck duck go that for you!",
+                      long_desc="DuckDuckGoes the term for you via the 'Let me google that for you API'",
+                      usage=[""])
     def duck_duck_go(self, update: Update, context: CallbackContext):
         self.create_google_request(update, context)
 

@@ -6,7 +6,7 @@ from utils.decorators import register_command, register_module, send_action
 
 @register_module()
 class CatBot(AbstractModule):
-    @register_command(command="cat", short_desc="Sends cat", long_desc="", usage=[""])
+    @register_command(command="cat", short_desc="Sends cat", long_desc="Sends a random cat", usage=["/cat"])
     @send_action(action=ChatAction.UPLOAD_VIDEO)
     def cat_command(self, update: Update, context: CallbackContext):
         query = self.get_command_parameter("/cat", update)
