@@ -1,12 +1,12 @@
 import json
 import urllib
 
-from telegram import Update
-from telegram.ext import CommandHandler, CallbackContext, Dispatcher
+from telegram import Update, MessageEntity
+from telegram.ext import CommandHandler, CallbackContext, Dispatcher, Filters, DispatcherHandlerStop
 
 from modules.abstract_module import AbstractModule
 from sending_actions import send_photo_action
-from utils.decorators import register_command, register_module
+from utils.decorators import register_command, register_module, register_message_watcher
 
 
 @register_module()
@@ -54,3 +54,23 @@ class DefaultModule(AbstractModule):
             self.mutedAccounts.append(person)
         else:
             update.message.reply_text('Sry du deafst kan muten..')
+
+    @register_message_watcher(filter=Filters.command)
+    def has_rights(self, update: Update, context: CallbackContext):
+        if update.message.from_user.name in AbstractModule.mutedAccounts:
+            update.message.reply_text('..hot wer wos gsogt?')
+            raise DispatcherHandlerStop()
+        if update.message.from_user.last_name in AbstractModule.mutedAccounts:
+            update.message.reply_text('..hot wer wos gsogt?')
+            raise DispatcherHandlerStop()
+
+    @register_message_watcher(filter=Filters.command)
+    def unknown(self, update: Update, context: CallbackContext):
+        group = 1  # CommandHandler Queue
+        handlers = context.dispatcher.handlers
+
+        for handler in handlers[group]:
+            check = handler.check_update(update)
+            if check is not None and check is not False:
+                return
+        update.message.reply_text("Ich nix verstehen... 😢")

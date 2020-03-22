@@ -9,20 +9,16 @@ import random
 import requests
 from telegram import InlineQueryResultArticle, InputTextMessageContent
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackQueryHandler, \
-    CallbackContext, Dispatcher
+    Dispatcher
 
 from api_key_reader import read_key
 from calender_read import send_day_ended_sticker
 from calender_read import send_first_appointment_of_day, setup_day_ended
 # from modules.comic_bot import send_comic_if_new
 from google_search import get_image, get_gif, get_youtube
-from inspire_bot import receive_quote, send_quote_with_text
-from mittag_bot import receive_menue
 from modules.coffee_bot import sendCoffeeInvitation, sendCoffeeLocation
 from modules.job_register_bot import register_methods_in_file
-from ooe_nachrichten_bot import get_newest_news
 from reddit_bot import send_funny_submission, send_subreddit_submission
-from rule_34_bot import fetch_porn
 from sending_actions import send_photo_action, send_video_action
 from utils.random_text import get_random_string_of_messages_file
 
@@ -71,25 +67,11 @@ def cat(bot, update):
     # receive_cat(bot, update)
 
 
-@send_photo_action
-def rule34(bot, update):
-    if not (has_rights(update)):
-        return
-    fetch_porn(bot, update)
-
-
 # CoffeeBot
 def coffee(bot, update):
     if not (has_rights(update)):
         return
     sendCoffeeInvitation(bot, update)
-
-
-@send_photo_action
-def quote(bot, update):
-    if not (has_rights(update)):
-        return
-    receive_quote(bot, update)
 
 
 def funny(bot, update):
@@ -102,24 +84,6 @@ def reddit(bot, update):
     if not (has_rights(update)):
         return
     send_subreddit_submission(bot, update)
-
-
-def get_news(bot, update):
-    if not (has_rights(update)):
-        return
-    get_newest_news(bot, update)
-
-
-def food(bot, update):
-    if not (has_rights(update)):
-        return
-    receive_menue(bot, update)
-
-
-def unknown(but, update):
-    if not (has_rights(update)):
-        return
-    update.message.reply_text("Ich nix verstehen... 😢")
 
 
 def bop(bot, update):
@@ -163,11 +127,6 @@ def daily_appointment(bot, job):
             send_day_ended_sticker(bot, job)
 
 
-def daily_quote(bot, job):
-    # send quote of the day
-    send_quote_with_text(bot, job, get_random_string_of_messages_file("constants/messages/quote_subtitles.json"))
-
-
 def daily_comic(bot, job):
     # send_comic_if_new(bot, job)
     pass
@@ -184,9 +143,7 @@ def daily_timer(bot, update, job_queue):
     time_morning = datetime.time(8, 15, 0, 0)
     job_queue.run_daily(daily_appointment, time_morning, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
                         name="Daily_Appointment")
-    time_ten = datetime.time(10, 0, 0, 0)
-    job_queue.run_daily(daily_quote, time_ten, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
-                        name="Daily_Quote")
+
     time_twelve = datetime.time(hour=12, minute=00, second=0)
     job_queue.run_daily(daily_comic, time_twelve, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
                         name="Daily_Comic")
@@ -254,9 +211,19 @@ def load_module(name, dp: Dispatcher):
         register_methods_in_file(run_daily_methods, dp)
     for (key, method) in methods:
         if hasattr(method, "_command") and hasattr(method, "_text"):
-            dp.add_handler(CommandHandler(method._command, method))
-            help_text_func = getattr(inst, "add_help_text")
-            help_text_func(f"/{method._command} {method._text} \n")
+            register_command_handler(dp, method, inst)
+        if hasattr(method, "_filter"):
+            register_message_watcher(dp, method, inst)
+
+
+def register_command_handler(dp: Dispatcher, method, inst):
+    dp.add_handler(CommandHandler(method._command, method), group=1)
+    help_text_func = getattr(inst, "add_help_text")
+    help_text_func(f"/{method._command} {method._text} \n")
+
+
+def register_message_watcher(dp: Dispatcher, method, inst):
+    dp.add_handler(MessageHandler(Filters.command, method), group=0)
 
 
 def main():
@@ -269,15 +236,12 @@ def main():
     dp.add_handler(CommandHandler('yt', yt))
     # dp.add_handler(CommandHandler('mute', mute))
     dp.add_handler(CommandHandler('who', who_is_muted))
-    dp.add_handler(CommandHandler('rule34', rule34))
     dp.add_handler(CommandHandler('allow', allow))
-    dp.add_handler(CommandHandler('news', get_news))
+
     dp.add_handler(CommandHandler('reverse', reverse))
-    dp.add_handler(CommandHandler('quote', quote))
     dp.add_handler(CommandHandler('funny', funny))
     dp.add_handler(CommandHandler('reddit', reddit))
     # dp.add_handler(CommandHandler('comic', comic))
-    dp.add_handler(CommandHandler('moizeit', food))
     # dp.add_handler(CommandHandler('help', help))
 
     load_modules(dp)
@@ -289,8 +253,6 @@ def main():
     inline_caps_handler = InlineQueryHandler(inline_caps)
     dp.add_handler(inline_caps_handler)
 
-    unknown_handler = MessageHandler(Filters.command, unknown)
-    dp.add_handler(unknown_handler)
     ##job_minute = updater.job_queue.run_repeating(callback_minute, interval=5, first=0)
 
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',

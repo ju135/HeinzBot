@@ -26,8 +26,6 @@ class LetMeGoogleBot(AbstractModule):
         self.create_google_request(update, context)
 
     def create_google_request(self, update: Update, context: CallbackContext):
-        if not self.has_rights(update):
-            return
 
         query1 = self.get_command_parameter("/google", update)
         query2 = self.get_command_parameter("/ya", update)
