@@ -16,7 +16,7 @@ An implementation of a Telegram Bot with the following capabilities:
 * Can invite colleagues for coffee at multiple locations.
 * Can show a a variety of weather information for the selected region:
   * Rain radar
-  * Strom tracking
+  * Storm tracking
   * Wind gusts and average
 
 
@@ -25,7 +25,6 @@ An implementation of a Telegram Bot with the following capabilities:
 * Youtube API 
 * Reddit API
 * Inspirobot API
-* Rule34 API
 * cataas - Cat as a Service
 * RSS Service from Nachrichten.at
 * xkcd.com
