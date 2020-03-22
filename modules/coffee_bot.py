@@ -52,7 +52,7 @@ class CoffeeBot(AbstractModule):
             text += "\n\n"
 
             end = get_random_string_of_messages_file(coffee_message_constants_file,
-                                                     ["ends", query.data.replace('coffee', '')])
+                                                     ["ends", query.data.replace('coffee:', '')])
             if "host" in query.data:  # if hosting, fill in the name, too.
                 end = end.replace("$", str(getTOP(clickingUserID)))
             text += end
