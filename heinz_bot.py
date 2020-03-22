@@ -8,17 +8,18 @@ import random
 
 import requests
 from telegram import InlineQueryResultArticle, InputTextMessageContent
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackQueryHandler, \
+    CallbackContext
 
 from api_key_reader import read_key
 from calender_read import send_day_ended_sticker
 from calender_read import send_first_appointment_of_day, setup_day_ended
-from cat_bot import receive_cat
-from comic_bot import receive_comic, send_comic_if_new
+#from modules.comic_bot import send_comic_if_new
 from google_search import get_image, get_gif, get_youtube
 from inspire_bot import receive_quote, send_quote_with_text
 from mittag_bot import receive_menue
 from modules.coffee_bot import sendCoffeeInvitation, sendCoffeeLocation
+from modules.job_register_bot import register_methods_in_file
 from ooe_nachrichten_bot import get_newest_news
 from reddit_bot import send_funny_submission, send_subreddit_submission
 from rule_34_bot import fetch_porn
@@ -67,7 +68,7 @@ def gif(bot, update):
 def cat(bot, update):
     if not (has_rights(update)):
         return
-    receive_cat(bot, update)
+    # receive_cat(bot, update)
 
 
 @send_photo_action
@@ -134,7 +135,7 @@ def bop(bot, update):
 def comic(bot, update):
     if not (has_rights(update)):
         return
-    receive_comic(bot, update)
+    # receive_comic(bot, update)
 
 
 def ask(bot, update):
@@ -168,7 +169,8 @@ def daily_quote(bot, job):
 
 
 def daily_comic(bot, job):
-    send_comic_if_new(bot, job)
+    #send_comic_if_new(bot, job)
+    pass
 
 
 def daily_timer(bot, update, job_queue):
@@ -193,6 +195,7 @@ def daily_timer(bot, update, job_queue):
 def load_modules(dp):
     f = open(configFile, "r")
     modules = os.listdir(os.path.dirname("modules/"))
+    modules = list(filter(lambda x: x[-3:] == ".py", modules))
     for module in modules:
         load_module(module, dp)
 
@@ -218,19 +221,23 @@ def load_module(name, dp):
 
         # create class instance
     clazz = getattr(module, clazz_name)
-    if hasattr(clazz, "_active") and hasattr(clazz, "_key"):
-        if clazz._active is not True or clazz._key != clazz_name:
+    if hasattr(clazz, "_active"):
+        if clazz._active is not True:
             return
     else:
         return
 
     inst = clazz()
     methods = inspect.getmembers(inst, predicate=inspect.ismethod)
+    run_daily_methods = list(filter(lambda x: hasattr(x[1], "_daily_run_time_decorator") and
+                                              hasattr(x[1], "_daily_run_name_decorator"), methods))
+    if len(run_daily_methods) > 0:
+        register_methods_in_file(run_daily_methods, dp)
     for (key, method) in methods:
         if hasattr(method, "_command") and hasattr(method, "_text"):
             dp.add_handler(CommandHandler(method._command, method))
             help_text_func = getattr(inst, "add_help_text")
-            help_text_func(method._text)
+            help_text_func(f"/{method._command} {method._text} \n")
 
 
 def main():
@@ -243,7 +250,6 @@ def main():
     dp.add_handler(CommandHandler('yt', yt))
     # dp.add_handler(CommandHandler('mute', mute))
     dp.add_handler(CommandHandler('who', who_is_muted))
-    dp.add_handler(CommandHandler('cat', cat))
     dp.add_handler(CommandHandler('rule34', rule34))
     dp.add_handler(CommandHandler('allow', allow))
     dp.add_handler(CommandHandler('news', get_news))
@@ -251,7 +257,7 @@ def main():
     dp.add_handler(CommandHandler('quote', quote))
     dp.add_handler(CommandHandler('funny', funny))
     dp.add_handler(CommandHandler('reddit', reddit))
-    dp.add_handler(CommandHandler('comic', comic))
+    # dp.add_handler(CommandHandler('comic', comic))
     dp.add_handler(CommandHandler('moizeit', food))
     # dp.add_handler(CommandHandler('help', help))
 
@@ -259,13 +265,14 @@ def main():
     dp.add_handler(CommandHandler("coffee", coffee))
     dp.add_handler(CallbackQueryHandler(sendCoffeeLocation))
 
-    daily_handler = CommandHandler('start', daily_timer, pass_job_queue=True)
-    dp.add_handler(daily_handler)
+    # daily_handler = CommandHandler('start', daily_timer, pass_job_queue=True)
+    # dp.add_handler(daily_handler)
     inline_caps_handler = InlineQueryHandler(inline_caps)
     dp.add_handler(inline_caps_handler)
 
     unknown_handler = MessageHandler(Filters.command, unknown)
     dp.add_handler(unknown_handler)
+    ##job_minute = updater.job_queue.run_repeating(callback_minute, interval=5, first=0)
 
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                         level=logging.INFO)

@@ -1,5 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from constants.members import getName, getTOP
+from modules.default_module import DefaultModule
+from utils.decorators import register_module
 from utils.random_text import get_random_string_of_messages_file
 
 currentUpdate = None # the current invitation we are editing
@@ -49,3 +51,8 @@ def sendCoffeeLocation(bot, update):
     else:
         bot.send_message(chat_id=currentUpdate.message.chat.id,
                          text="Herst {}, hab i mid dia gredt?".format(getName(clickingUserID)))
+
+
+@register_module(active=False)
+class CoffeeBot(DefaultModule):
+    pass

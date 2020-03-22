@@ -8,7 +8,7 @@ from sending_actions import send_photo_action
 from utils.decorators import register_command, register_module
 
 
-@register_module(active=True, key="DefaultModule")
+@register_module(active=True)
 class DefaultModule:
     mutedAccounts = list()
     __commandList = ""

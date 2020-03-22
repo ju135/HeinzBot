@@ -1,5 +1,4 @@
 import json
-from multiprocessing.reduction import register
 
 import requests
 import telegram
@@ -12,7 +11,7 @@ from utils.decorators import register_command, register_module
 base_url = "https://de.lmgtfy.com/"
 
 
-@register_module(active=False, key="Module")
+@register_module(active=False)
 class LetMeGoogleBot(DefaultModule):
 
     def add_command(self, dp):

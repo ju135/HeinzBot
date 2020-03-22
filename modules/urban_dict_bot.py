@@ -1,18 +1,20 @@
 import telegram
-from telegram.ext import CommandHandler
+from telegram import Update
+from telegram.ext import CommandHandler, CallbackContext
 from modules.default_module import DefaultModule
 import requests
 import json
 from api_key_reader import read_key
+from utils.decorators import register_module, register_command
 
-url = "https://mashape-community-urban-dictionary.p.rapidapi.com/define"
+URL = "https://mashape-community-urban-dictionary.p.rapidapi.com/define"
 
 
-def remove_brackets(text: str) -> str:
+def __remove_brackets(text: str) -> str:
     return text.replace('[', '').replace(']', '')
 
 
-def create_markdown_text(word: str, index: str, definition: str, example: str) -> str:
+def __create_markdown_text(word: str, index: str, definition: str, example: str) -> str:
     # example formatting: *bold* _italic_ `fixed width font` [link](http://google.com).
     markdown_text = f"*{word}* _{index}_\n\n" \
                     f"{definition}\n\n" \
@@ -21,7 +23,7 @@ def create_markdown_text(word: str, index: str, definition: str, example: str) -
     return markdown_text
 
 
-def get_index_from_query(query: str) -> (int, str):
+def _get_index_from_query(query: str) -> (int, str):
     words = query.split(" ")
     index = 0
     new_query = query
@@ -39,14 +41,14 @@ def get_index_from_query(query: str) -> (int, str):
     return index, new_query
 
 
-def get_dict_entry_and_send(index, query, bot, update) -> bool:
+def _get_dict_entry_and_send(index, query, bot, update) -> bool:
     querystring = {"term": query}
     headers = {
         'x-rapidapi-host': "mashape-community-urban-dictionary.p.rapidapi.com",
         'x-rapidapi-key': read_key("rapid_urban_dict_secret")
     }
 
-    response = requests.request("GET", url, headers=headers, params=querystring)
+    response = requests.request("GET", URL, headers=headers, params=querystring)
 
     if response is None or not response.ok:
         return False
@@ -57,12 +59,12 @@ def get_dict_entry_and_send(index, query, bot, update) -> bool:
 
     try:
         data_object = dict_data['list'][index]
-        definition = remove_brackets(data_object['definition'])
-        word = remove_brackets(data_object['word'])
-        example = remove_brackets(data_object['example'])
+        definition = __remove_brackets(data_object['definition'])
+        word = __remove_brackets(data_object['word'])
+        example = __remove_brackets(data_object['example'])
         indexText = f"({index+1}/{len(dict_data['list'])})"
 
-        formatted_text = create_markdown_text(word, indexText, definition, example)
+        formatted_text = __create_markdown_text(word, indexText, definition, example)
 
         chat_id = update.message.chat_id
         bot.send_message(chat_id=chat_id, text=formatted_text, parse_mode=telegram.ParseMode.MARKDOWN)
@@ -72,13 +74,10 @@ def get_dict_entry_and_send(index, query, bot, update) -> bool:
         return False
 
 
+@register_module(active=True)
 class UrbanDictBot(DefaultModule):
-    def add_command(self, dp):
-        instance = UrbanDictBot()
-        dp.add_handler(CommandHandler('whatis', instance.what_is))
-        return dp
-
-    def what_is(self, bot, update):
+    @register_command(command="whatis", text="/whatis Kennst di bei and wort oda a phrasn ned aus? I hüf da weita. 🤓 \n")
+    def what_is(self, update: Update, context: CallbackContext):
         if not self.has_rights(update):
             return
 
@@ -89,8 +88,8 @@ class UrbanDictBot(DefaultModule):
             return
 
         # find the entry index
-        index, query = get_index_from_query(query)
+        index, query = _get_index_from_query(query)
 
-        success = get_dict_entry_and_send(index, query, bot, update)
+        success = _get_dict_entry_and_send(index, query, context.bot, update)
         if not success:
             update.message.reply_text("Leider nix gfunden...")

@@ -6,8 +6,10 @@ import requests
 import api_key_reader
 
 from modules.default_module import DefaultModule
+from utils.decorators import register_module
 
 
+@register_module(active=False)
 class SpoontacularBot(DefaultModule):
     url = "https://api.spoonacular.com/"
 

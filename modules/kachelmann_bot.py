@@ -7,8 +7,10 @@ import datetime
 import api_key_reader
 
 from modules.default_module import DefaultModule
+from utils.decorators import register_module
 
 
+@register_module(active=False)
 class KachelmannBot(DefaultModule):
 
     def add_command(self, dp):
