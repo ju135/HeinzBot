@@ -30,8 +30,6 @@ class ComicBot(AbstractModule):
 
     @run_daily(name="daily_comic", time=datetime.time(hour=14 - 1, minute=29, second=10))
     def send_comic_if_new(self, context: CallbackContext, chat_id: str):
-        chat_id = "-1001325436798"
-        context.bot.send_message(chat_id, "hoi")
         comic_data = receive_current_comic_data()
         comic_release_date = datetime.date(int(comic_data["year"]), int(comic_data["month"]), int(comic_data["day"]))
         yesterday = date.today() - timedelta(days=1)
@@ -47,7 +45,7 @@ def send_comic_if_new2(bot, job):
     yesterday = date.today() - timedelta(days=1)
     if yesterday == comic_release_date:
         bot.send_photo(chat_id=chat_id, photo=comic_data["img"], caption=("Neuer Comic: " + comic_data["title"]))
-
+    
 
 def receive_current_comic_data():
     url = "https://xkcd.com/info.0.json"

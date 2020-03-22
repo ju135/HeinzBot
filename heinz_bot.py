@@ -192,6 +192,25 @@ def daily_timer(bot, update, job_queue):
                         name="Daily_Comic")
 
 
+def daily_timer2(bot, update, job_queue):
+    if job_queue.get_jobs_by_name("Daily_Quote"):
+        bot.send_message(chat_id=update.message.chat_id,
+                         text='Da bot laft eh scho.')
+        return
+    bot.send_message(chat_id=update.message.chat_id,
+                     text='Jawohl Chef, bot is augstart!')
+
+    time_morning = datetime.time(8, 15, 0, 0)
+    job_queue.run_daily(daily_appointment, time_morning, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
+                        name="Daily_Appointment")
+    time_ten = datetime.time(10, 0, 0, 0)
+    job_queue.run_daily(daily_quote, time_ten, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
+                        name="Daily_Quote")
+    time_twelve = datetime.time(hour=12, minute=00, second=0)
+    job_queue.run_daily(daily_comic, time_twelve, days=(0, 1, 2, 3, 4, 5, 6), context=update.message.chat_id,
+                        name="Daily_Comic")
+
+
 def load_modules(dp):
     f = open(configFile, "r")
     modules = os.listdir(os.path.dirname("modules/"))
@@ -278,6 +297,11 @@ def main():
                         level=logging.INFO)
     updater.start_polling()
     # updater.idle()
+
+
+def callback_minute(context: CallbackContext):
+    context.bot.send_message(chat_id=testChatId,
+                             text='One message every minute')
 
 
 def allow(bot, update):
