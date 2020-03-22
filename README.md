@@ -25,7 +25,6 @@ An implementation of a Telegram Bot with the following capabilities:
 * Youtube API 
 * Reddit API
 * Inspirobot API
-* Rule34 API
 * cataas - Cat as a Service
 * RSS Service from Nachrichten.at
 * xkcd.com
