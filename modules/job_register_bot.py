@@ -7,6 +7,26 @@ from utils.decorators import register_module, register_command
 CHAT_ID_FILE = "utils/connected-chats.json"
 
 
+def send_awake_to_subscriber(dispatcher):
+    chat_ids = _get_all_chat_ids()
+    for chat_id in chat_ids:
+        dispatcher.job_queue.run_once(_awake_message, 0, context=chat_id)
+
+
+def _awake_message(context: CallbackContext):
+    context.bot.send_message(chat_id=context.job.context, text='He hallo, i hob mi gach nei gstart.')
+
+
+def _get_all_chat_ids():
+    json_data = _read_chat_id_json_content()
+    chat_ids = []
+    for job_chat_ids in json_data:
+        for chat_id in json_data[job_chat_ids]:
+            if chat_id not in chat_ids:
+                chat_ids.append(chat_id)
+    return chat_ids
+
+
 def call_method_for_registered_chats(context: CallbackContext):
     # the job-context contains the method to call
     method_to_call = context.job.context

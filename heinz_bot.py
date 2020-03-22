@@ -5,7 +5,7 @@ import os
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, Dispatcher, \
     CallbackQueryHandler
 
-from modules.job_register_bot import register_methods_in_file
+from modules.job_register_bot import register_methods_in_file, send_awake_to_subscriber
 from utils.api_key_reader import read_key
 
 
@@ -86,6 +86,7 @@ def main():
     updater = Updater(read_key("telegram"), use_context=True)
     dp = updater.dispatcher
     load_modules(dp)
+    send_awake_to_subscriber(dp)
 
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                         level=logging.INFO)
