@@ -8,7 +8,7 @@ from modules.abstract_module import AbstractModule
 from utils.decorators import register_module, register_command, send_action
 
 
-#@register_module()
+# @register_module()
 class GoogleBot(AbstractModule):
     @register_command(command="image", short_desc="Googlet noch an foto und schickts 👌🏼", long_desc="", usage=[""])
     @send_action(action=ChatAction.UPLOAD_PHOTO)

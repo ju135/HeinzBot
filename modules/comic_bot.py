@@ -13,7 +13,8 @@ from utils.decorators import register_module, register_command, run_daily, send_
 
 @register_module()
 class ComicBot(AbstractModule):
-    @register_command(command="comic", short_desc="TODO", long_desc="", usage=[""])
+    @register_command(command="comic", short_desc="Send a comic picture",
+                      long_desc="Sends a picture from 'https://xkcd.com' into the group", usage=["/comic"])
     @send_action(action=ChatAction.UPLOAD_PHOTO)
     def receive_comic(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
@@ -34,7 +35,7 @@ class ComicBot(AbstractModule):
         yesterday = date.today() - timedelta(days=1)
         if yesterday == comic_release_date:
             context.bot.send_photo(chat_id=chat_id, photo=comic_data["img"],
-                                    caption=("Neuer Comic: " + comic_data["title"]))
+                                   caption=("Neuer Comic: " + comic_data["title"]))
 
 
 def receive_current_comic_data():

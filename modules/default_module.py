@@ -16,7 +16,9 @@ from utils.random_text import get_random_string_of_messages_file
 @register_module()
 class DefaultModule(AbstractModule):
 
-    @register_command(command="help", short_desc="Show this help message.", long_desc="", usage=[""])
+    @register_command(command="help", short_desc="Show this help message.",
+                      long_desc="Are you dumb? This shows help messages. Please search for professional help.",
+                      usage=["/help"])
     def help(self, update: Update, context: CallbackContext):
         chat_id = self.get_chat_id(update)
         cmd_list = sorted(AbstractModule._commandList, key=lambda x: x["command"])
@@ -59,7 +61,8 @@ class DefaultModule(AbstractModule):
         return message
 
     # In Version 12 of the telegram bot some major changes were made.
-    @register_command(command="default", short_desc="Show a default message.", long_desc="", usage=[""])
+    @register_command(command="default", short_desc="Show a default message.",
+                      long_desc="Shows a default message. This is for testing porpoise", usage=["/default"])
     def default_command(self, update: Update, context: CallbackContext):
         # Get the new job handler
         job = context.job
@@ -85,7 +88,8 @@ class DefaultModule(AbstractModule):
         # sticker = open(file_url, "rb")
         context.bot.send_sticker(chat_id=chat_id, sticker=file_url)
 
-    @register_command(command="mute", short_desc="Mute a user", long_desc="", usage=[""])
+    @register_command(command="mute", short_desc="Mute a user", long_desc="Only the admin is allowed to mute a user.",
+                      usage=["/mute $name"])
     def mute(self, update: Update, context: CallbackContext):
         if update.message.from_user.username == "jajules":
             person = update.message.text.replace('/mute ', '')
@@ -96,7 +100,8 @@ class DefaultModule(AbstractModule):
         else:
             update.message.reply_text('Sry du deafst kan muten..')
 
-    @register_command(command="bop", short_desc="Cute doggo bilder 🐕", long_desc="", usage=[""])
+    @register_command(command="bop", short_desc="Cute doggo pictures 🐕", long_desc="Cute doggo pictures 🐕",
+                      usage=["/bop"])
     @send_action(action=ChatAction.UPLOAD_PHOTO)
     def bop(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
@@ -104,20 +109,22 @@ class DefaultModule(AbstractModule):
         url = contents['url']
         context.bot.send_photo(chat_id=chat_id, photo=url)
 
-    @register_command(command="ask", short_desc="Entscheidungshilfe bei ja/nein fragen.", long_desc="", usage=[""])
+    @register_command(command="ask", short_desc="A decision support",
+                      long_desc="Helps if you are unclear if yes or no. Has to end with a ?", usage=["/ask $term ?"])
     def ask(self, update: Update, context: CallbackContext):
         if '?' not in update.message.text:
             update.message.reply_text("des woa jetzt aber ka frog..")
             return
         update.message.reply_text(get_random_string_of_messages_file("constants/messages/ask_answers.json"))
 
-    @register_command(command="reverse", short_desc="Reversiert den übergebenen Text.", long_desc="", usage=[""])
+    @register_command(command="reverse", short_desc="Reverts a text", long_desc="Reverts a text",
+                      usage=["/revert $text"])
     def reverse(self, update: Update, context: CallbackContext):
         t = self.get_command_parameter("/reverse", update)
         if t:
             context.bot.send_message(chat_id=update.message.chat_id, text=t[::-1])
 
-    @register_command(command="allow", short_desc="allows a user", long_desc="", usage=["/allow $user"])
+    @register_command(command="allow", short_desc="Allows a user", long_desc="Allows a user", usage=["/allow $user"])
     def allow(self, update: Update, context: CallbackContext):
         if update.message.from_user.username == "jajules":
             person = update.message.text.replace('/allow ', '')
@@ -127,7 +134,7 @@ class DefaultModule(AbstractModule):
         else:
             update.message.reply_text('Sry du deafst des ned.. :(')
 
-    @register_command(command="who", short_desc="Shows who is muted", long_desc="", usage=[""])
+    @register_command(command="who", short_desc="Shows who is muted", long_desc="Shows who is muted", usage=["/who"])
     def who_is_muted(self, update: Update, context: CallbackContext):
         text = "Sprechverbot: \n"
         for i in AbstractModule.mutedAccounts:
