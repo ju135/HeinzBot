@@ -81,8 +81,7 @@ class UrbanDictBot(AbstractModule):
     @register_command(command="whatis",
                       text="/whatis Kennst di bei and wort oda a phrasn ned aus? I hüf da weita. 🤓 \n")
     def what_is(self, update: Update, context: CallbackContext):
-        if not self.has_rights(update):
-            return
+
 
         query = self.get_command_parameter("/whatis", update)
 

@@ -5,7 +5,7 @@ from telegram import Update
 
 
 class AbstractModule(ABC):
-    mutedAccounts = list()
+    mutedAccounts = []
     _commandList = ""
     keyFileName = "api-keys.json"
 
@@ -24,17 +24,6 @@ class AbstractModule(ABC):
         except:
             print(key_name + " not found")
             return ""
-
-    def has_rights(self, update):
-        if update.message.from_user.name in self.mutedAccounts:
-            update.message.reply_text(
-                '..hot wer wos gsogt?')
-            return False
-        if update.message.from_user.last_name in self.mutedAccounts:
-            update.message.reply_text(
-                '..hot wer wos gsogt?')
-            return False
-        return True
 
     def get_command_parameter(self, command: str, update) -> str:
         text = update.message.text

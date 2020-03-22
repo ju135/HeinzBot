@@ -1,5 +1,7 @@
 import datetime
 
+from telegram.ext import Filters
+
 
 def register_command(command, text):
     def register_wrapper(func):
@@ -23,5 +25,13 @@ def run_daily(name: str, time: datetime.time):
         clazz._daily_run_name_decorator = name
         clazz._daily_run_time_decorator = time
         return clazz
+
+    return register_wrapper
+
+
+def register_message_watcher(filter: Filters):
+    def register_wrapper(func):
+        func._filter = filter
+        return func
 
     return register_wrapper

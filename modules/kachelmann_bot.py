@@ -85,8 +85,6 @@ class KachelmannBot(AbstractModule):
         return (region, errorMessage)
 
     def radar(self, bot, update):
-        if not self.has_rights(update):
-            return
 
         queryText = self.get_command_parameter("/radar", update)
 
@@ -109,8 +107,6 @@ class KachelmannBot(AbstractModule):
         bot.send_photo(chat_id=chat_id, photo=imageURL)
 
     def tracking(self, bot, update):
-        if not self.has_rights(update):
-            return
 
         queryText = self.get_command_parameter("/tracking", update)
 
@@ -134,8 +130,6 @@ class KachelmannBot(AbstractModule):
         bot.send_photo(chat_id=chat_id, photo=imageURL)
 
     def wind(self, bot, update):
-        if not self.has_rights(update):
-            return
 
         queryText = self.get_command_parameter("/wind", update)
 
