@@ -1,17 +1,17 @@
 import requests
 from xml.dom import minidom
-
 from telegram import Update
 from telegram.ext import CallbackContext
-
 from modules.abstract_module import AbstractModule
 from utils.decorators import register_module, register_command
 
 
 @register_module()
 class OENewsBot(AbstractModule):
-
-    @register_command(command="news", short_desc="Gets the latest $number news", long_desc="", usage=[""])
+    @register_command(command="news", short_desc="Gets the latest austrian news. 📰",
+                      long_desc="Fetches the latest news from 'OÖNachrichten' and sends it. "
+                                "The amount of news can be specified. If not specified, one article is sent.",
+                      usage=["/news", "/news $amount", "/news 4"])
     def get_newest_news(self, update: Update, context: CallbackContext):
         query = self.get_command_parameter("/news", update)
         if query is None or query.isdigit():

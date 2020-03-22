@@ -106,7 +106,11 @@ class JobRegisterBot(AbstractModule):
 
         update.message.reply_text(message)
 
-    @register_command(command="stop", short_desc="To stop the daily jobs", long_desc="", usage=[""])
+    @register_command(command="stop", short_desc="To stop the daily jobs.",
+                      long_desc="Enter this command to remove a subscription of a job.\n"
+                                "Specific jobs to be removed can be specified otherwise "
+                                "all are removed (see usage).",
+                      usage=["/stop", "/stop $job1", "/stop $job1 $job2"])
     def stop_job(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
         parameter = self.get_command_parameter("/stop", update)

@@ -1,10 +1,8 @@
 import json
-
 import requests
 import telegram
 from telegram import Update
-from telegram.ext import CommandHandler, CallbackContext
-
+from telegram.ext import  CallbackContext
 from utils import api_key_reader
 from modules.abstract_module import AbstractModule
 from utils.decorators import register_module, register_command

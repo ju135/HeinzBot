@@ -40,7 +40,9 @@ class RedditBot(AbstractModule):
                 _send_photo(context.bot, chat_id, submission.url, submission.title)
 
     @register_command(command="funny",
-                      short_desc="i schick da funny reddit submissions. 👌", long_desc="", usage=[""])
+                      short_desc="Sends a funny Reddit submission. 👌",
+                      long_desc="Searches the 'r/funny' subreddit for submissions and returns a "
+                                "random image/video submission of the top 25 hot posts.", usage=["/funny"])
     def send_funny_submission(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
         submission = _get_submission_for_subreddit("funny", 25, None)
