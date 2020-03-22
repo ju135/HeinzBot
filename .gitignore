@@ -9,6 +9,9 @@ bin/
 # API Keys
 api-keys.json
 
+# Chat-id-template
+utils/connected-chats.json
+
 ### VSCode ###
 .vscode/settings.json
 .vscode/launch.json
