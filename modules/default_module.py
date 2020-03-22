@@ -78,6 +78,10 @@ class DefaultModule(AbstractModule):
             context.bot.send_message(chat_id=update.message.chat_id, text=t[::-1])
 
     @register_message_watcher(filter=Filters.command)
+    def run_prechecks(self, update: Update, context: CallbackContext):
+        self.has_rights(update, context)
+        self.unknown(update, context)
+
     def has_rights(self, update: Update, context: CallbackContext):
         if update.message.from_user.name in AbstractModule.mutedAccounts:
             update.message.reply_text('..hot wer wos gsogt?')
@@ -86,7 +90,6 @@ class DefaultModule(AbstractModule):
             update.message.reply_text('..hot wer wos gsogt?')
             raise DispatcherHandlerStop()
 
-    @register_message_watcher(filter=Filters.command)
     def unknown(self, update: Update, context: CallbackContext):
         group = 1  # CommandHandler Queue
         handlers = context.dispatcher.handlers
