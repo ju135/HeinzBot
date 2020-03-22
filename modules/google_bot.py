@@ -10,7 +10,7 @@ from utils.decorators import register_module, register_command, send_action
 
 #@register_module()
 class GoogleBot(AbstractModule):
-    @register_command(command="image", text="Googlet noch an foto und schickts 👌🏼")
+    @register_command(command="image", short_desc="Googlet noch an foto und schickts 👌🏼", long_desc="", usage=[""])
     @send_action(action=ChatAction.UPLOAD_PHOTO)
     def get_image(self, update: Update, context: CallbackContext):
         query = self.get_command_parameter("/image", update)
@@ -41,7 +41,7 @@ class GoogleBot(AbstractModule):
         for i, (img, Type) in enumerate(actual_images):
             context.bot.send_photo(chat_id=chat_id, photo=img)
 
-    @register_command(command="gif", text="Googlet noch an gif und schickts 👌🏼")
+    @register_command(command="gif", short_desc="Googlet noch an gif und schickts 👌🏼", long_desc="", usage=[""])
     @send_action(action=ChatAction.UPLOAD_VIDEO)
     def get_gif(self, update: Update, context: CallbackContext):
         query = self.get_command_parameter('/gif', update)

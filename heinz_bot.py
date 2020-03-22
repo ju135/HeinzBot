@@ -55,7 +55,8 @@ def load_module(name, dp: Dispatcher):
     if len(run_daily_methods) > 0:
         register_methods_in_file(run_daily_methods, dp)
     for (key, method) in methods:
-        if hasattr(method, "_command") and hasattr(method, "_text"):
+        if hasattr(method, "_command") and hasattr(method, "_short_desc") and \
+                hasattr(method, "_long_desc") and hasattr(method, "_usage"):
             register_command_handler(dp, method, inst)
         if hasattr(method, "_filter"):
             register_message_watcher(dp, method, inst)
@@ -64,7 +65,7 @@ def load_module(name, dp: Dispatcher):
 def register_command_handler(dp: Dispatcher, method, inst):
     dp.add_handler(CommandHandler(method._command, method), group=1)
     help_text_func = getattr(inst, "add_help_text")
-    help_text_func(f"/{method._command} {method._text} \n")
+    help_text_func(method._command, method._short_desc, method._long_desc, method._usage)
 
 
 def register_message_watcher(dp: Dispatcher, method, inst):

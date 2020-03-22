@@ -1,7 +1,6 @@
 import json
 from telegram import Update
 from telegram.ext import CallbackContext
-
 from modules.abstract_module import AbstractModule
 from utils.decorators import register_module, register_command
 
@@ -75,7 +74,10 @@ def add_sub_to_jobs(jobs: [str], chat_id: str):
 
 @register_module()
 class JobRegisterBot(AbstractModule):
-    @register_command(command="start", text="To start the daily jobs")
+    @register_command(command="start", short_desc="To start the daily jobs.",
+                      long_desc="Enter this command subscribe to notifcations of available jobs.\n"
+                                "Specific jobs to start can be specified (see usage).",
+                      usage=["/start", "/start $job1", "/start $job1 $job2"])
     def start_job(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
         parameter = self.get_command_parameter("/start", update)
@@ -104,7 +106,7 @@ class JobRegisterBot(AbstractModule):
 
         update.message.reply_text(message)
 
-    @register_command(command="stop", text="To stop the daily jobs")
+    @register_command(command="stop", short_desc="To stop the daily jobs", long_desc="", usage=[""])
     def stop_job(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
         parameter = self.get_command_parameter("/stop", update)

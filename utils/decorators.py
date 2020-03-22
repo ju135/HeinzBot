@@ -3,10 +3,12 @@ from functools import wraps
 from telegram.ext import Filters
 
 
-def register_command(command, text):
+def register_command(command, short_desc, long_desc, usage):
     def register_wrapper(func):
         func._command = command
-        func._text = text
+        func._short_desc = short_desc
+        func._long_desc = long_desc
+        func._usage = usage
         return func
 
     return register_wrapper

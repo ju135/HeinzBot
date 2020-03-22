@@ -6,14 +6,15 @@ from telegram import Update
 
 class AbstractModule(ABC):
     mutedAccounts = []
-    _commandList = ""
+    _commandList = []
     keyFileName = "api-keys.json"
 
     def get_chat_id(self, update: Update):
         return update.message.chat_id
 
-    def add_help_text(self, text):
-        AbstractModule._commandList += text
+    def add_help_text(self, command: str, short_desc: str, long_desc: str, usage: [str]):
+        AbstractModule._commandList.append({"command": command, "short_desc": short_desc,
+                                        "long_desc": long_desc, "usage": usage})
 
     def get_api_key(self, key_name):
         f = open(self.keyFileName, "r")

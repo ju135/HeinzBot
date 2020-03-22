@@ -79,7 +79,8 @@ def _get_dict_entry_and_send(index, query, bot, update) -> bool:
 @register_module()
 class UrbanDictBot(AbstractModule):
     @register_command(command="whatis",
-                      text="/whatis Kennst di bei and wort oda a phrasn ned aus? I hüf da weita. 🤓 \n")
+                      short_desc="Kennst di bei and wort oda a phrasn ned aus? I hüf da weita. 🤓",
+                      long_desc="", usage=[""])
     def what_is(self, update: Update, context: CallbackContext):
 
 

@@ -12,7 +12,7 @@ from utils.random_text import get_random_string_of_messages_file
 @register_module()
 class InspireBot(AbstractModule):
 
-    @register_command(command="quote", text="Sends an inspiring picture with text")
+    @register_command(command="quote", short_desc="Sends an inspiring picture with text", long_desc="", usage=[""])
     def receive_quote(self, update: Update, context: CallbackContext):
         r = requests.get('https://inspirobot.me/api?generate=true')
         chat_id = update.message.chat_id

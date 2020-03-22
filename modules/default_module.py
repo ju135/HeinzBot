@@ -2,6 +2,7 @@ import json
 import urllib
 
 import requests
+import telegram
 from telegram import Update, MessageEntity, ChatAction
 from telegram.ext import CommandHandler, CallbackContext, Dispatcher, Filters, DispatcherHandlerStop
 
@@ -13,13 +14,50 @@ from utils.random_text import get_random_string_of_messages_file
 @register_module()
 class DefaultModule(AbstractModule):
 
-    @register_command(command="help", text=" Show this help message. \n")
+    @register_command(command="help", short_desc="Show this help message.", long_desc="", usage=[""])
     def help(self, update: Update, context: CallbackContext):
         chat_id = self.get_chat_id(update)
-        context.bot.send_message(chat_id=chat_id, text=AbstractModule._commandList)
+        cmd_list = sorted(AbstractModule._commandList, key=lambda x: x["command"])
+        parameter = self.get_command_parameter("/help", update)
+        if parameter is not None:
+            parameters = parameter.split(" ")
+            help_command = parameters[0].replace("/", "")
+            for cmd_desc in cmd_list:
+                if help_command == cmd_desc["command"]:
+                    context.bot.send_message(chat_id=chat_id,
+                                             text=self.__format_detailed_command_description(cmd_desc),
+                                             parse_mode=telegram.ParseMode.MARKDOWN)
+                    return
+            context.bot.send_message(chat_id=chat_id, text=f"Kommando `{help_command}` existiert nicht.",
+                                     parse_mode=telegram.ParseMode.MARKDOWN)
+            return
+
+        message = "*Commands*\n" \
+                  "_For more detailed descriptions write:_ `/help $command`\n\n"
+
+        #longest_cmd_length = max(list(map(lambda x: len(x["command"]), cmd_list)))
+        for cmd_desc in cmd_list:
+            message += f"/{cmd_desc['command']} - {cmd_desc['short_desc']}\n"
+        context.bot.send_message(chat_id=chat_id, text=message, parse_mode=telegram.ParseMode.MARKDOWN)
+
+    def __format_detailed_command_description(self, command_description) -> str:
+        command = command_description["command"]
+        long_des = command_description["long_desc"]
+        usages = command_description["usage"]
+
+        message = f"*{command}*\n" \
+                  f"{long_des}\n\n" \
+                  f"_Verwendung_:\n"
+
+        message += "`"
+        for usage in usages:
+            message += f"{usage}\n"
+        message += "`"
+
+        return message
 
     # In Version 12 of the telegram bot some major changes were made.
-    @register_command(command="default", text=" Show a default message. \n")
+    @register_command(command="default", short_desc="Show a default message.", long_desc="", usage=[""])
     def default_command(self, update: Update, context: CallbackContext):
         # Get the new job handler
         job = context.job
@@ -45,7 +83,7 @@ class DefaultModule(AbstractModule):
         # sticker = open(file_url, "rb")
         context.bot.send_sticker(chat_id=chat_id, sticker=file_url)
 
-    @register_command(command="mute", text=" $user Mute a user")
+    @register_command(command="mute", short_desc="Mute a user", long_desc="", usage=[""])
     def mute(self, update: Update, context: CallbackContext):
         if update.message.from_user.username == "jajules":
             person = update.message.text.replace('/mute ', '')
@@ -56,7 +94,7 @@ class DefaultModule(AbstractModule):
         else:
             update.message.reply_text('Sry du deafst kan muten..')
 
-    @register_command(command="bop", text="Cute doggo bilder 🐕")
+    @register_command(command="bop", short_desc="Cute doggo bilder 🐕", long_desc="", usage=[""])
     @send_action(action=ChatAction.UPLOAD_PHOTO)
     def bop(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
@@ -64,14 +102,14 @@ class DefaultModule(AbstractModule):
         url = contents['url']
         context.bot.send_photo(chat_id=chat_id, photo=url)
 
-    @register_command(command="ask", text="Entscheidungshilfe bei ja/nein fragen.")
+    @register_command(command="ask", short_desc="Entscheidungshilfe bei ja/nein fragen.", long_desc="", usage=[""])
     def ask(self, update: Update, context: CallbackContext):
         if '?' not in update.message.text:
             update.message.reply_text("des woa jetzt aber ka frog..")
             return
         update.message.reply_text(get_random_string_of_messages_file("constants/messages/ask_answers.json"))
 
-    @register_command(command="reverse", text="Reversiert den übergebenen Text.")
+    @register_command(command="reverse", short_desc="Reversiert den übergebenen Text.", long_desc="", usage=[""])
     def reverse(self, update: Update, context: CallbackContext):
         t = self.get_command_parameter("/reverse", update)
         if t:

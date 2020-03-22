@@ -13,7 +13,7 @@ from utils.decorators import register_module, register_command, run_daily, send_
 
 @register_module()
 class ComicBot(AbstractModule):
-    @register_command(command="comic", text="TODO")
+    @register_command(command="comic", short_desc="TODO", long_desc="", usage=[""])
     @send_action(action=ChatAction.UPLOAD_PHOTO)
     def receive_comic(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id

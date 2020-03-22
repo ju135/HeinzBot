@@ -14,7 +14,8 @@ CLIENT_SECRET = read_key("reddit-client-secret")
 @register_module()
 class RedditBot(AbstractModule):
     @register_command(command="reddit",
-                      text="Wennsd an subreddit angibst schick i da ans vo die top 30 hot bilder oder videos. 😎")
+                      short_desc="Wennsd an subreddit angibst schick i da ans vo die top 30 hot bilder oder videos. 😎",
+                      long_desc="", usage=[""])
     def send_subreddit_submission(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
         query = self.get_command_parameter("/reddit", update)
@@ -36,7 +37,7 @@ class RedditBot(AbstractModule):
                 _send_photo(context.bot, chat_id, submission.url, submission.title)
 
     @register_command(command="funny",
-                      text="i schick da funny reddit submissions. 👌")
+                      short_desc="i schick da funny reddit submissions. 👌", long_desc="", usage=[""])
     def send_funny_submission(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
         submission = _get_submission_for_subreddit("funny", 25, None)

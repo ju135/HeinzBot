@@ -11,7 +11,7 @@ from utils.decorators import register_module, register_command
 @register_module()
 class OENewsBot(AbstractModule):
 
-    @register_command(command="news", text=" $number Gets the latest $number news")
+    @register_command(command="news", short_desc="Gets the latest $number news", long_desc="", usage=[""])
     def get_newest_news(self, update: Update, context: CallbackContext):
         query = self.get_command_parameter("/news", update)
         if query is None or query.isdigit():

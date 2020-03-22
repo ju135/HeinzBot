@@ -13,7 +13,7 @@ from utils.decorators import register_module, register_command
 class MittagBot(AbstractModule):
     base_url = "https://www.mittag.at/"
 
-    @register_command(command="moizeit", text="Prints today's meals")
+    @register_command(command="moizeit", short_desc="Prints today's meals", long_desc="", usage=[""])
     def receive_menue(self, update: Update, context: CallbackContext):
         access_token = self.get_access_token()
         # defining address of campina to show up first
