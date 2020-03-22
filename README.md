@@ -27,7 +27,6 @@ An implementation of a Telegram Bot with the following capabilities:
 * Inspirobot API
 * Rule34 API
 * cataas - Cat as a Service
-* Memeload API
 * RSS Service from Nachrichten.at
 * xkcd.com
 * Mittag.at API
