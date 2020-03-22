@@ -6,7 +6,8 @@ from telegram import Update, MessageEntity, ChatAction
 from telegram.ext import CommandHandler, CallbackContext, Dispatcher, Filters, DispatcherHandlerStop
 
 from modules.abstract_module import AbstractModule
-from utils.decorators import register_command, register_module, register_message_watcher, send_action
+from utils.decorators import register_command, register_module, register_message_watcher, send_action, \
+    register_callback_query_handler
 from utils.random_text import get_random_string_of_messages_file
 
 
@@ -76,3 +77,21 @@ class DefaultModule(AbstractModule):
         t = self.get_command_parameter("/reverse", update)
         if t:
             context.bot.send_message(chat_id=update.message.chat_id, text=t[::-1])
+
+    @register_command(command="allow", text=" $user. Reallows a user.")
+    def allow(self, update: Update, context: CallbackContext):
+        if update.message.from_user.username == "jajules":
+            person = update.message.text.replace('/allow ', '')
+            context.bot.send_message(chat_id=update.message.chat_id,
+                                     text=(person + ' deaf jetzt wieder mit mir reden.'))
+            AbstractModule.mutedAccounts.remove(person)
+        else:
+            update.message.reply_text('Sry du deafst des ned.. :(')
+
+    @register_command(command="who", text=" Show how is muted")
+    def who_is_muted(self, update: Update, context: CallbackContext):
+        text = "Sprechverbot: \n"
+        for i in AbstractModule.mutedAccounts:
+            text += "- " + i + "\n"
+        context.bot.send_message(chat_id=update.message.chat_id,
+                                 text=text)

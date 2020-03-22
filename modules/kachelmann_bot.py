@@ -1,10 +1,14 @@
 import datetime
+import urllib
+from urllib.request import urlopen
 
+import bs4
 import telegram
-from telegram.ext import CommandHandler
+from telegram import Update
+from telegram.ext import CommandHandler, CallbackContext
 
 from modules.abstract_module import AbstractModule
-from utils.decorators import register_module
+from utils.decorators import register_module, register_command
 
 
 @register_module()
@@ -84,14 +88,21 @@ class KachelmannBot(AbstractModule):
 
         return (region, errorMessage)
 
-    def radar(self, bot, update):
+    def get_soup(self, url, header):
+        req = urllib.request.Request(url, headers=header)
+        open_url = urlopen(req)
+        soup = bs4.BeautifulSoup(open_url, "html.parser")
+        return soup
+
+    @register_command(command="radar", text="Shows a radar picture.")
+    def radar(self, update: Update, context: CallbackContext):
 
         queryText = self.get_command_parameter("/radar", update)
 
         region, errorMessage = self.__getRegion(queryText)
         if errorMessage != "":
-            bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
-                             text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+            context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                                     text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
             return
 
         # build page url
@@ -104,17 +115,18 @@ class KachelmannBot(AbstractModule):
 
         # send image
         chat_id = update.message.chat_id
-        bot.send_photo(chat_id=chat_id, photo=imageURL)
+        context.bot.send_photo(chat_id=chat_id, photo=imageURL)
 
-    def tracking(self, bot, update):
+    @register_command(command="tracking", text="Shows a radar picture.")
+    def tracking(self, update: Update, context: CallbackContext):
 
         queryText = self.get_command_parameter("/tracking", update)
 
         region, errorMessage = self.__getRegion(queryText)
         if errorMessage != "":
             # invalid region
-            bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
-                             text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+            context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                                     text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
             return
 
         # build page url
@@ -127,9 +139,10 @@ class KachelmannBot(AbstractModule):
 
         # send image
         chat_id = update.message.chat_id
-        bot.send_photo(chat_id=chat_id, photo=imageURL)
+        context.bot.send_photo(chat_id=chat_id, photo=imageURL)
 
-    def wind(self, bot, update):
+    @register_command(command="wind", text="Shows a radar picture.")
+    def wind(self, update: Update, context: CallbackContext):
 
         queryText = self.get_command_parameter("/wind", update)
 
@@ -141,8 +154,8 @@ class KachelmannBot(AbstractModule):
             windtype, region = queryText.split(maxsplit=2)
         except (ValueError, AttributeError) as e:
             # send syntax error
-            bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
-                             text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+            context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                                     text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
             return
 
         # get region
@@ -150,12 +163,12 @@ class KachelmannBot(AbstractModule):
         if errorMessage != "":
             if region == "böen" or region == "böe" or region == "mittel":
                 # mixed up parameters (/wind at böen), send syntax error
-                bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
-                                 text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+                context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                                         text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
             else:
                 # else send unknown region error
-                bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
-                                 text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+                context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                                         text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
             return
 
         # check type
@@ -166,8 +179,8 @@ class KachelmannBot(AbstractModule):
         else:
             # unknown type, send error
             errorMessage = "Mechadsd du Böen oder Mittelwind? Schick ma ans vo de zwa: 🌬️\n`/wind böen <Region>`\n`/wind mittel <Region>`"
-            bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
-                             text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+            context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                                     text=errorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
             return
 
         # build page url
@@ -180,4 +193,4 @@ class KachelmannBot(AbstractModule):
 
         # send image
         chat_id = update.message.chat_id
-        bot.send_photo(chat_id=chat_id, photo=imageURL)
+        context.bot.send_photo(chat_id=chat_id, photo=imageURL)
