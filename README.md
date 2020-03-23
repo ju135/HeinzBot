@@ -12,13 +12,80 @@ An implementation of a Telegram Bot with the following capabilities:
 * Sends various quote images.
 * Sends various comics.
   * daily check for new XKCD comics.
-* Sends the daily menue of good restaurants in hagenberg.
+* Sends the daily menue of good restaurants in Hagenberg.
 * Can invite colleagues for coffee at multiple locations.
 * Can show a a variety of weather information for the selected region:
   * Rain radar
   * Storm tracking
   * Wind gusts and average
 
+
+## Possible Extensions
+
+* Join invite for coffee
+* NLG conversation with bot
+
+## Contribution Guide
+New functionality is added inside the [modules](modules)-folder. 
+Each class has to inherit the abstract [Base-Module](modules/abstract_module.py) and has to be registered with the `@register_module()` decorator.
+<br>
+Inside a registered class, the following bot-functionality may be added:
+* [General Command](#implement-a-general-command) - Triggered when the command is sent inside the chat.
+* [Daily Command](#implement-a-daily-job) - Runs daily as a job at a specific time.
+* Callback-Query-Handler - To interact with dynamic user inputs.
+
+### Implement a general Command
+A general command is implemented inside a module by decorating it with `@register_command`. Usages and short/long
+descriptions have to be specified - they will show up when calling
+the bot's `/help` command. The `@send_action`decorater defines 
+the action, that is displayed in telegram, while the command is executed.
+<br>
+The following code snippet shows the registration implementation of a 
+a command that sends a cat gif and will be callable by using the `/cat` command:
+
+```python
+from modules.abstract_module import AbstractModule
+from utils.decorators import register_command, register_module, send_action
+from telegram import Update, ChatAction
+from telegram.ext import CallbackContext
+
+# register the class as module
+@register_module()
+class CatBot(AbstractModule):
+    @register_command(command="cat", short_desc="Sends a cat gif. 😺",
+                      long_desc="A cat-gif from [Cat as a service](https://cataas.com) is sent.",
+                      usage=["/cat"])
+    @send_action(action=ChatAction.UPLOAD_VIDEO)
+    def cat_command(self, update: Update, context: CallbackContext):
+        chat_id = update.message.chat_id
+        # send the reply
+        context.bot.send_animation(chat_id=chat_id, animation="https://cataas.com/c/gif")
+```
+
+### Implement a Daily Job
+To implement a daily job, the `@run_daily` decorator can be used.
+The decorated function will be called every day on the specified time. 
+Keep in mind: the used **time-zone is UTC**. <br>
+By using the `/start` or `/stop` command, chats may subscribe/unsubscribe
+to this specified job. Job identification is based on the specified "name"-paramter.
+
+
+The following code-snipped sends a comic every into subscribed chats:
+```python
+import datetime
+from modules.abstract_module import AbstractModule
+from utils.decorators import run_daily, register_module
+from telegram.ext import CallbackContext
+
+# register the class as module
+@register_module()
+class ComicBot(AbstractModule):
+    @run_daily(name="daily_comic", time=datetime.time(hour=14 - 1, minute=29, second=10))
+    def send_new_comic(self, context: CallbackContext, chat_id: str):
+        comic_url = get_new_comic_url()
+        context.bot.send_photo(chat_id=chat_id, photo=comic_url,
+                                   caption="New Comic")
+```
 
 ## Used APIs
 
@@ -31,7 +98,6 @@ An implementation of a Telegram Bot with the following capabilities:
 * Mittag.at API
 * Urban Dictionary API
 
-
 ## Dependencies
 
 * python-telegram-bot
@@ -40,9 +106,3 @@ An implementation of a Telegram Bot with the following capabilities:
 * google-api-python-client
 * ics
 * PRAW
-
-
-## To Do
-
-* Join invite for coffee
-* NLG conversation with bot
