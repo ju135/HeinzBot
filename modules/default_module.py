@@ -36,7 +36,10 @@ class DefaultModule(AbstractModule):
         # longest_cmd_length = max(list(map(lambda x: len(x["command"]), cmd_list)))
         for cmd_desc in cmd_list:
             message += f"/{cmd_desc['command']} - {cmd_desc['short_desc']}\n"
-        context.bot.send_message(chat_id=chat_id, text=message, parse_mode=telegram.ParseMode.MARKDOWN)
+
+        message += "\n_Wanna contribute? Checkout my_ [Repository](https://github.com/ju135/HeinzBot)_._ "
+        context.bot.send_message(chat_id=chat_id, text=message,
+                                 parse_mode=telegram.ParseMode.MARKDOWN, disable_web_page_preview=True)
 
     def __format_detailed_command_description(self, command_description) -> str:
         command = command_description["command"]
