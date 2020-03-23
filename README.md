@@ -93,7 +93,7 @@ By using the `/start` or `/stop` command, chats may subscribe/unsubscribe
 to this specified job. Job identification is based on the specified "name"-paramter.
 
 
-The following code-snipped sends a comic every into subscribed chats:
+The following code-snipped sends a comic every day into subscribed chats:
 ```python
 import datetime
 from modules.abstract_module import AbstractModule
@@ -120,6 +120,7 @@ class ComicBot(AbstractModule):
 * xkcd.com
 * Mittag.at API
 * Urban Dictionary API
+* Kachelmann-Wetter Storm/Rain/Wind - Tracking
 
 ## Dependencies
 
