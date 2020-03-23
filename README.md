@@ -34,6 +34,29 @@ Inside a registered class, the following bot-functionality may be added:
 * [Daily Command](#implement-a-daily-job) - Runs daily as a job at a specific time.
 * Callback-Query-Handler - To interact with dynamic user inputs.
 
+### Local Setup
+
+To run/test functionality on your local machine, you need to [create
+an own telegram bot](https://core.telegram.org/bots#6-botfather). Afterwards the api-keys have to be added
+into a `api-keys.json` file, which has to be created at the project root.<br>
+The following structure is necessary to get modules with api-key-need to run:
+
+
+```json
+{
+  "telegram": "your_telegram_bot_token",
+  "youtube": "your_api_key",
+  "ics-file-link": "calendar_ics_file",
+  "reddit-client-id": "xxxx",
+  "reddit-client-secret": "xxxx",
+  "mittag_client_id": "xxxx",
+  "mittag_client_secret": "xxxx",
+  "spoon": "spoonacular_key",
+  "rapid_urban_dict_secret": "rapid_urban_dict_api_key"
+}
+``` 
+
+
 ### Implement a general Command
 A general command is implemented inside a module by decorating it with `@register_command`. Usages and short/long
 descriptions have to be specified - they will show up when calling
