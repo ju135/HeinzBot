@@ -2,7 +2,7 @@
 
 An implementation of a Telegram Bot with the following capabilities:
 
-* Sends gifs/images through a google search.
+* Sends gifs/images through a google search. (currently disabled)
 * Sends random Reddit submissions from given subreddits.
 * University
   * Sends the location of a course before it starts.
