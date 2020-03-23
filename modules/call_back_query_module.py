@@ -1,14 +1,7 @@
-import json
-import urllib
-
-import requests
-from telegram import Update, MessageEntity, ChatAction
-from telegram.ext import CommandHandler, CallbackContext, Dispatcher, Filters, DispatcherHandlerStop
-
+from telegram import Update
+from telegram.ext import CallbackContext, DispatcherHandlerStop
 from modules.abstract_module import AbstractModule
-from utils.decorators import register_command, register_module, register_message_watcher, send_action, \
-    register_callback_query_handler
-from utils.random_text import get_random_string_of_messages_file
+from utils.decorators import register_module, register_callback_query_handler
 
 
 @register_module()

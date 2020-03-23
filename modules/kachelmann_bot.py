@@ -13,14 +13,6 @@ from utils.decorators import register_module, register_command
 
 @register_module()
 class KachelmannBot(AbstractModule):
-
-    def add_command(self, dp):
-        instance = KachelmannBot()
-        dp.add_handler(CommandHandler('radar', instance.radar))
-        dp.add_handler(CommandHandler('tracking', instance.tracking))
-        dp.add_handler(CommandHandler('wind', instance.wind))
-        return dp
-
     REGIONEN = {
         "BR": "braunau-am-inn",
         "EF": "eferding",
@@ -94,7 +86,11 @@ class KachelmannBot(AbstractModule):
         soup = bs4.BeautifulSoup(open_url, "html.parser")
         return soup
 
-    @register_command(command="radar", short_desc="Shows the radar", long_desc="", usage=["/radar $region"])
+    @register_command(command="radar", short_desc="Shows the rain radar of a region. 🌧",
+                      long_desc="This command returns an image containing the current "
+                                "rain conditions of a given austrian region.\n"
+                                "Possible regions are: " + ", ".join(REGIONEN.keys()),
+                      usage=["/radar $region-abbreviation", "/radar FR"])
     def radar(self, update: Update, context: CallbackContext):
 
         queryText = self.get_command_parameter("/radar", update)
@@ -117,7 +113,11 @@ class KachelmannBot(AbstractModule):
         chat_id = update.message.chat_id
         context.bot.send_photo(chat_id=chat_id, photo=imageURL)
 
-    @register_command(command="tracking", short_desc="Tracks a region", long_desc="", usage=["/tracking $region"])
+    @register_command(command="tracking", short_desc="Storm-tracking of a region. ⛈⚡️",
+                      long_desc="This command returns an image containing the current "
+                                "storm-tracking information of a given austrian region.\n"
+                                "Possible regions are: " + ", ".join(REGIONEN.keys()),
+                      usage=["/tracking $region-abbreviation", "/tracking AT"])
     def tracking(self, update: Update, context: CallbackContext):
 
         queryText = self.get_command_parameter("/tracking", update)
@@ -141,8 +141,11 @@ class KachelmannBot(AbstractModule):
         chat_id = update.message.chat_id
         context.bot.send_photo(chat_id=chat_id, photo=imageURL)
 
-    @register_command(command="wind", short_desc="Shows the wind gusts ", long_desc="",
-                      usage=["/wind (böen|mittel) $region"])
+    @register_command(command="wind", short_desc="Shows the wind gusts of a region. 💨🌬",
+                      long_desc="This command returns an image containing the current "
+                                "wind direction or wind gust information of a given austrian region.\n"
+                                "Possible regions are: " + ", ".join(REGIONEN.keys()),
+                      usage=["/wind (böen|mittel) $region", "/wind böen AT", "/wind mittel WZ"])
     def wind(self, update: Update, context: CallbackContext):
 
         queryText = self.get_command_parameter("/wind", update)

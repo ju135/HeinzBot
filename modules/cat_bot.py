@@ -6,7 +6,10 @@ from utils.decorators import register_command, register_module, send_action
 
 @register_module()
 class CatBot(AbstractModule):
-    @register_command(command="cat", short_desc="Sends cat", long_desc="Sends a random cat", usage=["/cat"])
+    @register_command(command="cat", short_desc="Sends a personalized cat. 😺",
+                      long_desc="Depending on the given text, a personalized "
+                                "cat gif is sent with the entered text on it.",
+                      usage=["/cat $text", "/cat I am a cool cat!"])
     @send_action(action=ChatAction.UPLOAD_VIDEO)
     def cat_command(self, update: Update, context: CallbackContext):
         query = self.get_command_parameter("/cat", update)

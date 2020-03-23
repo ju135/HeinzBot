@@ -94,7 +94,7 @@ def add_sub_to_jobs(jobs: [str], chat_id: str):
 
 @register_module()
 class JobRegisterBot(AbstractModule):
-    @register_command(command="start", short_desc="To start the daily jobs.",
+    @register_command(command="start", short_desc="Start the daily bot-jobs.",
                       long_desc="Enter this command to subscribe to notifications of available jobs.\n"
                                 "Specific jobs to start can be specified (see usage).",
                       usage=["/start", "/start $job1", "/start $job1 $job2"])
@@ -126,7 +126,7 @@ class JobRegisterBot(AbstractModule):
 
         update.message.reply_text(message)
 
-    @register_command(command="stop", short_desc="To stop the daily jobs.",
+    @register_command(command="stop", short_desc="Stop the daily bot-jobs.",
                       long_desc="Enter this command to remove a subscription of a job.\n"
                                 "Specific jobs to be removed can be specified otherwise "
                                 "all are removed (see usage).",

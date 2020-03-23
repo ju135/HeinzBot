@@ -1,9 +1,7 @@
 import datetime
-
 import requests
 from telegram import Update
 from telegram.ext import CallbackContext
-
 from modules.abstract_module import AbstractModule
 from utils.decorators import register_command, run_daily, register_module
 from utils.random_text import get_random_string_of_messages_file
@@ -11,9 +9,8 @@ from utils.random_text import get_random_string_of_messages_file
 
 @register_module()
 class InspireBot(AbstractModule):
-
-    @register_command(command="quote", short_desc="Sends an inspiring picture with text",
-                      long_desc="Sends an inspiring picture with text", usage=["/quote"])
+    @register_command(command="quote", short_desc="Sends an inspiring picture with text. 🌅",
+                      long_desc="Sends a random inspiring picture. Quotes may be meaningless.", usage=["/quote"])
     def receive_quote(self, update: Update, context: CallbackContext):
         r = requests.get('https://inspirobot.me/api?generate=true')
         chat_id = update.message.chat_id

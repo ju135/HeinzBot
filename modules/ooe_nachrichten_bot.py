@@ -9,8 +9,9 @@ from utils.decorators import register_module, register_command
 @register_module()
 class OENewsBot(AbstractModule):
     @register_command(command="news", short_desc="Gets the latest austrian news. 📰",
-                      long_desc="Fetches the latest news from 'OÖNachrichten' and sends it. "
-                                "The amount of news can be specified. If not specified, one article is sent.",
+                      long_desc="Fetches the latest news from [OÖNachrichten](https://www.nachrichten.at/) "
+                                "and sends it. The amount of news can be specified. "
+                                "If not specified, only one article is sent.",
                       usage=["/news", "/news $amount", "/news 4"])
     def get_newest_news(self, update: Update, context: CallbackContext):
         query = self.get_command_parameter("/news", update)

@@ -9,12 +9,13 @@ from utils.decorators import register_module, register_command
 
 
 @register_module()
-class SpoontacularBot(AbstractModule):
+class SpoonacularBot(AbstractModule):
     url = "https://api.spoonacular.com/"
 
     @register_command(command="meals",
-                      short_desc="Searches for random meals to cook",
-                      long_desc="Uses the spoonacular api in order to find some good meals.",
+                      short_desc="Returns random meal recipes to cook. 👨‍🍳🍽",
+                      long_desc="Uses the spoonacular api in order to find 4 random meals and"
+                                "returns them.",
                       usage=["/meals"])
     def random_receipt(self, update: Update, context: CallbackContext):
         chat_id = self.get_chat_id(update)

@@ -1,16 +1,11 @@
-import json
 import random
-from abc import ABC
-
 from telegram import Update, InlineQueryResultArticle, InputTextMessageContent
 from telegram.ext import CallbackContext
-
 from modules.abstract_module import AbstractModule
 from utils.decorators import register_incline_cap
 
 
 class InlineCaps(AbstractModule):
-
     @register_incline_cap()
     def inline_caps(self, update: Update, context: CallbackContext):
         query = update.inline_query.query

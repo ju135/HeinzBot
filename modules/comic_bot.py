@@ -13,8 +13,8 @@ from utils.decorators import register_module, register_command, run_daily, send_
 
 @register_module()
 class ComicBot(AbstractModule):
-    @register_command(command="comic", short_desc="Send a comic picture",
-                      long_desc="Sends a picture from 'https://xkcd.com' into the group", usage=["/comic"])
+    @register_command(command="comic", short_desc="Sends a random XKCD comic picture.",
+                      long_desc="Sends a random picture from [XKCD](https://xkcd.com) into the group.", usage=["/comic"])
     @send_action(action=ChatAction.UPLOAD_PHOTO)
     def receive_comic(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id

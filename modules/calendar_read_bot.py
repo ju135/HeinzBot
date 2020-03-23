@@ -14,7 +14,7 @@ from utils.random_text import get_random_string_of_messages_file
 
 @register_module()
 class CalendarReadBot(AbstractModule):
-    @run_daily(name="daily_appointment", time=datetime.time(hour=19 - 1, minute=24, second=0))
+    @run_daily(name="daily_appointment", time=datetime.time(hour=8 - 1, minute=30, second=0))
     def daily_appointment(self, context: CallbackContext, chat_id: str):
         appointment = _send_first_appointment_of_day()
 

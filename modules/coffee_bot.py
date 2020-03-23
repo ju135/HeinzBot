@@ -1,9 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
-
 from constants.members import getName, getTOP
 from modules.abstract_module import AbstractModule
-from modules.default_module import DefaultModule
 from utils.decorators import register_module, register_command, register_callback_query_handler
 from utils.random_text import get_random_string_of_messages_file
 
@@ -14,8 +12,9 @@ coffee_message_constants_file = "constants/messages/coffee_messages.json"
 @register_module()
 class CoffeeBot(AbstractModule):
     # sends a coffee invitation with inline keyboard
-    @register_command(command="coffee", short_desc="Ask for coffe",
-                      long_desc="Sends a request to the group for coffee. Is really useful if you are tired.",
+    @register_command(command="coffee", short_desc="Ask the group for coffee. ☕",
+                      long_desc="Sends a request to the group for coffee. Is really useful if you are tired.😴 ☕\n"
+                                "The location is chosen interactively.",
                       usage=["/coffee"])
     def sendCoffeeInvitation(self, update: Update, context: CallbackContext):
         userid = update.message.from_user.id
