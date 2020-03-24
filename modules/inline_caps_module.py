@@ -7,7 +7,7 @@ from utils.decorators import register_incline_cap, register_module
 
 @register_module()
 class InlineCaps(AbstractModule):
-    @register_incline_cap()
+    #@register_incline_cap()
     def inline_caps(self, update: Update, context: CallbackContext):
         query = update.inline_query.query
         if not query:
