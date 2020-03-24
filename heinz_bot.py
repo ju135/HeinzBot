@@ -56,7 +56,7 @@ def load_module(name, dp: Dispatcher):
         if hasattr(method, "_filter"):
             register_message_watcher(dp, method)
         if hasattr(method, "_isInline"):
-            register_message_watcher(dp, method)
+            register_inline_cap(dp, method)
         if hasattr(method, "_forCommand"):
             register_callback_query(dp, method)
 
