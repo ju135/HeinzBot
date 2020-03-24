@@ -34,11 +34,14 @@ Inside a registered class, the following bot-functionality may be added:
 * [Daily Command](#implement-a-daily-job) - Runs daily as a job at a specific time.
 * Callback-Query-Handler - To interact with dynamic user inputs.
 
+To functions built up on the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) API wrapper.
+Refer to their [documentation](https://python-telegram-bot.readthedocs.io/en/stable/) for further implementation details on how 
+to interact with the bot.
 ### Local Setup
 
 To run/test functionality on your local machine, you need to [create
 an own telegram bot](https://core.telegram.org/bots#6-botfather). Afterwards the api-keys have to be added
-into a `api-keys.json` file, which has to be created at the project root.<br>
+into a `api-keys.json` file, which must be created at the project root.<br>
 The following structure is necessary to get modules with api-key-need to run:
 
 
