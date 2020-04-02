@@ -34,7 +34,7 @@ Inside a registered class, the following bot-functionality may be added:
 * [Daily Command](#implement-a-daily-job) - Runs daily as a job at a specific time.
 * Callback-Query-Handler - To interact with dynamic user inputs.
 
-To functions built up on the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) API wrapper.
+The functions built up on the [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) API wrapper.
 Refer to their [documentation](https://python-telegram-bot.readthedocs.io/en/stable/) for further implementation details on how 
 to interact with the bot.
 ### Local Setup
@@ -66,7 +66,7 @@ descriptions have to be specified - they will show up when calling
 the bot's `/help` command. The `@send_action`decorater defines 
 the action, that is displayed in telegram, while the command is executed.
 <br>
-The following code snippet shows the registration implementation of a 
+The following code snippet shows the registration implementation of 
 a command that sends a cat gif and will be callable by using the `/cat` command:
 
 ```python
