@@ -4,3 +4,4 @@ bs4
 ics
 python-telegram-bot
 praw
+gTTS
