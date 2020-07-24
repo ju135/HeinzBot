@@ -18,7 +18,7 @@ HEINZ_SAY_MP_ = "heinzSay.mp3"
 
 
 @register_module()
-class ComicBot(AbstractModule):
+class SayBot(AbstractModule):
     @register_command(command="say", short_desc="Says the things you want him to say.",
                       long_desc="Says the things you want him to say by setting a language and a text.",
                       usage=["/say [lang] [text]", "/say de Random Text"])
