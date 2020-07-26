@@ -1,6 +1,8 @@
 import inspect
 import logging
 import os
+from datetime import date
+from pathlib import Path
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, Dispatcher, \
     CallbackQueryHandler
@@ -82,7 +84,15 @@ def register_callback_query(dp: Dispatcher, method):
         dp.add_handler(CallbackQueryHandler(method, pattern=method._forCommand), group=3)
 
 
+def enable_logging():
+    Path("./log").mkdir(parents=True, exist_ok=True)
+    today = date.today()
+    today_log = today.strftime("%d-%m-%Y")
+    logging.basicConfig(filename='log/' + today_log + '.log', level=logging.DEBUG)
+
+
 def main():
+    enable_logging()
     updater = Updater(read_key("telegram"), use_context=True)
     dp = updater.dispatcher
     load_modules(dp)

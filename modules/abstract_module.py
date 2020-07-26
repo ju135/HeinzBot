@@ -1,5 +1,7 @@
 import json
+import logging
 from abc import ABC
+from datetime import date
 
 from telegram import Update
 
@@ -14,7 +16,10 @@ class AbstractModule(ABC):
 
     def add_help_text(self, command: str, short_desc: str, long_desc: str, usage: [str]):
         AbstractModule._commandList.append({"command": command, "short_desc": short_desc,
-                                        "long_desc": long_desc, "usage": usage})
+                                            "long_desc": long_desc, "usage": usage})
+
+    def log(self, text, logging_type):
+        logging.log(level=logging_type, msg=" ######## " + type(self).__name__ + " ######## " + text)
 
     def get_api_key(self, key_name):
         f = open(self.keyFileName, "r")
