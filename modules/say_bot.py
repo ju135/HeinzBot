@@ -1,22 +1,14 @@
 ﻿import base64
-import datetime
-import json
 import logging
 import os
-import random
-from datetime import date, timedelta
 
-import requests
 from gtts import gTTS
 from gtts.lang import tts_langs
 from telegram import Update, ChatAction
 from telegram.ext import CallbackContext
 
 from modules.abstract_module import AbstractModule
-from utils.decorators import register_module, register_command, run_daily, send_action
-
-HEINZ_SAY_MP_ = "heinzSay.mp3"
-
+from utils.decorators import register_module, register_command, send_action
 
 @register_module()
 class SayBot(AbstractModule):
