@@ -1,3 +1,4 @@
+import logging
 import random
 import praw
 from telegram import Update, InlineQueryResultPhoto, InlineQueryResultGif, InlineQueryResultArticle, \
@@ -22,24 +23,28 @@ class RedditBot(AbstractModule):
                                 "be specified (starting at 0 for the hottest submission).",
                       usage=["/reddit $subreddit", "/reddit $subreddit $index", "/reddit memes", "/reddit memes 4"])
     def send_subreddit_submission(self, update: Update, context: CallbackContext):
-        chat_id = update.message.chat_id
-        query = self.get_command_parameter("/reddit", update)
-        if not query:
-            update.message.reply_text("parameter angeben bitte...")
-            return
-        (subredditpath, index) = _get_subreddit_and_index(query)
-        submission = _get_submission_for_subreddit_name(subredditpath, 30, index)
-        if submission is None:
-            update.message.reply_text("Sorry, nix gfunden.😢")
-        else:
-            if submission.is_video:
-                print(submission.media['reddit_video']['fallback_url'])
-                _send_video(context.bot, update, submission.media['reddit_video']['fallback_url'], submission.title)
-            elif _get_external_video_link(submission) is not None:
-                link = _get_external_video_link(submission)
-                _send_video(context.bot, update, link, submission.title)
+        try:
+            chat_id = update.message.chat_id
+            query = self.get_command_parameter("/reddit", update)
+            if not query:
+                update.message.reply_text("parameter angeben bitte...")
+                return
+            (subredditpath, index) = _get_subreddit_and_index(query)
+            submission = _get_submission_for_subreddit_name(subredditpath, 30, index)
+            if submission is None:
+                update.message.reply_text("Sorry, nix gfunden.😢")
             else:
-                _send_photo(context.bot, chat_id, submission.url, submission.title)
+                if submission.is_video:
+                    print(submission.media['reddit_video']['fallback_url'])
+                    _send_video(context.bot, update, submission.media['reddit_video']['fallback_url'], submission.title)
+                elif _get_external_video_link(submission) is not None:
+                    link = _get_external_video_link(submission)
+                    _send_video(context.bot, update, link, submission.title)
+                else:
+                    _send_photo(context.bot, chat_id, submission.url, submission.title)
+        except Exception as err:
+            self.log(text="Error: {0}".format(err), logging_type=logging.ERROR)
+            update.message.reply_text("Irgendwos is passiert bitte schau da in Log au!")
 
     @register_command(command="funny",
                       short_desc="Sends a funny Reddit submission. 👌",
@@ -195,12 +200,12 @@ def _get_matching_subreddit_and_search_results(subreddit_name):
 def _get_submissions_for_subreddit(subreddit, limit, offset=0):
     if offset > 50:
         offset = 50
-    hot_submissions = subreddit.hot(limit=limit+offset)
+    hot_submissions = subreddit.hot(limit=limit + offset)
     submissionlist = list()
     current = 0
     for submission in hot_submissions:
         if current < offset:
-            current = current+1
+            current = current + 1
             continue
         if hasattr(submission, "post_hint") and submission.post_hint == "image":
             submissionlist.append(submission)
