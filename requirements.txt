@@ -5,3 +5,4 @@ ics
 python-telegram-bot
 praw
 gTTS
+googletrans
