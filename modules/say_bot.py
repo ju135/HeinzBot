@@ -10,6 +10,7 @@ from telegram.ext import CallbackContext
 from modules.abstract_module import AbstractModule
 from utils.decorators import register_module, register_command, send_action
 
+
 @register_module()
 class SayBot(AbstractModule):
     @register_command(command="say", short_desc="Says the things you want him to say.",
@@ -23,26 +24,29 @@ class SayBot(AbstractModule):
             chat_id = update.message.chat_id
             text = self.get_command_parameter("/say", update)
 
-            splitted = text.split(" ", 1)
-            if len(splitted) == 2 and len(splitted[0]) == 2:
+            if text is not None:
+                splitted = text.split(" ", 1)
                 fn = self.makeBase64Filename(text)
 
-                # Language in which you want to convert
-                language = splitted[0]
                 langs = tts_langs("com")
-                if language.lower() not in langs:
-                    update.message.reply_text("I versteh die sproch ned!")
+                language = "de"  # fallback to german
+                # Language in which you want to convert
+                if len(splitted) == 2 and len(splitted[0]) == 2 and splitted[0] in langs:
+                    language = splitted[0]
+                    voice_text = splitted[1]
                 else:
-                    words = gTTS(text=splitted[1], lang=language, slow=False)
-                    words.save(fn)
-                    audio = open(fn, 'rb')
-                    context.bot.send_audio(chat_id=chat_id, audio=audio, caption="Sogs ma noch!")
-                    try:
-                        os.remove(fn)
-                    except Exception as err:
-                        self.log(text="Error: {0}".format(err), logging_type=logging.ERROR)
+                    voice_text = text
+
+                words = gTTS(text=voice_text, lang=language, slow=False)
+                words.save(fn)
+                audio = open(fn, 'rb')
+                context.bot.send_voice(chat_id=chat_id, voice=audio)
+                try:
+                    os.remove(fn)
+                except Exception as err:
+                    self.log(text="Error: {0}".format(err), logging_type=logging.ERROR)
             else:
-                update.message.reply_text("Oida selbst i versteh die ned!")
+                update.message.reply_text("Wos?")
         except Exception as err:
             self.log(text="Error: {0}".format(err), logging_type=logging.ERROR)
             update.message.reply_text("Irgendwos is passiert bitte schau da in Log au!")
