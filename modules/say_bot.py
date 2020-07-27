@@ -48,7 +48,7 @@ class SayBot(AbstractModule):
             update.message.reply_text("Irgendwos is passiert bitte schau da in Log au!")
 
     def makeBase64Filename(self, text):
-        message_bytes = text.encode('ascii')
+        message_bytes = str.encode(text, encoding='ascii', errors='ignore')
         base64_bytes = base64.b64encode(message_bytes)
         base64_message = base64_bytes.decode('ascii')
         return base64_message[0:10]
