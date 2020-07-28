@@ -90,7 +90,7 @@ class VoiceGameBot(AbstractModule):
                                           f"*{solution}*\n"
                                           f"_Quote by {author}_")
             _write_game_data(None, chat_id)
-        elif len(answer) > 3 and answer in solution.lower():
+        elif len(answer) > 3 and answer.lower() in solution.lower():
             update.message.reply_markdown("*Moist* - This part does exist in the quote.")
         else:
             update.message.reply_text("wrong.")
