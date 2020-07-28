@@ -61,12 +61,18 @@ def load_module(name, dp: Dispatcher):
             register_inline_cap(dp, method)
         if hasattr(method, "_forCommand"):
             register_callback_query(dp, method)
+        if hasattr(method, "_forScheduler"):
+            method()
 
 
 def register_command_handler(dp: Dispatcher, method, inst):
     dp.add_handler(CommandHandler(method._command, method), group=1)
     help_text_func = getattr(inst, "add_help_text")
     help_text_func(method._command, method._short_desc, method._long_desc, method._usage)
+
+
+def register_message_watcher(dp: Dispatcher, method):
+    dp.add_handler(MessageHandler(Filters.command, method), group=0)
 
 
 def register_message_watcher(dp: Dispatcher, method):

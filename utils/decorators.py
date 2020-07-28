@@ -47,6 +47,14 @@ def register_callback_query_handler(command, master=False):
     return register_wrapper
 
 
+def register_scheduler(name: str):
+    def register_wrapper(func):
+        func._forScheduler = name
+        return func
+
+    return register_wrapper
+
+
 def run_daily(name: str, time: datetime.time):
     def register_wrapper(clazz):
         clazz._daily_run_name_decorator = name

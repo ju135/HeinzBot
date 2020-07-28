@@ -2,11 +2,12 @@
 import logging
 from datetime import date
 
+import schedule
 from telegram import Update, ChatAction
 from telegram.ext import CallbackContext
 
 from modules.abstract_module import AbstractModule
-from utils.decorators import register_module, register_command, send_action
+from utils.decorators import register_module, register_command, send_action, register_scheduler
 
 
 @register_module()
@@ -15,7 +16,7 @@ class LogBot(AbstractModule):
                       long_desc="Gives authorized users the possibility to download log files",
                       usage=["/log [date]", "/log 06-06-2020", "/log today"])
     @send_action(action=ChatAction.UPLOAD_DOCUMENT)
-    def say(self, update: Update, context: CallbackContext):
+    def send_log(self, update: Update, context: CallbackContext):
         try:
             chat_id = update.message.chat_id
             text = self.get_command_parameter("/log", update)
@@ -31,7 +32,14 @@ class LogBot(AbstractModule):
                 update.message.reply_text("Bitte gib a gscheids datum ein!")
         except Exception as err:
             self.log(text="Error: {0}".format(err), logging_type=logging.ERROR)
-            update.message.reply_text("Irgendwos is passiert bitte schau da in Log au!")
+            update.message.reply_text("Oida bitte möd di! Wia miasn iagnd wie zum Log kuma!")
+
+    def clearLogs(self):
+        print("cleared")
+
+    @register_scheduler(name="log")
+    def scheduled(self):
+        schedule.every().minute.do(self.clearLogs)
 
     def makeBase64Filename(self, text):
         message_bytes = text.encode('ascii')
