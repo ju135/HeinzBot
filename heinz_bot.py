@@ -1,6 +1,7 @@
 import inspect
 import logging
 import os
+import sys
 from datetime import date
 from pathlib import Path
 
@@ -89,6 +90,15 @@ def enable_logging():
     today = date.today()
     today_log = today.strftime("%d-%m-%Y")
     logging.basicConfig(filename='log/' + today_log + '.log', level=logging.DEBUG)
+
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    root.addHandler(handler)
 
 
 def main():
