@@ -26,7 +26,7 @@ class SayBot(AbstractModule):
 
             if text is not None:
                 splitted = text.split(" ", 1)
-                fn = self.makeBase64Filename(text)
+                fn = self.makeBase64Filename(text)+".mp3"
 
                 langs = tts_langs("com")
                 language = "de"  # fallback to german
@@ -40,7 +40,7 @@ class SayBot(AbstractModule):
                 words = gTTS(text=voice_text, lang=language, slow=False)
                 words.save(fn)
                 audio = open(fn, 'rb')
-                context.bot.send_voice(chat_id=chat_id, voice=audio)
+                context.bot.send_voice(chat_id=chat_id, voice=audio, reply_to_message_id=update.message.message_id)
                 try:
                     os.remove(fn)
                 except Exception as err:
