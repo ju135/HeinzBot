@@ -71,11 +71,11 @@ class VoiceGameBot(AbstractModule):
                       usage=["/va [solution|guess]", "/va capacity", "/va Strength does not come from physical capacity. It comes from an indomitable will."])
     def voice_answer(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
-        text = self.get_command_parameter("/va", update)
-        if text is None:
+        answer = self.get_command_parameter("/va", update)
+        if answer is None:
             update.message.reply_text("wut?")
             return
-        answer = _get_alphanumeric_lower_case(text)
+
         solution_data = _read_game_data(chat_id)
         if solution_data is None or "quoteText" not in solution_data:
             update.message.reply_markdown("There is no voice game running in this chat. Start one with /voicegame.")
@@ -85,7 +85,7 @@ class VoiceGameBot(AbstractModule):
         author = "unknown"
         if "quoteAuthor" in solution_data:
             author = solution_data["quoteAuthor"]
-        if answer == _get_alphanumeric_lower_case(solution):
+        if _get_alphanumeric_lower_case(answer) == _get_alphanumeric_lower_case(solution):
             update.message.reply_markdown(f"Correct!\n\n" 
                                           f"*{solution}*\n"
                                           f"_Quote by {author}_")
