@@ -98,15 +98,15 @@ def register_callback_query(dp: Dispatcher, method):
 
 def enable_logging():
     Path("./log").mkdir(parents=True, exist_ok=True)
-    today = date.today()
-    today_log = today.strftime("%d-%m-%Y")
-    log_name = 'log/' + today_log + '.log'
+
+    log_name = 'log/heinz.log'
 
     bot_logger = logging.getLogger(BOT_LOGGER)
     bot_logger.setLevel(logging.DEBUG)
 
     handler = TimedRotatingFileHandler(log_name, when="midnight", interval=1)
-    handler.suffix = ""
+
+    handler.suffix = "%Y%m%d"
     bot_logger.addHandler(handler)
 
 

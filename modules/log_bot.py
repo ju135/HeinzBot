@@ -39,16 +39,18 @@ class LogBot(AbstractModule):
     def clearLogs(self):
         directory = './log/'
         today = date.today()
-        today_str = today.strftime("%d-%m-%Y")
-        yesterday_str = (today - datetime.timedelta(1)).strftime("%d-%m-%Y")
-        day_before_yesterday_str = (today - datetime.timedelta(2)).strftime("%d-%m-%Y")
+        today_str = today.strftime("%Y%m%d")
+        yesterday_str = (today - datetime.timedelta(1)).strftime("%Y%m%d")
+        day_before_yesterday_str = (today - datetime.timedelta(2)).strftime("%Y%m%d")
 
         for filename in os.listdir(directory):
-            if filename.startswith(today_str):
+            if filename.endswith(".log"):
                 continue
-            if filename.startswith(yesterday_str):
+            if filename.endswith(today_str):
                 continue
-            if filename.startswith(day_before_yesterday_str):
+            if filename.endswith(yesterday_str):
+                continue
+            if filename.endswith(day_before_yesterday_str):
                 continue
             os.remove(directory + filename)
         print("cleared")
