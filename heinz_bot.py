@@ -1,14 +1,20 @@
 import inspect
 import logging
 import os
+import time
+from _thread import start_new_thread
 from datetime import date
+from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
+import schedule
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, Dispatcher, \
     CallbackQueryHandler
 
 from modules.job_register_bot import register_methods_in_file, send_awake_to_subscriber
 from utils.api_key_reader import read_key
+
+BOT_LOGGER = 'BotLogger'
 
 
 def load_modules(dp):
@@ -94,11 +100,27 @@ def enable_logging():
     Path("./log").mkdir(parents=True, exist_ok=True)
     today = date.today()
     today_log = today.strftime("%d-%m-%Y")
-    logging.basicConfig(filename='log/' + today_log + '.log', level=logging.DEBUG)
+    log_name = 'log/' + today_log + '.log'
+
+    bot_logger = logging.getLogger(BOT_LOGGER)
+    bot_logger.setLevel(logging.DEBUG)
+
+    handler = TimedRotatingFileHandler(log_name, when="midnight", interval=1)
+    handler.suffix = ""
+    bot_logger.addHandler(handler)
+
+
+# Runs schedules besides from the telegram bot
+def run_schedules():
+    while True:
+        schedule.run_pending()
+        time.sleep(3)
 
 
 def main():
     enable_logging()
+    start_new_thread(run_schedules, ())
+
     updater = Updater(read_key("telegram"), use_context=True)
     dp = updater.dispatcher
     load_modules(dp)

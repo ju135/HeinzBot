@@ -1,5 +1,7 @@
 ﻿import base64
+import datetime
 import logging
+import os
 from datetime import date
 
 import schedule
@@ -35,11 +37,25 @@ class LogBot(AbstractModule):
             update.message.reply_text("Oida bitte möd di! Wia miasn iagnd wie zum Log kuma!")
 
     def clearLogs(self):
+        directory = './log/'
+        today = date.today()
+        today_str = today.strftime("%d-%m-%Y")
+        yesterday_str = (today - datetime.timedelta(1)).strftime("%d-%m-%Y")
+        day_before_yesterday_str = (today - datetime.timedelta(2)).strftime("%d-%m-%Y")
+
+        for filename in os.listdir(directory):
+            if filename.startswith(today_str):
+                continue
+            if filename.startswith(yesterday_str):
+                continue
+            if filename.startswith(day_before_yesterday_str):
+                continue
+            os.remove(directory + filename)
         print("cleared")
 
     @register_scheduler(name="log")
     def scheduled(self):
-        schedule.every().minute.do(self.clearLogs)
+        schedule.every().day.do(LogBot().clearLogs)
 
     def makeBase64Filename(self, text):
         message_bytes = text.encode('ascii')
