@@ -36,7 +36,9 @@ class LogBot(AbstractModule):
             self.log(text="Error: {0}".format(err), logging_type=logging.ERROR)
             update.message.reply_text("Oida bitte möd di! Wia miasn iagnd wie zum Log kuma!")
 
-    def clearLogs(self):
+    def clear_logs(self):
+        # Clears all logs that are older than 3 days.
+        self.log(text="Clearing logs.", logging_type=logging.INFO)
         directory = './log/'
         today = date.today()
         today_str = today.strftime("%Y%m%d")
@@ -53,13 +55,13 @@ class LogBot(AbstractModule):
             if filename.endswith(day_before_yesterday_str):
                 continue
             os.remove(directory + filename)
-        print("cleared")
+        self.log(text="All logs cleared.", logging_type=logging.INFO)
 
     @register_scheduler(name="log")
     def scheduled(self):
-        schedule.every().day.do(LogBot().clearLogs)
+        schedule.every().day.do(LogBot().clear_logs)
 
-    def makeBase64Filename(self, text):
+    def make_base64_filename(self, text):
         message_bytes = text.encode('ascii')
         base64_bytes = base64.b64encode(message_bytes)
         base64_message = base64_bytes.decode('ascii')
