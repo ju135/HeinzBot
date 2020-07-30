@@ -12,6 +12,9 @@ api-keys.json
 # Chat-id-template
 utils/connected-chats.json
 
+# Voice game data
+utils/voice_game_data.json
+
 ### VSCode ###
 .vscode/settings.json
 .vscode/launch.json

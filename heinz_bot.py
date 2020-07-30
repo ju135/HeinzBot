@@ -1,6 +1,7 @@
 import inspect
 import logging
 import os
+import sys
 import time
 from _thread import start_new_thread
 from datetime import date
@@ -108,6 +109,15 @@ def enable_logging():
 
     handler.suffix = "%Y%m%d"
     bot_logger.addHandler(handler)
+    # root = logging.getLogger()
+    # root.setLevel(logging.DEBUG)
+    #
+    # handler = logging.StreamHandler(sys.stdout)
+    # handler.setLevel(logging.DEBUG)
+    # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    # handler.setFormatter(formatter)
+    # root.addHandler(handler)
+
 
 
 # Runs schedules besides from the telegram bot
