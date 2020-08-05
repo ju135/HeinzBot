@@ -16,7 +16,7 @@ from utils.decorators import register_module, register_command, send_action, reg
 class LogBot(AbstractModule):
     @register_command(command="log", short_desc="Gives authorized users the possibility to download log files",
                       long_desc="Gives authorized users the possibility to download log files",
-                      usage=["/log [date]", "/log 06-06-2020", "/log today"])
+                      usage=["/log [date]", "/log %Y%m%d (20201217)", "/log today"])
     @send_action(action=ChatAction.UPLOAD_DOCUMENT)
     def send_log(self, update: Update, context: CallbackContext):
         try:
@@ -24,10 +24,10 @@ class LogBot(AbstractModule):
             text = self.get_command_parameter("/log", update)
 
             if "today" in text:
-                today = date.today()
-                today_log = today.strftime("%d-%m-%Y")
-                text = today_log
-            logfile = open("log/" + text + ".log", 'rb')
+                text = ""
+            else:
+                text = "." + text
+            logfile = open("log/heinz.log" + text, 'rb')
             if logfile.readable():
                 context.bot.send_document(chat_id=chat_id, document=logfile, caption="Bitte schau wos foisch rennt :(")
             else:

@@ -100,15 +100,17 @@ def register_callback_query(dp: Dispatcher, method):
 def enable_logging():
     Path("./log").mkdir(parents=True, exist_ok=True)
 
-    log_name = 'log/heinz.log'
+    log_name = './log/heinz.log'
 
     bot_logger = logging.getLogger(BOT_LOGGER)
-    bot_logger.setLevel(logging.DEBUG)
+    bot_logger.setLevel(logging.INFO)
 
     handler = TimedRotatingFileHandler(log_name, when="midnight", interval=1)
 
     handler.suffix = "%Y%m%d"
     bot_logger.addHandler(handler)
+    bot_logger.log(msg="Started logging", level=logging.INFO)
+
     # root = logging.getLogger()
     # root.setLevel(logging.DEBUG)
     #
@@ -117,7 +119,6 @@ def enable_logging():
     # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     # handler.setFormatter(formatter)
     # root.addHandler(handler)
-
 
 
 # Runs schedules besides from the telegram bot

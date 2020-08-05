@@ -14,5 +14,6 @@ services:
     restart: unless-stopped
     volumes:
       - .:/var/www/htdocs
+      - ./log:/var/www/htdocs/log
     networks:
       - web
