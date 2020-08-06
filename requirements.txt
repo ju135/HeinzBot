@@ -7,3 +7,5 @@ praw
 gTTS
 schedule
 geopandas
+matplotlib
+descartes

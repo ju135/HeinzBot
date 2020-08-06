@@ -8,6 +8,7 @@ from datetime import date
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
+import geopandas
 import schedule
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, Dispatcher, \
     CallbackQueryHandler
@@ -128,6 +129,12 @@ def run_schedules():
         time.sleep(3)
 
 
+def geoplots():
+    gdf = geopandas.GeoDataFrame.from_file("geodata/VGD_Österreich_gen_250.shp")
+    plot = gdf.plot()
+    print("Test")
+
+
 def main():
     enable_logging()
     start_new_thread(run_schedules, ())
@@ -139,6 +146,9 @@ def main():
 
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                         level=logging.INFO)
+
+    geoplots()
+
     updater.start_polling()
 
 
