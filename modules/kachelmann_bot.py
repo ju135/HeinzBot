@@ -10,45 +10,11 @@ from telegram.ext import CommandHandler, CallbackContext
 from modules.abstract_module import AbstractModule
 from utils.decorators import register_module, register_command
 
+from constants.bezirke import BEZIRKE
+
 
 @register_module()
 class KachelmannBot(AbstractModule):
-    REGIONEN = {
-        "BR": "braunau-am-inn",
-        "EF": "eferding",
-        "FR": "freistadt",
-        "GM": "gmunden",
-        "GR": "grieskirchen",
-        "KI": "kirchdorf-an-der-krems",
-        "L": "linz",
-        "LL": "linz-land",
-        "PE": "perg",
-        "RI": "ried-im-innkreis",
-        "RO": "rohrbach-im-muehlkreis",
-        "SD": "schaerding",
-        "SR": "steyr",
-        "SE": "steyr-land",
-        "UU": "urfahr-umgebung",
-        "VB": "voecklabruck",
-        "WE": "wels",
-        "WL": "wels-land",
-        "OÖ": "oberoesterreich",
-        "NÖ": "niederoesterreich",
-        "STMK": "steiermark",
-        "WZ": "weiz",
-        "G": "graz",
-        "BM": "bruck-an-der-mur",
-        "LE": "leoben",
-        "LI": "liezen",
-        "W": "wien",
-        "B": "burgenland",
-        "SBG": "salzburg",
-        "T": "tirol",
-        "V": "vorarlberg",
-        "K": "kaernten",
-        "AT": "oesterreich"
-    }
-
     def __getClosestTime(self, increment):
         time = datetime.datetime.utcnow()
         diff = time.minute % increment
@@ -70,10 +36,10 @@ class KachelmannBot(AbstractModule):
     def __getRegion(self, region):
         errorMessage = ""
         if not region:
-            errorMessage = "Parameter angeben bitte! Mögliche Regionen:\n" + ", ".join(KachelmannBot.REGIONEN.keys())
+            errorMessage = "Parameter angeben bitte! Mögliche Regionen:\n" + ", ".join(BEZIRKE.keys())
             return (region, errorMessage)
         try:
-            region = KachelmannBot.REGIONEN[region.upper()]
+            region = BEZIRKE[region.upper()]
         except KeyError:
             errorMessage = "De Region kenn i ned 🙄"
             return (region, errorMessage)
@@ -89,7 +55,7 @@ class KachelmannBot(AbstractModule):
     @register_command(command="radar", short_desc="Shows the rain radar of a region. 🌧",
                       long_desc="This command returns an image containing the current "
                                 "rain conditions of a given austrian region.\n"
-                                "Possible regions are: " + ", ".join(REGIONEN.keys()),
+                                "Possible regions are: " + ", ".join(BEZIRKE.keys()),
                       usage=["/radar $region-abbreviation", "/radar FR"])
     def radar(self, update: Update, context: CallbackContext):
 
@@ -116,7 +82,7 @@ class KachelmannBot(AbstractModule):
     @register_command(command="tracking", short_desc="Storm-tracking of a region. ⛈⚡️",
                       long_desc="This command returns an image containing the current "
                                 "storm-tracking information of a given austrian region.\n"
-                                "Possible regions are: " + ", ".join(REGIONEN.keys()),
+                                "Possible regions are: " + ", ".join(BEZIRKE.keys()),
                       usage=["/tracking $region-abbreviation", "/tracking AT"])
     def tracking(self, update: Update, context: CallbackContext):
 
@@ -144,7 +110,7 @@ class KachelmannBot(AbstractModule):
     @register_command(command="wind", short_desc="Shows the wind gusts of a region. 💨🌬",
                       long_desc="This command returns an image containing the current "
                                 "wind direction or wind gust information of a given austrian region.\n"
-                                "Possible regions are: " + ", ".join(REGIONEN.keys()),
+                                "Possible regions are: " + ", ".join(BEZIRKE.keys()),
                       usage=["/wind (böen|mittel) $region", "/wind böen AT", "/wind mittel WZ"])
     def wind(self, update: Update, context: CallbackContext):
 
