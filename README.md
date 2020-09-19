@@ -18,12 +18,14 @@ An implementation of a Telegram Bot with the following capabilities:
   * Rain radar
   * Storm tracking
   * Wind gusts and average
+  * forecasts for a specific location
 
 
 ## Possible Extensions
 
 * Join invite for coffee
 * NLG conversation with bot
+* forecast selectable model
 
 ## Contribution Guide
 New functionality is added inside the [modules](modules)-folder. 

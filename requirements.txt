@@ -3,5 +3,6 @@ requests
 bs4
 ics
 python-telegram-bot
+selenium
 praw
 gTTS

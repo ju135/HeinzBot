@@ -1,6 +1,7 @@
 import datetime
 import urllib
 from urllib.request import urlopen
+import time
 
 import bs4
 import telegram
@@ -11,6 +12,13 @@ from modules.abstract_module import AbstractModule
 from utils.decorators import register_module, register_command
 
 from constants.bezirke import BEZIRKE
+
+# selenium for forecast
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 
 
 @register_module()
@@ -164,3 +172,127 @@ class KachelmannBot(AbstractModule):
         # send image
         chat_id = update.message.chat_id
         context.bot.send_photo(chat_id=chat_id, photo=imageURL)
+
+
+    @register_command(command="forecast", short_desc="Shows the forecast for the selected location",
+                      long_desc="This command returns an image containing the"
+                                "forecast for temperature, rainfall, clouds, wind, sunshine and barometric pressure.\n",
+                                usage=["/forecast <location>", "/forecast Hagenberg", "/forecast Ellmau"])
+                    #             "Possible forecast types are super HD (SHD) and HD (HD)",
+                    #   usage=["/forecast [SHD|HD] <location>", "/forecast SHD Hagenberg", "/forecast HD Ellmau"])
+    def forecast(self, update: Update, context: CallbackContext):
+        queryText = self.get_command_parameter("/forecast", update)
+
+        # split query
+        syntaxErrorMessage = "I checks ned ganz, bitte schick ma dein command im Muster:\n`/forecast <Ort>`"
+        location = ""
+        try:
+            location = queryText.split(maxsplit=1)
+        except (ValueError, AttributeError) as e:
+            context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+            print("Error splitting command")
+            return
+
+        if location == "":
+            context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+            print("Error splitting command")
+            return
+
+        # # split query into forecast type and location
+        # syntaxErrorMessage = "I checks ned ganz, bitte schick ma dein command im Muster:\n`/forecast [SHD|HD] <Ort>`"
+        # forecasttype = ""
+        # location = ""
+        # try:
+        #     forecasttype, location = queryText.split(maxsplit=2)
+        # except (ValueError, AttributeError) as e:
+        #     # send syntax error
+        #     context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+        #                              text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+        #     print("Error splitting command")
+        #     return
+        
+        # forecasttype = forecasttype.upper()
+        
+        # print("location: {}, type: {}".format(location, forecasttype))
+
+        # if (location == "" or location == "SHD" or location == "HD" or (forecasttype == "SDH" or forecasttype == "HD")):
+        #     # send syntax error
+        #     context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+        #                              text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+        #     print("Error parsing forecast type")
+        #     return
+
+        # load search page        
+        try:
+            driver = webdriver.Firefox()
+            searchUrl = "https://kachelmannwetter.com/at/vorhersage"
+            driver.get(searchUrl)
+
+            # click away cookie message
+            try:
+                print("Trying to find cookie message ...")
+                elem = WebDriverWait(driver, 15).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, ".nx2XwXx4"))
+                )
+                print("Found message, clicking button ...")
+                cookieButton = driver.find_element_by_css_selector("button.nx3Fpp8U.nx3gnDVX").click()
+            except TimeoutException:
+                print("Cookie message not found, skipping ...")
+
+            # search for location on search page
+            print("Searching for location")
+            searchBox = driver.find_element_by_id("forecast-input-0")
+            searchBox.clear()
+            searchBox.send_keys(location)
+            searchButton = driver.find_element_by_css_selector("span.input-group-addon:nth-child(4)").click()
+
+            if (driver.current_url == searchUrl + "/search"):
+                print("Still on search page")
+                # if the URL after the search is still the search URL,
+                # there are either multiple or no results for the location.
+                searchRes = driver.find_elements_by_class_name("search-result-text")[0]
+                if (searchRes.find_elements_by_tag_name("p")[0].text == 'Wir haben zu Ihrer Sucheingabe leider keine passenden Orte gefunden.'):
+                    # no results found
+                    errMsg = "Moasd des Loch kenn i? Probier vllt an aundan Ort. 🗺️"
+                    context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                                text=errMsg)
+                elif (searchRes.find_elements_by_tag_name("p")[0].text == 'Wir haben mehrere infrage kommende Orte für Ihre Sucheingabe gefunden.'):
+                    # multiple results
+                    errMsg = "Do gibts mea davo, wos mansdn genau?\n\n"
+                    for i in driver.find_elements_by_class_name("fcwcity"):
+                        errMsg += "- " + i.text + "\n"
+
+                    context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                                text=errMsg, parse_mode=telegram.ParseMode.MARKDOWN)
+
+                # don't parse further.
+            else:
+                # let page render
+                print("Waiting for page to render")
+                elem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'visibility_graph')))
+                time.sleep(1) # wait for animation to finish
+
+                # hide header (will jump into forecast otherwise)
+                driver.execute_script("document.getElementById('w0').remove()")
+                driver.execute_script("document.getElementById('w3').remove()")
+                driver.execute_script("document.getElementsByClassName('menue-head')[0].remove()")
+
+                # save image
+                print("Saving image")
+                imagePath = "./forecast_image.png"
+                elem = driver.find_element_by_id("weather-forecast-compact")
+                elem.screenshot(imagePath)
+                # pngImage = elem.screenshot_as_png # can't send binary data, need to save first ...
+
+                # send image
+                context.bot.send_photo(chat_id=update.message.chat_id, photo=open(imagePath, "rb"))
+        except:
+            errMsg = "Irgendwos hod bam Vorhersagen hoin ned highaud, bitte schau da en Log au."
+            context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                            text=errMsg, parse_mode=telegram.ParseMode.MARKDOWN)
+        finally:
+            driver.close()
+
+
