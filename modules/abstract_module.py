@@ -5,6 +5,8 @@ from datetime import date
 
 from telegram import Update
 
+BOT_LOGGER = 'BotLogger'
+
 
 class AbstractModule(ABC):
     mutedAccounts = []
@@ -19,7 +21,8 @@ class AbstractModule(ABC):
                                             "long_desc": long_desc, "usage": usage})
 
     def log(self, text, logging_type):
-        logging.log(level=logging_type, msg=" ######## " + type(self).__name__ + " ######## " + text)
+        bot_logger = logging.getLogger(BOT_LOGGER)
+        bot_logger.log(level=logging_type, msg=" ######## " + type(self).__name__ + " ######## " + text)
 
     def get_api_key(self, key_name):
         f = open(self.keyFileName, "r")

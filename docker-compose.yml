@@ -1,0 +1,20 @@
+version: '2.2'
+
+networks:
+  web:
+    external: true
+
+volumes:
+  python-app:
+
+services:
+  app:
+    build: .
+    container_name: "heinz-bot"
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/htdocs
+      - ./log:/var/www/htdocs/log
+    networks:
+      - web
+    command: python3 heinz_bot.py

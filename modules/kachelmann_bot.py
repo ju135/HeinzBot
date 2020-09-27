@@ -5,6 +5,7 @@ import time
 
 import bs4
 import telegram
+
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
@@ -19,6 +20,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.firefox.options import Options
 
 
 @register_module()
@@ -173,13 +176,12 @@ class KachelmannBot(AbstractModule):
         chat_id = update.message.chat_id
         context.bot.send_photo(chat_id=chat_id, photo=imageURL)
 
-
     @register_command(command="forecast", short_desc="Shows the forecast for the selected location",
                       long_desc="This command returns an image containing the"
                                 "forecast for temperature, rainfall, clouds, wind, sunshine and barometric pressure.\n",
-                                usage=["/forecast <location>", "/forecast Hagenberg", "/forecast Ellmau"])
-                    #             "Possible forecast types are super HD (SHD) and HD (HD)",
-                    #   usage=["/forecast [SHD|HD] <location>", "/forecast SHD Hagenberg", "/forecast HD Ellmau"])
+                      usage=["/forecast <location>", "/forecast Hagenberg", "/forecast Ellmau"])
+    #             "Possible forecast types are super HD (SHD) and HD (HD)",
+    #   usage=["/forecast [SHD|HD] <location>", "/forecast SHD Hagenberg", "/forecast HD Ellmau"])
     def forecast(self, update: Update, context: CallbackContext):
         queryText = self.get_command_parameter("/forecast", update)
 
@@ -190,13 +192,13 @@ class KachelmannBot(AbstractModule):
             location = queryText.split(maxsplit=1)
         except (ValueError, AttributeError) as e:
             context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
-                text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+                                     text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
             print("Error splitting command")
             return
 
         if location == "":
             context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
-                text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
+                                     text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
             print("Error splitting command")
             return
 
@@ -212,9 +214,9 @@ class KachelmannBot(AbstractModule):
         #                              text=syntaxErrorMessage, parse_mode=telegram.ParseMode.MARKDOWN)
         #     print("Error splitting command")
         #     return
-        
+
         # forecasttype = forecasttype.upper()
-        
+
         # print("location: {}, type: {}".format(location, forecasttype))
 
         # if (location == "" or location == "SHD" or location == "HD" or (forecasttype == "SDH" or forecasttype == "HD")):
@@ -226,7 +228,9 @@ class KachelmannBot(AbstractModule):
 
         # load search page        
         try:
-            driver = webdriver.Firefox()
+            options = Options()
+            options.headless = True
+            driver = webdriver.Firefox(options=options)
             searchUrl = "https://kachelmannwetter.com/at/vorhersage"
             driver.get(searchUrl)
 
@@ -253,26 +257,30 @@ class KachelmannBot(AbstractModule):
                 # if the URL after the search is still the search URL,
                 # there are either multiple or no results for the location.
                 searchRes = driver.find_elements_by_class_name("search-result-text")[0]
-                if (searchRes.find_elements_by_tag_name("p")[0].text == 'Wir haben zu Ihrer Sucheingabe leider keine passenden Orte gefunden.'):
+                if (searchRes.find_elements_by_tag_name("p")[
+                    0].text == 'Wir haben zu Ihrer Sucheingabe leider keine passenden Orte gefunden.'):
                     # no results found
                     errMsg = "Moasd des Loch kenn i? Probier vllt an aundan Ort. 🗺️"
-                    context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
-                                text=errMsg)
-                elif (searchRes.find_elements_by_tag_name("p")[0].text == 'Wir haben mehrere infrage kommende Orte für Ihre Sucheingabe gefunden.'):
+                    context.bot.send_message(chat_id=update.message.chat_id,
+                                             reply_to_message_id=update.message.message_id,
+                                             text=errMsg)
+                elif (searchRes.find_elements_by_tag_name("p")[
+                          0].text == 'Wir haben mehrere infrage kommende Orte für Ihre Sucheingabe gefunden.'):
                     # multiple results
                     errMsg = "Do gibts mea davo, wos mansdn genau?\n\n"
                     for i in driver.find_elements_by_class_name("fcwcity"):
                         errMsg += "- " + i.text + "\n"
 
-                    context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
-                                text=errMsg, parse_mode=telegram.ParseMode.MARKDOWN)
+                    context.bot.send_message(chat_id=update.message.chat_id,
+                                             reply_to_message_id=update.message.message_id,
+                                             text=errMsg, parse_mode=telegram.ParseMode.MARKDOWN)
 
                 # don't parse further.
             else:
                 # let page render
                 print("Waiting for page to render")
                 elem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'visibility_graph')))
-                time.sleep(1) # wait for animation to finish
+                time.sleep(1)  # wait for animation to finish
 
                 # hide header (will jump into forecast otherwise)
                 driver.execute_script("document.getElementById('w0').remove()")
@@ -281,18 +289,16 @@ class KachelmannBot(AbstractModule):
 
                 # save image
                 print("Saving image")
-                imagePath = "./forecast_image.png"
+                imagePath = "./images/forecast_image.png"
                 elem = driver.find_element_by_id("weather-forecast-compact")
                 elem.screenshot(imagePath)
                 # pngImage = elem.screenshot_as_png # can't send binary data, need to save first ...
 
                 # send image
                 context.bot.send_photo(chat_id=update.message.chat_id, photo=open(imagePath, "rb"))
-        except:
+        except Exception as exct:
             errMsg = "Irgendwos hod bam Vorhersagen hoin ned highaud, bitte schau da en Log au."
             context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
-                            text=errMsg, parse_mode=telegram.ParseMode.MARKDOWN)
+                                     text=errMsg, parse_mode=telegram.ParseMode.MARKDOWN)
         finally:
             driver.close()
-
-
