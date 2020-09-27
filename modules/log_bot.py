@@ -46,7 +46,7 @@ class LogBot(AbstractModule):
         day_before_yesterday_str = (today - datetime.timedelta(2)).strftime("%Y%m%d")
 
         for filename in os.listdir(directory):
-            if filename.endswith(".log"):
+            if filename.endswith(".log") and not filename.startswith("geckodriver"):
                 continue
             if filename.endswith(today_str):
                 continue
