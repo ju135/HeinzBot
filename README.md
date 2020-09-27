@@ -135,3 +135,5 @@ class ComicBot(AbstractModule):
 * google-api-python-client
 * ics
 * PRAW
+* schedule
+* Selenium
