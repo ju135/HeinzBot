@@ -18,3 +18,4 @@ services:
     networks:
       - web
     command: python3 heinz_bot.py
+    #command: tail -f /dev/null

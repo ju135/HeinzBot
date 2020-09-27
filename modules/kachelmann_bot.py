@@ -230,7 +230,8 @@ class KachelmannBot(AbstractModule):
         try:
             options = Options()
             options.headless = True
-            driver = webdriver.Firefox(options=options)
+
+            driver = webdriver.Firefox(options=options, log_path='./log/geckodriver.log')
             searchUrl = "https://kachelmannwetter.com/at/vorhersage"
             driver.get(searchUrl)
 
