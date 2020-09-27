@@ -8,7 +8,7 @@ from telegram import Update, ChatAction
 from telegram.ext import CallbackContext
 
 from modules.abstract_module import AbstractModule
-from utils.decorators import register_module, register_command, send_action
+from utils.decorators import register_module, register_command, send_action, log_errors
 
 
 @register_module()
@@ -16,6 +16,7 @@ class SayBot(AbstractModule):
     @register_command(command="say", short_desc="Says the things you want him to say.",
                       long_desc="Says the things you want him to say by setting a language and a text.",
                       usage=["/say [lang] [text]", "/say de Random Text"])
+    @log_errors()
     @send_action(action=ChatAction.RECORD_AUDIO)
     def say(self, update: Update, context: CallbackContext):
         try:
