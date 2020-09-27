@@ -6,6 +6,3 @@ python-telegram-bot
 praw
 gTTS
 schedule
-geopandas
-matplotlib
-descartes
