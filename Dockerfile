@@ -24,8 +24,6 @@ RUN FIREFOX_SETUP=firefox-setup.tar.bz2 && \
 
 WORKDIR /var/www/htdocs
 
-#RUN apt update && apt install firefox-geckodriver
-
 COPY requirements.txt /var/www/htdocs
 RUN pip3 install -r requirements.txt
 

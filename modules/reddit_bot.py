@@ -7,7 +7,7 @@ from telegram.ext import CallbackContext
 from utils.api_key_reader import read_key
 import telegram
 from modules.abstract_module import AbstractModule
-from utils.decorators import register_module, register_command, register_incline_cap
+from utils.decorators import register_module, register_command, register_incline_cap, log_errors
 
 CLIENT_ID = read_key("reddit-client-id")
 CLIENT_SECRET = read_key("reddit-client-secret")
@@ -22,29 +22,26 @@ class RedditBot(AbstractModule):
                                 " submissions related to a given subreddit. The index is chosen randomly or can "
                                 "be specified (starting at 0 for the hottest submission).",
                       usage=["/reddit $subreddit", "/reddit $subreddit $index", "/reddit memes", "/reddit memes 4"])
+    @log_errors()
     def send_subreddit_submission(self, update: Update, context: CallbackContext):
-        try:
-            chat_id = update.message.chat_id
-            query = self.get_command_parameter("/reddit", update)
-            if not query:
-                update.message.reply_text("parameter angeben bitte...")
-                return
-            (subredditpath, index) = _get_subreddit_and_index(query)
-            submission = _get_submission_for_subreddit_name(subredditpath, 30, index)
-            if submission is None:
-                update.message.reply_text("Sorry, nix gfunden.😢")
+        chat_id = update.message.chat_id
+        query = self.get_command_parameter("/reddit", update)
+        if not query:
+            update.message.reply_text("parameter angeben bitte...")
+            return
+        (subredditpath, index) = _get_subreddit_and_index(query)
+        submission = _get_submission_for_subreddit_name(subredditpath, 30, index)
+        if submission is None:
+            update.message.reply_text("Sorry, nix gfunden.😢")
+        else:
+            if submission.is_video:
+                print(submission.media['reddit_video']['fallback_url'])
+                _send_video(context.bot, update, submission.media['reddit_video']['fallback_url'], submission.title)
+            elif _get_external_video_link(submission) is not None:
+                link = _get_external_video_link(submission)
+                _send_video(context.bot, update, link, submission.title)
             else:
-                if submission.is_video:
-                    print(submission.media['reddit_video']['fallback_url'])
-                    _send_video(context.bot, update, submission.media['reddit_video']['fallback_url'], submission.title)
-                elif _get_external_video_link(submission) is not None:
-                    link = _get_external_video_link(submission)
-                    _send_video(context.bot, update, link, submission.title)
-                else:
-                    _send_photo(context.bot, chat_id, submission.url, submission.title)
-        except Exception as err:
-            self.log(text="Error: {0}".format(err), logging_type=logging.ERROR)
-            update.message.reply_text("Irgendwos is passiert bitte schau da in Log au!")
+                _send_photo(context.bot, chat_id, submission.url, submission.title)
 
     @register_command(command="funny",
                       short_desc="Sends a funny Reddit submission. 👌",
