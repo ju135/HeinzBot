@@ -239,23 +239,20 @@ def _get_external_video_link(submission):
 
 
 def _downsize_dash_link(dash_link: str, maximum_size: int) -> str:
-    resolution = int(dash_link[dash_link.rindex('DASH_') + 5:].split('?')[0])
+    resolution = int(dash_link[dash_link.rindex('DASH_') + 5:].split('?')[0].split('.')[0])
     if resolution > maximum_size:
-        return dash_link.replace(f"DASH_{str(resolution)}", f"DASH_{str(maximum_size)}")
+        return dash_link.replace(f"DASH_{resolution}", f"DASH_{maximum_size}")
     return dash_link
 
 
 def _send_video(bot, update, url, caption):
     chat_id = update.message.chat_id
     bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_VIDEO)
-    resolution = int(url[url.rindex('DASH_') + 5:].split('?')[0])
-    new_url = url
-    if resolution > 360:
-        new_url = url[:url.rindex('/') + 1] + "DASH_360"
+    new_url = _downsize_dash_link(url, 360)
     try:
         bot.send_video(chat_id=chat_id, video=new_url,
                        caption=caption, supports_streaming=True)
-    except:
+    except Exception as err:
         update.message.reply_text("Irgendwos hot do ned highaut ☹️")
 
 
