@@ -8,7 +8,7 @@ from telegram import Update, ChatAction
 from telegram.ext import CallbackContext
 
 from modules.abstract_module import AbstractModule
-from utils.decorators import register_module, register_command, send_action
+from utils.decorators import register_module, register_command, send_action, log_errors
 
 
 @register_module()
@@ -16,17 +16,20 @@ class SayBot(AbstractModule):
     @register_command(command="say", short_desc="Says the things you want him to say.",
                       long_desc="Says the things you want him to say by setting a language and a text.",
                       usage=["/say [lang] [text]", "/say de Random Text"])
+    @log_errors()
     @send_action(action=ChatAction.RECORD_AUDIO)
     def say(self, update: Update, context: CallbackContext):
         try:
-            self.log(text="Trying to say something", logging_type=logging.DEBUG)
+            self.log(text="Trying to say something", logging_type=logging.INFO)
 
             chat_id = update.message.chat_id
             text = self.get_command_parameter("/say", update)
 
+            self.log(text="Text to TTS: " + text, logging_type=logging.INFO)
+
             if text is not None:
                 splitted = text.split(" ", 1)
-                fn = self.makeBase64Filename(text)
+                fn = self.make_base64_filename(text) + ".mp3"
 
                 langs = tts_langs("com")
                 language = "de"  # fallback to german
@@ -40,18 +43,19 @@ class SayBot(AbstractModule):
                 words = gTTS(text=voice_text, lang=language, slow=False)
                 words.save(fn)
                 audio = open(fn, 'rb')
-                context.bot.send_voice(chat_id=chat_id, voice=audio)
+                context.bot.send_voice(chat_id=chat_id, voice=audio, reply_to_message_id=update.message.message_id)
                 try:
                     os.remove(fn)
                 except Exception as err:
-                    self.log(text="Error: {0}".format(err), logging_type=logging.ERROR)
+                    self.log(text="Error: {0}".format(err), logging_type=logging.INFO)
             else:
+                self.log(text="No text provided", logging_type=logging.INFO)
                 update.message.reply_text("Wos?")
         except Exception as err:
             self.log(text="Error: {0}".format(err), logging_type=logging.ERROR)
             update.message.reply_text("Irgendwos is passiert bitte schau da in Log au!")
 
-    def makeBase64Filename(self, text):
+    def make_base64_filename(self, text):
         message_bytes = str.encode(text, encoding='ascii', errors='ignore')
         base64_bytes = base64.b64encode(message_bytes)
         base64_message = base64_bytes.decode('ascii')

@@ -1,5 +1,6 @@
 import datetime
 from functools import wraps
+import logging
 from telegram.ext import Filters
 
 
@@ -38,10 +39,32 @@ def register_incline_cap():
     return register_wrapper
 
 
+def log_errors():
+    def decorator(func):
+        @wraps(func)
+        def command_func(obj, update, context, *args, **kwargs):
+            try:
+                return func(obj, update, context, *args, **kwargs)
+            except Exception as err:
+                obj.log(text="Something happened in " + func.__name__, logging_type=logging.ERROR)
+                obj.log(text="Error: {0}".format(err), logging_type=logging.ERROR)
+                update.message.reply_text("Irgendwos is passiert bitte schau da in Log au!")
+        return command_func
+    return decorator
+
+
 def register_callback_query_handler(command, master=False):
     def register_wrapper(func):
         func._forCommand = command
         func._isMaster = master
+        return func
+
+    return register_wrapper
+
+
+def register_scheduler(name: str):
+    def register_wrapper(func):
+        func._forScheduler = name
         return func
 
     return register_wrapper
