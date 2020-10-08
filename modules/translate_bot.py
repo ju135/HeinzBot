@@ -11,7 +11,7 @@ from utils.decorators import register_module, register_command, send_action, log
 @register_module()
 class TranslateBot(AbstractModule):
     @register_command(command="trans", short_desc="Translates the given sentence.",
-                      long_desc="Translates the given sentence and returns the translation by setting a base language, translation language and providing a text. See /trans languages for a list of all supported languages and their corresponding key.",
+                      long_desc="Translates the given sentence and returns the translation by setting a base language, translation language and providing a text. See `/trans languages` for a list of all supported languages and their corresponding key.",
                       usage=["/trans [lang-base] [lang-trans] [text]", "/trans en de Please translate this to German.", "/trans languages"])
     @log_errors()
     @send_action(action=ChatAction.TYPING)
@@ -25,11 +25,11 @@ class TranslateBot(AbstractModule):
             if text is not None:
                 langs = googletrans.LANGCODES
                 if text == "languages":
-                    message = "I schreib da moi de Sprochkürzel ausa, de i kau:\n"
+                    message = "*I schreib da moi de Sprochkürzel ausa, de i kau:*\n"
                     for key, value in langs.items():
                         message += ''.join(key + ": " + value + ", ")
 
-                    context.bot.send_message(chat_id=chat_id, text=message)
+                    context.bot.send_message(chat_id=chat_id, text=message, parse_mode=telegram.ParseMode.MARKDOWN)
 
                 else:
                     splitted = text.split(" ", 2)
@@ -46,7 +46,7 @@ class TranslateBot(AbstractModule):
                     translator = googletrans.Translator()
                     if (langfrom and langto):
                         transtext = translator.translate(text=splitted[2], src=langfrom, dest=langto)
-                        message = "Übersetzt von __" + googletrans.LANGUAGES.get(langfrom).capitalize() + "__ zu __" + googletrans.LANGUAGES.get(langto).capitalize() + "__ hast des:\n" + transtext.text
+                        message = "Übersetzt von *" + googletrans.LANGUAGES.get(langfrom).capitalize() + "* zu *" + googletrans.LANGUAGES.get(langto).capitalize() + "* hast des:\n" + transtext.text
                         context.bot.send_message(chat_id=chat_id, text=message, parse_mode=telegram.ParseMode.MARKDOWN, disable_web_page_preview=True)
                     else:
                         transtext = translator.detect(splitted[1])
