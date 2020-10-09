@@ -19,6 +19,7 @@ An implementation of a Telegram Bot with the following capabilities:
   * Storm tracking
   * Wind gusts and average
   * forecasts for a specific location
+* Can translate a given sentence into various languages.
 
 
 ## Possible Extensions
@@ -126,6 +127,7 @@ class ComicBot(AbstractModule):
 * Mittag.at API
 * Urban Dictionary API
 * Kachelmann-Wetter Storm/Rain/Wind - Tracking
+* Google translate API
 
 ## Dependencies
 
@@ -137,3 +139,4 @@ class ComicBot(AbstractModule):
 * PRAW
 * schedule
 * Selenium
+* googletrans

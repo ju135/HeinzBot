@@ -6,4 +6,5 @@ python-telegram-bot
 selenium
 praw
 gTTS
+googletrans
 schedule
