@@ -8,3 +8,4 @@ praw
 gTTS
 googletrans
 schedule
+feedparser
