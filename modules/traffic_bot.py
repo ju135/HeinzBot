@@ -65,15 +65,17 @@ class TrafficBot(AbstractModule):
         # print last 4 entries
         for i, entry in enumerate(trafficdata):
             if i < 4:
+                icon = "❗️ "
                 if entry[1] == "Baustelle":
-                    message += "👷🏼 "
+                    icon = "👷🏼 "
                 if entry[1] == "Verkehrsbehinderung":
-                    message += "⚠️ "
+                    icon = "⚠️ "
                 if entry[1] == "Sperre":
-                    message += "⛔️ "
+                    icon = "⛔️ "
                 if entry[1] == "Schneekette":
-                    message += "❄️ "
+                    icon = "❄️ "
 
+                message += icon
                 message += time.strftime("%H:%M", entry[3]) + "\n"
                 message += entry[0] + "; "
                 message += entry[2] + "\n\n"
