@@ -76,7 +76,13 @@ class TrafficBot(AbstractModule):
                     icon = "❄️ "
 
                 message += icon
-                message += time.strftime("%H:%M", entry[3]) + "\n"
+
+                # check if entry has current day, otherwise print day and time
+                if time.strftime("%d/%m/%Y", entry[3]) == time.strftime("%d/%m/%Y", time.localtime()):
+                    message += time.strftime("%H:%M", entry[3]) + "\n"
+                else:
+                    message += time.strftime("%d\. %b, %H:%M", entry[3]) + "\n"
+
                 message += entry[0] + "; "
                 message += entry[2] + "\n\n"
             else:
