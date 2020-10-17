@@ -15,7 +15,7 @@ from utils.decorators import register_module, register_command, send_action, log
 @register_module()
 class TrafficBot(AbstractModule):
     @register_command(command="traffic", short_desc="Gets the current traffic information 👷🏼⚠️",
-                      long_desc="Searches for current traffic information in RSS feed of ÖAMTC. "
+                      long_desc="Searches for current traffic information in RSS feed of ÖAMTC and webpage of Life Radio. "
                                 "Standard location is Upper Austria, but can be defined by optional parameter `[state]` ",
                       usage=["/traffic\n/traffic [oö]\n/traffic Salzburg"])
     @log_errors()
@@ -51,7 +51,6 @@ class TrafficBot(AbstractModule):
 
         feedUpdateTime = rssFeed.feed.updated_parsed
         feedUpdateTime = time.strftime("%a, %d\. %b %H:%M", feedUpdateTime)
-        #### caution, strftime function depends on system settings whether time zone is correct or not!
 
         message += "Verkehrsupdate von _" + feedUpdateTime + "_\n"
 
@@ -97,18 +96,32 @@ class TrafficBot(AbstractModule):
                 message += entry[0] + "; "
                 message += entry[2] + "\n\n"
             else:
+                message = message[:-4] #removes double line breaks after last message
                 break
 
         return message
 
     def gatherLifeRadioData(self):
+        self.log(text="Getting items from Life Radio website..", logging_type=logging.INFO)
         req = urllib.request.Request("https://www.liferadio.at/verkehr")
         open_url = urlopen(req)
-        soup = bs4.BeautifulSoup(open_url)
+        soup = bs4.BeautifulSoup(open_url, features="lxml")
 
-        infotext = soup.body.find('div', attrs={'class': 'traffic-item'}).text
-        infotext = infotext.replace("-", "\-").replace(".", "\.").replace("!", "\!")
-        return infotext
+        trafficData = soup.body.find('div', attrs={'class': 'traffic-item'})
+
+        trafficUpdateTime = trafficData.select_one("h3").text
+        trafficUpdateTime = time.strptime(trafficUpdateTime, "%d.%m.%Y, %H:%M Uhr")
+        trafficUpdateTime = time.strftime("%d\. %b, %H:%M", trafficUpdateTime)
+
+        trafficInfo = trafficData.find('div', attrs={'class': 'content'})
+
+        advert = trafficInfo.select_one('p:last-of-type') # "Wenn ihr wisst, wo's staut oder wo geblitzt wird, ruft an.."
+        advert.decompose()
+
+        trafficInfo = trafficInfo.text
+        trafficInfo = trafficInfo.replace("-", "\-").replace(".", "\.").replace("!", "\!")
+
+        return "Verkehrsupdate von _" + trafficUpdateTime + "_\n" + trafficInfo
 
     def locationSwitcher(self, location):
         url = "https://www.oeamtc.at/feeds/verkehr/"
