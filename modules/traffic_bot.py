@@ -111,7 +111,7 @@ class TrafficBot(AbstractModule):
 
         trafficUpdateTime = trafficData.select_one("h3").text
         trafficUpdateTime = time.strptime(trafficUpdateTime, "%d.%m.%Y, %H:%M Uhr")
-        trafficUpdateTime = time.strftime("%d\. %b, %H:%M", trafficUpdateTime)
+        trafficUpdateTime = time.strftime("%a, %d\. %b, %H:%M", trafficUpdateTime)
 
         trafficInfo = trafficData.find('div', attrs={'class': 'content'})
 
