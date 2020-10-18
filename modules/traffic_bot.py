@@ -60,11 +60,11 @@ class TrafficBot(AbstractModule):
 
             # check if data even exists (sometimes no category is given for instance)
             if 'title' in item:
-                title = item.title.replace("-", "\-").replace(".", "\.").replace("!", "\!")
+                title = item.title.replace("-", "\-").replace(".", "\.").replace("!", "\!").replace("(", "\(").replace(")", "\)")
             if 'tags' in item:
-                category = item.tags[0].term.replace("-", "\-").replace(".", "\.").replace("!", "\!")
+                category = item.tags[0].term.replace("-", "\-").replace(".", "\.").replace("!", "\!").replace("(", "\(").replace(")", "\)")
             if 'summary' in item:
-                summary = item.summary.replace("-", "\-").replace(".", "\.").replace("!", "\!")
+                summary = item.summary.replace("-", "\-").replace(".", "\.").replace("!", "\!").replace("(", "\(").replace(")", "\)")
             if 'published_parsed' in item:
                 pubDate = item.published_parsed
             relevantData = [title, category, summary, pubDate]
@@ -110,8 +110,11 @@ class TrafficBot(AbstractModule):
         trafficData = soup.body.find('div', attrs={'class': 'traffic-item'})
 
         trafficUpdateTime = trafficData.select_one("h3").text
-        trafficUpdateTime = time.strptime(trafficUpdateTime, "%d.%m.%Y, %H:%M Uhr")
-        trafficUpdateTime = time.strftime("%a, %d\. %b, %H:%M", trafficUpdateTime)
+        trafficUpdateTime = trafficUpdateTime.replace("-", "\-").replace(".", "\.").replace("!", "\!").replace("(", "\(").replace(")", "\)")
+
+        # Pretty formatting disabled due to Life Radios inconsistency regarding date/time typos.
+        # trafficUpdateTime = time.strptime(trafficUpdateTime, "%d.%m.%Y, %H:%M Uhr")
+        # trafficUpdateTime = time.strftime("%a, %d\. %b, %H:%M", trafficUpdateTime)
 
         trafficInfo = trafficData.find('div', attrs={'class': 'content'})
 
@@ -119,7 +122,7 @@ class TrafficBot(AbstractModule):
         advert.decompose()
 
         trafficInfo = trafficInfo.text
-        trafficInfo = trafficInfo.replace("-", "\-").replace(".", "\.").replace("!", "\!")
+        trafficInfo = trafficInfo.replace("-", "\-").replace(".", "\.").replace("!", "\!").replace("(", "\(").replace(")", "\)")
 
         return "Verkehrsupdate von _" + trafficUpdateTime + "_\n" + trafficInfo
 
