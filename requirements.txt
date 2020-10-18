@@ -9,3 +9,4 @@ gTTS
 googletrans
 schedule
 feedparser
+lxml
