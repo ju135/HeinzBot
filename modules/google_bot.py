@@ -1,80 +1,59 @@
-from bs4 import BeautifulSoup
-import urllib.request
-from urllib.request import urlopen
+import json
+import logging
+import requests
+
 from telegram import ChatAction, Update
 from telegram.ext import CallbackContext
-import json
 from modules.abstract_module import AbstractModule
-from utils.decorators import register_module, register_command, send_action
+from utils.decorators import register_module, register_command, send_action, log_errors
 
 
-# @register_module()
+@register_module()
 class GoogleBot(AbstractModule):
     @register_command(command="image", short_desc="Googlet noch an foto und schickts 👌🏼", long_desc="", usage=[""])
+    @log_errors()
     @send_action(action=ChatAction.UPLOAD_PHOTO)
     def get_image(self, update: Update, context: CallbackContext):
         query = self.get_command_parameter("/image", update)
         if not query:
-            update.message.reply_text("parameter angeben bitte...")
+            update.message.reply_text("Parameter angeben bitte...")
             return
         query = self.percent_encoding(query).split()
         query = '+'.join(query)
-        url = "https://www.google.co.in/search?q=" + query + "&tbm=isch"
-        print(url)
-        header = {
-            'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/43.0.2357.134 Safari/537.36 "
-        }
-        soup = _get_soup(url, header)
 
-        actual_images = []  # contains the link for Large original images, type of  image
-        for a in soup.find_all("div", {"class": "rg_meta"}):
-            link, Type = json.loads(a.text)["ou"], json.loads(a.text)["ity"]
-            actual_images.append((link, Type))
-            break
+        url = "https://www.googleapis.com/customsearch/v1?searchType=image&key=" + self.get_api_key("google_key") + "&cx=" + self.get_api_key("google_cx") + "&num=1&q=" + query
+        response = self.retrieveJsonResponse(url)
 
-        print("there are total", len(actual_images), "images")
-        chat_id = update.message.chat_id
-        if len(actual_images) < 1:
+        if int(response["searchInformation"]["totalResults"]) == 0:
             update.message.reply_text("Leider nix gfunden ☹")
             return
-        for i, (img, Type) in enumerate(actual_images):
-            context.bot.send_photo(chat_id=chat_id, photo=img)
+        else:
+            imageUrl = response["items"][0]["link"]
+            self.log(text="Image url is: " + imageUrl, logging_type=logging.INFO)
+            chat_id = update.message.chat_id
+            context.bot.send_photo(chat_id=chat_id, photo=imageUrl)
 
     @register_command(command="gif", short_desc="Googlet noch an gif und schickts 👌🏼", long_desc="", usage=[""])
     @send_action(action=ChatAction.UPLOAD_VIDEO)
     def get_gif(self, update: Update, context: CallbackContext):
         query = self.get_command_parameter('/gif', update)
         if not query:
-            update.message.reply_text("parameter angeben bitte...")
+            update.message.reply_text("Parameter angeben bitte...")
             return
         query = self.percent_encoding(query).split()
         query = '+'.join(query)
-        url = "https://www.google.co.in/search?q=" + query + "&tbm=isch&tbs=itp:animated"
-        print(url)
-        header = {
-            'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/43.0.2357.134 Safari/537.36 "
-        }
-        soup = _get_soup(url, header)
+        url = "https://www.googleapis.com/customsearch/v1?searchType=image&imgType=animated&key=" + self.get_api_key("google_key") + "&cx=" + self.get_api_key("google_cx") + "&num=1&q=" + query
+        response = self.retrieveJsonResponse(url)
 
-        actual_images = []  # contains the link for Large original images, type of  image
-        for a in soup.find_all("div", {"class": "rg_meta"}):
-            link, Type = json.loads(a.text)["ou"], json.loads(a.text)["ity"]
-            actual_images.append((link, Type))
-            break
-
-        print("there are total", len(actual_images), "gifs")
-        if len(actual_images) < 1:
-            update.message.reply_text("Leider nix gfunden ☹️")
+        if int(response["searchInformation"]["totalResults"]) == 0:
+            update.message.reply_text("Leider nix gfunden ☹")
             return
-        chat_id = update.message.chat_id
-        for i, (img, Type) in enumerate(actual_images):
-            context.bot.send_animation(chat_id=chat_id, animation=img)
+        else:
+            imageUrl = response["items"][0]["link"]
+            self.log(text="Gif url is: " + imageUrl, logging_type=logging.INFO)
+            chat_id = update.message.chat_id
+            context.bot.send_animation(chat_id=chat_id, animation=imageUrl)
 
-
-def _get_soup(url, header):
-    req = urllib.request.Request(url, headers=header)
-    open_url = urlopen(req)
-    soup = BeautifulSoup(open_url, "html.parser")
-    return soup
+    def retrieveJsonResponse(self, url):
+        response = requests.get(url)
+        return json.loads(response.text)
