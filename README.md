@@ -132,6 +132,7 @@ class ComicBot(AbstractModule):
 * Urban Dictionary API
 * Kachelmann-Wetter Storm/Rain/Wind - Tracking
 * Google translate API
+* Google Custom Search API
 
 ## Dependencies (see requirements.txt)
 
@@ -146,3 +147,4 @@ class ComicBot(AbstractModule):
 * googletrans
 * feedparser
 * gTTS
+* lxml
