@@ -29,30 +29,36 @@ class TrafficBot(AbstractModule):
 
         ## begin ÖAMTC
 
-        message = "*ÖAMTC*\n"
-        message = self.gatherOeamtcData(message, text)
+        headline1 = "*ÖAMTC*\n"
+        oeamtc = self.gatherOeamtcData(text)
+        oeamtc = headline1 + oeamtc
 
         ## end ÖAMTC
 
         ## begin LifeRadio
-
+        liferadio = ""
         if not text or text == "ooe" or text == "oö" or text == "oberoesterreich" or text == "Oberösterreich":
-            message += "*\n\nLife Radio*\n"
-            message += self.gatherLifeRadioData()
+            headline2 = "\n*Life Radio*\n"
+            liferadio = self.gatherLifeRadioData()
+            liferadio = headline2 + liferadio
 
         ## end LifeRadio
 
+        message = oeamtc + liferadio
+        self.log(text="Final message: " + message, logging_type=logging.DEBUG)
         context.bot.send_message(chat_id=chat_id, text=message, parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
-    def gatherOeamtcData(self, message, text):
+    def gatherOeamtcData(self, text):
         self.log(text="Getting items from OEAMTC RSS feed..", logging_type=logging.INFO)
         feedlink = self.locationSwitcher(text)
         rssFeed = feedparser.parse(feedlink)
 
         feedUpdateTime = rssFeed.feed.updated_parsed
-        feedUpdateTime = time.strftime("%a, %d\. %b %H:%M", feedUpdateTime)
+        feedUpdateTime = time.strftime("%a, %d. %b %H:%M", feedUpdateTime)
+        feedUpdateTime = self.escape_markdown_characters(feedUpdateTime)
 
-        message += "Verkehrsupdate von _" + feedUpdateTime + "_\n"
+        oeamtcMessageHeader = "Verkehrsupdate von _" + feedUpdateTime + "_\n"
+        oeamtcMessage = ""
 
         trafficdata = []
         for item in rssFeed.entries:
@@ -60,11 +66,11 @@ class TrafficBot(AbstractModule):
 
             # check if data even exists (sometimes no category is given for instance)
             if 'title' in item:
-                title = item.title.replace("-", "\-").replace(".", "\.").replace("!", "\!").replace("(", "\(").replace(")", "\)")
+                title = item.title
             if 'tags' in item:
-                category = item.tags[0].term.replace("-", "\-").replace(".", "\.").replace("!", "\!").replace("(", "\(").replace(")", "\)")
+                category = item.tags[0].term
             if 'summary' in item:
-                summary = item.summary.replace("-", "\-").replace(".", "\.").replace("!", "\!").replace("(", "\(").replace(")", "\)")
+                summary = item.summary
             if 'published_parsed' in item:
                 pubDate = item.published_parsed
             relevantData = [title, category, summary, pubDate]
@@ -85,21 +91,21 @@ class TrafficBot(AbstractModule):
                 if entry[1] == "Schneekette":
                     icon = "❄️ "
 
-                message += icon
+                oeamtcMessage += icon
 
                 # check if entry has current day, otherwise print day and time
                 if time.strftime("%d/%m/%Y", entry[3]) == time.strftime("%d/%m/%Y", time.localtime()):
-                    message += time.strftime("%H:%M", entry[3]) + "\n"
+                    oeamtcMessage += time.strftime("%H:%M", entry[3]) + "\n"
                 else:
-                    message += time.strftime("%d\. %b, %H:%M", entry[3]) + "\n"
+                    oeamtcMessage += time.strftime("%d. %b, %H:%M", entry[3]) + "\n"
 
-                message += entry[0] + "; "
-                message += entry[2] + "\n\n"
+                oeamtcMessage += entry[0] + "; "
+                oeamtcMessage += entry[2] + "\n\n"
             else:
-                message = message[:-4] #removes double line breaks after last message
+                message = oeamtcMessage[:-4] #removes double line breaks after last message
                 break
 
-        return message
+        return oeamtcMessageHeader + self.escape_markdown_characters(oeamtcMessage)
 
     def gatherLifeRadioData(self):
         self.log(text="Getting items from Life Radio website..", logging_type=logging.INFO)
@@ -110,7 +116,7 @@ class TrafficBot(AbstractModule):
         trafficData = soup.body.find('div', attrs={'class': 'traffic-item'})
 
         trafficUpdateTime = trafficData.select_one("h3").text
-        trafficUpdateTime = trafficUpdateTime.replace("-", "\-").replace(".", "\.").replace("!", "\!").replace("(", "\(").replace(")", "\)")
+        trafficUpdateTime = self.escape_markdown_characters(trafficUpdateTime)
 
         # Pretty formatting disabled due to Life Radios inconsistency regarding date/time typos.
         # trafficUpdateTime = time.strptime(trafficUpdateTime, "%d.%m.%Y, %H:%M Uhr")
@@ -122,7 +128,7 @@ class TrafficBot(AbstractModule):
         advert.decompose()
 
         trafficInfo = trafficInfo.text
-        trafficInfo = trafficInfo.replace("-", "\-").replace(".", "\.").replace("!", "\!").replace("(", "\(").replace(")", "\)")
+        trafficInfo = self.escape_markdown_characters(trafficInfo)
 
         return "Verkehrsupdate von _" + trafficUpdateTime + "_\n" + trafficInfo
 
