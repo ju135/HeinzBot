@@ -5,7 +5,7 @@ ics
 python-telegram-bot
 selenium
 praw
-gTTS
+gTTS==2.2.1
 googletrans
 schedule
 feedparser
