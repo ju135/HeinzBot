@@ -53,3 +53,16 @@ class AbstractModule(ABC):
         for char in text.encode('utf-8'):
             result += chr(char) if char in accepted else '%{}'.format(hex(char)[2:]).upper()
         return result
+
+    def escape_markdown_characters(self, text):
+        """
+        Escape special characters for Markdown in a given text.
+        :param text: The text to encode
+        :return: the encoded text
+        """
+
+        text = text.replace("-", "\-").replace(".", "\.").replace("!", "\!").replace("(", "\(").replace(")", "\)")\
+            .replace("+", "\+").replace("`", "\`").replace("*", "\*").replace("_", "\_").replace("{", "\{")\
+            .replace("}", "\}").replace("[", "\[").replace("]", "\]").replace("#", "\#")
+
+        return text

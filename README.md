@@ -2,7 +2,7 @@
 
 An implementation of a Telegram Bot with the following capabilities:
 
-* Sends gifs/images through a google search. (currently disabled)
+* Sends gifs/images through a google search. 
 * Sends random Reddit submissions from given subreddits.
 * University
   * Sends the location of a course before it starts.
@@ -10,6 +10,7 @@ An implementation of a Telegram Bot with the following capabilities:
 * Performs youtube searches and sends a link to the best match.
 * Contains various yes/no answers to help decision making.
 * Sends various quote images.
+* Sends austrian traffic information.
 * Sends various comics.
   * daily check for new XKCD comics.
 * Sends the daily menue of good restaurants in Hagenberg.
@@ -19,6 +20,7 @@ An implementation of a Telegram Bot with the following capabilities:
   * Storm tracking
   * Wind gusts and average
   * forecasts for a specific location
+* Can translate a given sentence into various languages.
 
 
 ## Possible Extensions
@@ -57,7 +59,9 @@ The following structure is necessary to get modules with api-key-need to run:
   "mittag_client_id": "xxxx",
   "mittag_client_secret": "xxxx",
   "spoon": "spoonacular_key",
-  "rapid_urban_dict_secret": "rapid_urban_dict_api_key"
+  "rapid_urban_dict_secret": "rapid_urban_dict_api_key",
+  "google_key": "xxxx",
+  "google_cx": "xxxx"
 }
 ``` 
 
@@ -122,12 +126,15 @@ class ComicBot(AbstractModule):
 * Inspirobot API
 * cataas - Cat as a Service
 * RSS Service from Nachrichten.at
+* RSS Service from ÖAMTC
 * xkcd.com
 * Mittag.at API
 * Urban Dictionary API
 * Kachelmann-Wetter Storm/Rain/Wind - Tracking
+* Google translate API
+* Google Custom Search API
 
-## Dependencies
+## Dependencies (see requirements.txt)
 
 * python-telegram-bot
 * requests
@@ -137,3 +144,7 @@ class ComicBot(AbstractModule):
 * PRAW
 * schedule
 * Selenium
+* googletrans
+* feedparser
+* gTTS
+* lxml
