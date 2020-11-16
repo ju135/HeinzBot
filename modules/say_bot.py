@@ -31,7 +31,6 @@ class SayBot(AbstractModule):
                 splitted = text.split(" ", 1)
                 fn = self.make_base64_filename(text) + ".mp3"
 
-                #langs =  ("com/translate_tts?ie=UTF-8&q=Annoying%20bug&tl=en-US&client=tw-ob")
                 langs = _main_langs()
                 language = "de"  # fallback to german
                 # Language in which you want to convert
