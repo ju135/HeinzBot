@@ -3,7 +3,7 @@ import logging
 import os
 
 from gtts import gTTS
-from gtts.lang import tts_langs
+from gtts.lang import tts_langs, _main_langs
 from telegram import Update, ChatAction
 from telegram.ext import CallbackContext
 
@@ -31,7 +31,7 @@ class SayBot(AbstractModule):
                 splitted = text.split(" ", 1)
                 fn = self.make_base64_filename(text) + ".mp3"
 
-                langs = tts_langs("com")
+                langs = _main_langs()
                 language = "de"  # fallback to german
                 # Language in which you want to convert
                 if len(splitted) == 2 and len(splitted[0]) == 2 and splitted[0] in langs:

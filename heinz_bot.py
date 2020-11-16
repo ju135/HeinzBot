@@ -7,6 +7,7 @@ from _thread import start_new_thread
 from datetime import date
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
+
 import schedule
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, Dispatcher, \
