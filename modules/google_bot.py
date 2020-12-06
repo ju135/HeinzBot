@@ -30,8 +30,14 @@ class GoogleBot(AbstractModule):
         else:
             imageUrl = response["items"][0]["link"]
             self.log(text="Image url is: " + imageUrl, logging_type=logging.INFO)
-            chat_id = update.message.chat_id
-            context.bot.send_photo(chat_id=chat_id, photo=imageUrl)
+
+            if self.is_valid_url_image(imageUrl, update):
+                chat_id = update.message.chat_id
+                context.bot.send_photo(chat_id=chat_id, photo=imageUrl)
+
+            else:
+                self.log(text="Image Url wrong, image not available anymore or invalid image type which Telegram can't handle!", logging_type=logging.INFO)
+                update.message.reply_text("Des Büdl gibts scho nimma oda Telegram kau den Büdl Typ ned.. ☹ Probier an aundan Suchbegriff!")
 
     @register_command(command="gif", short_desc="Googlet noch an gif und schickts 👌🏼", long_desc="", usage=[""])
     @send_action(action=ChatAction.UPLOAD_VIDEO)
@@ -51,9 +57,32 @@ class GoogleBot(AbstractModule):
         else:
             imageUrl = response["items"][0]["link"]
             self.log(text="Gif url is: " + imageUrl, logging_type=logging.INFO)
-            chat_id = update.message.chat_id
-            context.bot.send_animation(chat_id=chat_id, animation=imageUrl)
+
+            if self.is_valid_url_image(imageUrl, update):
+                chat_id = update.message.chat_id
+                context.bot.send_animation(chat_id=chat_id, animation=imageUrl)
+
+            else:
+                self.log(text="Image Url wrong, image not available anymore or invalid image type which Telegram can't handle!", logging_type=logging.INFO)
+                update.message.reply_text("Des Büdl gibts scho nimma oda Telegram kau den Büdl Typ ned.. ☹ Probier an aundan Suchbegriff!")
 
     def retrieveJsonResponse(self, url):
         response = requests.get(url)
         return json.loads(response.text)
+
+    def is_valid_url_image(self, imageUrl, update):
+        # sadly svgs are not supported by telegram :(
+        allowed_formats = ("image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp")
+
+        try:
+            imageUrlResponse = requests.head(imageUrl)
+            if imageUrlResponse.status_code < 400:
+                if imageUrlResponse.headers["content-type"] in allowed_formats:
+                    return True
+                return False
+            else:
+                return False
+
+        except Exception as e:
+            self.log(text="Image Url wrong, webserver seems to be not accessible! Error: " + str(e), logging_type=logging.ERROR)
+            update.message.reply_text("Mamamia, do hod Google nu a uroide Url gecacht, den Webserver gibts scho laung nimma.. Probier an aundan Suchbegriff!")
