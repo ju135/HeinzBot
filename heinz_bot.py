@@ -7,6 +7,7 @@ from _thread import start_new_thread
 from datetime import date
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
+from repository.database import Database
 
 import schedule
 
@@ -145,4 +146,5 @@ def main():
 
 
 if __name__ == '__main__':
+    Database.instance()
     main()

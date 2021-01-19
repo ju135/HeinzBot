@@ -6,6 +6,8 @@ from telegram import Update, InlineQueryResultPhoto, InlineQueryResultGif, Inlin
 from telegram.ext import CallbackContext
 from utils.api_key_reader import read_key
 import telegram
+from repository.database import Database
+import time
 from modules.abstract_module import AbstractModule
 from utils.decorators import register_module, register_command, register_incline_cap, log_errors
 
@@ -41,7 +43,7 @@ class RedditBot(AbstractModule):
                 link = _get_external_video_link(submission)
                 _send_video(context.bot, update, link, submission.title)
             else:
-                _send_photo(context.bot, chat_id, submission.url, submission.title)
+                _send_photo(context.bot, chat_id, submission.url, submission.title, command=update.message)
 
     @register_command(command="funny",
                       short_desc="Sends a funny Reddit submission. 👌",
@@ -253,9 +255,13 @@ def _send_video(bot, update, url, caption):
         update.message.reply_text("Irgendwos hot do ned highaut ☹️")
 
 
-def _send_photo(bot, chat_id, url, caption):
+def _send_photo(bot, chat_id, url, caption, command):
     bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_PHOTO)
-    bot.send_photo(chat_id=chat_id, photo=url, caption=caption)
+    message = bot.send_photo(chat_id=chat_id, photo=url, caption=caption)
+    Database.instance().insert_into_reddit(chat_id=message.chat_id,
+                                           message_id=message.message_id,
+                                           command=command.text,
+                                           username=command.chat.username)
 
 
 def _get_subreddit_and_index(query) -> (str, int):

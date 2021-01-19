@@ -8,6 +8,6 @@ services:
     restart: unless-stopped
     volumes:
       - .:/var/www/htdocs
-      - ./log:/var/www/htdocs/log
     network_mode: "host"
     command: /bin/sh -c "/var/www/htdocs/debug.sh"
+    #command: tail -f /dev/null
