@@ -38,12 +38,14 @@ class RedditBot(AbstractModule):
         else:
             if submission.is_video:
                 print(submission.media['reddit_video']['fallback_url'])
-                _send_video(context.bot, update, submission.media['reddit_video']['fallback_url'], submission.title)
+                _send_video(context.bot, update, submission.media['reddit_video']['fallback_url'], submission.title,
+                            command=update.message, searchtext=query)
             elif _get_external_video_link(submission) is not None:
                 link = _get_external_video_link(submission)
-                _send_video(context.bot, update, link, submission.title)
+                _send_video(context.bot, update, link, submission.title, command=update.message, searchtext=query)
             else:
-                _send_photo(context.bot, chat_id, submission.url, submission.title, command=update.message)
+                _send_photo(context.bot, chat_id, submission.url, submission.title, command=update.message,
+                            searchtext=query)
 
     @register_command(command="funny",
                       short_desc="Sends a funny Reddit submission. 👌",
@@ -57,9 +59,11 @@ class RedditBot(AbstractModule):
             update.message.reply_text("Sorry, nix gfunden.😢")
         else:
             if submission.is_video:
-                _send_video(context.bot, update, submission.media['reddit_video']['fallback_url'], submission.title)
+                _send_video(context.bot, update, submission.media['reddit_video']['fallback_url'], submission.title,
+                            command=update.message, searchtext="funny")
             else:
-                _send_photo(context.bot, chat_id, submission.url, submission.title)
+                _send_photo(context.bot, chat_id, submission.url, submission.title, command=update.message,
+                            searchtext="funny")
             # bot.send_photo(chat_id=chat_id, photo=url, caption=title)
 
     @register_incline_cap()
@@ -244,24 +248,32 @@ def _downsize_dash_link(dash_link: str, maximum_size: int) -> str:
     return dash_link
 
 
-def _send_video(bot, update, url, caption):
+def _send_video(bot, update, url, caption, command, searchtext):
     chat_id = update.message.chat_id
     bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_VIDEO)
     new_url = _downsize_dash_link(url, 360)
     try:
-        bot.send_video(chat_id=chat_id, video=new_url,
-                       caption=caption, supports_streaming=True)
+        message = bot.send_video(chat_id=chat_id, video=new_url,
+                                 caption=caption, supports_streaming=True)
+        Database.instance().insert_into_reddit(chat_id=message.chat_id,
+                                               message_id=message.message_id,
+                                               command="reddit",
+                                               username=command.chat.username,
+                                               type="video",
+                                               searchtext=searchtext)
     except Exception as err:
         update.message.reply_text("Irgendwos hot do ned highaut ☹️")
 
 
-def _send_photo(bot, chat_id, url, caption, command):
+def _send_photo(bot, chat_id, url, caption, command, searchtext):
     bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_PHOTO)
     message = bot.send_photo(chat_id=chat_id, photo=url, caption=caption)
     Database.instance().insert_into_reddit(chat_id=message.chat_id,
                                            message_id=message.message_id,
-                                           command=command.text,
-                                           username=command.chat.username)
+                                           command="reddit",
+                                           username=command.chat.username,
+                                           type="image",
+                                           searchtext=searchtext)
 
 
 def _get_subreddit_and_index(query) -> (str, int):
