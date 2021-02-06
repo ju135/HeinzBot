@@ -76,6 +76,16 @@ class AbstractModule(ABC):
             return dash_link.replace(f"DASH_{resolution}", f"DASH_{maximum_size}")
         return dash_link
 
+    def save_media(self, update: Update, message,
+                   command: str, query: str, type: str):
+
+        Database.instance().insert_into_reddit(chat_id=message.chat_id,
+                                               message_id=message.message_id,
+                                               command=command,
+                                               username=update.message.chat.username,
+                                               type=type,
+                                               searchtext=query)
+
     def send_and_save_picture(self, update: Update, context: CallbackContext, image_url: str, caption: str,
                               command: str):
         chat_id = update.message.chat_id
@@ -83,12 +93,7 @@ class AbstractModule(ABC):
 
         context.bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_PHOTO)
         message = context.bot.send_photo(chat_id=chat_id, photo=image_url, caption=caption)
-        Database.instance().insert_into_reddit(chat_id=message.chat_id,
-                                               message_id=message.message_id,
-                                               command=command,
-                                               username=update.message.chat.username,
-                                               type="image",
-                                               searchtext=query)
+        self.save_media(update=update, command=command, type="image", query=query, message=message)
 
     def send_and_save_video(self, update: Update, context: CallbackContext, vide_url: str, caption: str,
                             command: str):
@@ -100,12 +105,7 @@ class AbstractModule(ABC):
         try:
             message = context.bot.send_video(chat_id=chat_id, video=new_url,
                                              caption=caption, supports_streaming=True)
-            Database.instance().insert_into_reddit(chat_id=message.chat_id,
-                                                   message_id=message.message_id,
-                                                   command=command,
-                                                   username=update.message.chat.username,
-                                                   type="video",
-                                                   searchtext=query)
+            self.save_media(update=update, command=command, type="video", query=query, message=message)
 
         except Exception as err:
             update.message.reply_text("Irgendwos hot do ned highaut ☹️")
