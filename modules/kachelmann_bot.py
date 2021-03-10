@@ -2,6 +2,7 @@ import datetime
 import urllib
 from urllib.request import urlopen
 import time
+import logging
 
 import bs4
 import telegram
@@ -229,7 +230,7 @@ class KachelmannBot(AbstractModule):
         # load search page        
         try:
             options = Options()
-            options.headless = True
+#            options.headless = True
 
             driver = webdriver.Firefox(options=options, log_path='./log/geckodriver.log')
             searchUrl = "https://kachelmannwetter.com/at/vorhersage"
@@ -257,7 +258,7 @@ class KachelmannBot(AbstractModule):
                 print("Still on search page")
                 # if the URL after the search is still the search URL,
                 # there are either multiple or no results for the location.
-                searchRes = driver.find_elements_by_class_name("search-result-text")[0]
+                searchRes = driver.find_elements_by_id("search-results")[0]
                 if (searchRes.find_elements_by_tag_name("p")[
                     0].text == 'Wir haben zu Ihrer Sucheingabe leider keine passenden Orte gefunden.'):
                     # no results found
@@ -267,39 +268,41 @@ class KachelmannBot(AbstractModule):
                                              text=errMsg)
                 elif (searchRes.find_elements_by_tag_name("p")[
                           0].text == 'Wir haben mehrere infrage kommende Orte für Ihre Sucheingabe gefunden.'):
-                    # multiple results
-                    errMsg = "Do gibts mea davo, wos mansdn genau?\n\n"
-                    for i in driver.find_elements_by_class_name("fcwcity"):
-                        errMsg += "- " + i.text + "\n"
+                    # just take the first search result - otherwise the communication flow
+                    # will be slowed down for a functionality that can be forced by using a more
+                    # specific search term in the first place
+                    driver.find_elements_by_class_name("fcwcity")[0].find_element_by_tag_name("a").click()
 
-                    context.bot.send_message(chat_id=update.message.chat_id,
-                                             reply_to_message_id=update.message.message_id,
-                                             text=errMsg, parse_mode=telegram.ParseMode.MARKDOWN)
+            # let page render
+            print("Waiting for page to render")
+            elem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'visibility_graph')))
+            time.sleep(1)  # wait for animation to finish
 
-                # don't parse further.
-            else:
-                # let page render
-                print("Waiting for page to render")
-                elem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'visibility_graph')))
-                time.sleep(1)  # wait for animation to finish
+            # hide header (will jump into forecast otherwise)
+            driver.execute_script("document.getElementById('w0').remove()")
+            driver.execute_script("document.getElementById('w3').remove()")
+            driver.execute_script("document.getElementsByClassName('menue-head')[0].remove()")
 
-                # hide header (will jump into forecast otherwise)
-                driver.execute_script("document.getElementById('w0').remove()")
-                driver.execute_script("document.getElementById('w3').remove()")
-                driver.execute_script("document.getElementsByClassName('menue-head')[0].remove()")
+            # save image
+            print("Saving image")
+            imagePath = "./images/forecast_image.png"
+            elem = driver.find_element_by_id("weather-forecast-compact")
+            elem.screenshot(imagePath)
+            # pngImage = elem.screenshot_as_png # can't send binary data, need to save first ...
 
-                # save image
-                print("Saving image")
-                imagePath = "./images/forecast_image.png"
-                elem = driver.find_element_by_id("weather-forecast-compact")
-                elem.screenshot(imagePath)
-                # pngImage = elem.screenshot_as_png # can't send binary data, need to save first ...
+            # get location name
+            locName = ""
+            try:
+                locName = driver.find_elements_by_class_name("forecast-h1")[0].text + driver.find_elements_by_class_name("h3-landkreis")[0].text
+            except NoSuchElementException as nse:
+                # don't add text, keep empty
+                print("No location name found")
 
-                # send image
-                context.bot.send_photo(chat_id=update.message.chat_id, photo=open(imagePath, "rb"))
+            # send image
+            context.bot.send_photo(chat_id=update.message.chat_id, photo=open(imagePath, "rb"), caption=locName)
         except Exception as exct:
             errMsg = "Irgendwos hod bam Vorhersagen hoin ned highaud, bitte schau da en Log au."
-            context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
-                                     text=errMsg, parse_mode=telegram.ParseMode.MARKDOWN)
+            logging.exception(errMsg)
+            context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id, text=errMsg, parse_mode=telegram.ParseMode.MARKDOWN)
         finally:
             driver.close()
