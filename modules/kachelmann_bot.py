@@ -302,7 +302,7 @@ class KachelmannBot(AbstractModule):
             context.bot.send_photo(chat_id=update.message.chat_id, photo=open(imagePath, "rb"), caption=locName)
         except Exception as exct:
             errMsg = "Irgendwos hod bam Vorhersagen hoin ned highaud, bitte schau da en Log au."
-            logging.exception(errMsg)
+            self.log(str(exct), logging_type=logging.ERROR)
             context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id, text=errMsg, parse_mode=telegram.ParseMode.MARKDOWN)
         finally:
             driver.close()

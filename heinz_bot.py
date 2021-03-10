@@ -1,10 +1,8 @@
 import inspect
 import logging
 import os
-import sys
 import time
 from _thread import start_new_thread
-from datetime import date
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
@@ -107,7 +105,8 @@ def enable_logging():
     bot_logger.setLevel(logging.INFO)
 
     handler = TimedRotatingFileHandler(log_name, when="midnight", interval=1)
-
+    formatter = logging.Formatter('%(asctime)s - %(levelname)5s - %(message)s')
+    handler.setFormatter(formatter)
     handler.suffix = "%Y%m%d"
     bot_logger.addHandler(handler)
     bot_logger.log(msg="Started logging", level=logging.INFO)

@@ -1,8 +1,7 @@
 import json
 import logging
 from abc import ABC
-from datetime import date
-
+from inspect import getframeinfo, stack
 from telegram import Update
 
 BOT_LOGGER = 'BotLogger'
@@ -20,9 +19,16 @@ class AbstractModule(ABC):
         AbstractModule._commandList.append({"command": command, "short_desc": short_desc,
                                             "long_desc": long_desc, "usage": usage})
 
-    def log(self, text, logging_type):
+    def log_with_caller_description(self, text, caller_description, logging_type):
         bot_logger = logging.getLogger(BOT_LOGGER)
-        bot_logger.log(level=logging_type, msg=" ######## " + type(self).__name__ + " ######## " + text)
+        bot_logger.log(level=logging_type,
+                       msg=f"{caller_description} {text}")
+
+    def log(self, text, logging_type=logging.INFO):
+        caller = getframeinfo(stack()[1][0])
+        file_name = caller.filename.split('/')[-1].split('.')[0]
+        caller_description = f"{file_name}:{caller.function}:{caller.lineno}>"
+        self.log_with_caller_description(text, caller_description, logging_type)
 
     def get_api_key(self, key_name):
         f = open(self.keyFileName, "r")
