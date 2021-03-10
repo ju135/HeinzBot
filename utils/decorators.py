@@ -41,7 +41,7 @@ def register_incline_cap():
     return register_wrapper
 
 
-def log_errors():
+def log_errors(perform_finally_call=False):
     def decorator(func):
         @wraps(func)
         def command_func(obj, update, context, *args, **kwargs):
@@ -57,6 +57,9 @@ def log_errors():
                                                 caller_description=caller_description,
                                                 logging_type=logging.ERROR)
                 update.message.reply_text("Irgendwos is passiert bitte schau da in Log au!")
+            finally:
+                if perform_finally_call and callable(obj.finally_function):
+                    obj.finally_function()
         return command_func
     return decorator
 

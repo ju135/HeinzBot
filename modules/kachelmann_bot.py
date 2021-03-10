@@ -11,7 +11,7 @@ from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
 from modules.abstract_module import AbstractModule
-from utils.decorators import register_module, register_command
+from utils.decorators import register_module, register_command, log_errors
 
 from constants.bezirke import BEZIRKE
 
@@ -181,9 +181,11 @@ class KachelmannBot(AbstractModule):
                       long_desc="This command returns an image containing the"
                                 "forecast for temperature, rainfall, clouds, wind, sunshine and barometric pressure.\n",
                       usage=["/forecast <location>", "/forecast Hagenberg", "/forecast Ellmau"])
+    @log_errors(perform_finally_call=True)
     #             "Possible forecast types are super HD (SHD) and HD (HD)",
     #   usage=["/forecast [SHD|HD] <location>", "/forecast SHD Hagenberg", "/forecast HD Ellmau"])
     def forecast(self, update: Update, context: CallbackContext):
+
         queryText = self.get_command_parameter("/forecast", update)
 
         # split query
@@ -228,81 +230,77 @@ class KachelmannBot(AbstractModule):
         #     return
 
         # load search page        
+
+        options = Options()
+        #            options.headless = True
+
+        driver = webdriver.Firefox(options=options, log_path='./log/geckodriver.log')
+        # This function is being called as finally statement:
+        self.finally_call = lambda: driver.close()
+        searchUrl = "https://kachelmannwetter.com/at/vorhersage"
+        driver.get(searchUrl)
+
+        # click away cookie message
         try:
-            options = Options()
-#            options.headless = True
+            print("Trying to find cookie message ...")
+            elem = WebDriverWait(driver, 15).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, ".nx2XwXx4"))
+            )
+            print("Found message, clicking button ...")
+            cookieButton = driver.find_element_by_css_selector("button.nx3Fpp8U.nx3gnDVX").click()
+        except TimeoutException:
+            print("Cookie message not found, skipping ...")
 
-            driver = webdriver.Firefox(options=options, log_path='./log/geckodriver.log')
-            searchUrl = "https://kachelmannwetter.com/at/vorhersage"
-            driver.get(searchUrl)
+        # search for location on search page
+        print("Searching for location")
+        searchBox = driver.find_element_by_id("forecast-input-0")
+        searchBox.clear()
+        searchBox.send_keys(location)
+        searchButton = driver.find_element_by_css_selector("span.input-group-addon:nth-child(4)").click()
 
-            # click away cookie message
-            try:
-                print("Trying to find cookie message ...")
-                elem = WebDriverWait(driver, 15).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, ".nx2XwXx4"))
-                )
-                print("Found message, clicking button ...")
-                cookieButton = driver.find_element_by_css_selector("button.nx3Fpp8U.nx3gnDVX").click()
-            except TimeoutException:
-                print("Cookie message not found, skipping ...")
+        if (driver.current_url == searchUrl + "/search"):
+            print("Still on search page")
+            # if the URL after the search is still the search URL,
+            # there are either multiple or no results for the location.
+            searchRes = driver.find_elements_by_id("search-results")[0]
+            if (searchRes.find_elements_by_tag_name("p")[
+                0].text == 'Wir haben zu Ihrer Sucheingabe leider keine passenden Orte gefunden.'):
+                # no results found
+                errMsg = "Moasd des Loch kenn i? Probier vllt an aundan Ort. 🗺️"
+                context.bot.send_message(chat_id=update.message.chat_id,
+                                         reply_to_message_id=update.message.message_id,
+                                         text=errMsg)
+            elif (searchRes.find_elements_by_tag_name("p")[
+                      0].text == 'Wir haben mehrere infrage kommende Orte für Ihre Sucheingabe gefunden.'):
+                # just take the first search result - otherwise the communication flow
+                # will be slowed down for a functionality that can be forced by using a more
+                # specific search term in the first place
+                driver.find_elements_by_class_name("fcwcity")[0].find_element_by_tag_name("a").click()
 
-            # search for location on search page
-            print("Searching for location")
-            searchBox = driver.find_element_by_id("forecast-input-0")
-            searchBox.clear()
-            searchBox.send_keys(location)
-            searchButton = driver.find_element_by_css_selector("span.input-group-addon:nth-child(4)").click()
+        # let page render
+        print("Waiting for page to render")
+        elem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'visibility_graph')))
+        time.sleep(1)  # wait for animation to finish
 
-            if (driver.current_url == searchUrl + "/search"):
-                print("Still on search page")
-                # if the URL after the search is still the search URL,
-                # there are either multiple or no results for the location.
-                searchRes = driver.find_elements_by_id("search-results")[0]
-                if (searchRes.find_elements_by_tag_name("p")[
-                    0].text == 'Wir haben zu Ihrer Sucheingabe leider keine passenden Orte gefunden.'):
-                    # no results found
-                    errMsg = "Moasd des Loch kenn i? Probier vllt an aundan Ort. 🗺️"
-                    context.bot.send_message(chat_id=update.message.chat_id,
-                                             reply_to_message_id=update.message.message_id,
-                                             text=errMsg)
-                elif (searchRes.find_elements_by_tag_name("p")[
-                          0].text == 'Wir haben mehrere infrage kommende Orte für Ihre Sucheingabe gefunden.'):
-                    # just take the first search result - otherwise the communication flow
-                    # will be slowed down for a functionality that can be forced by using a more
-                    # specific search term in the first place
-                    driver.find_elements_by_class_name("fcwcity")[0].find_element_by_tag_name("a").click()
+        # hide header (will jump into forecast otherwise)
+        driver.execute_script("document.getElementById('w0').remove()")
+        driver.execute_script("document.getElementById('w3').remove()")
+        driver.execute_script("document.getElementsByClassName('menue-head')[0].remove()")
 
-            # let page render
-            print("Waiting for page to render")
-            elem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'visibility_graph')))
-            time.sleep(1)  # wait for animation to finish
+        # save image
+        print("Saving image")
+        imagePath = "./images/forecast_image.png"
+        elem = driver.find_element_by_id("weather-forecast-compact")
+        elem.screenshot(imagePath)
+        # pngImage = elem.screenshot_as_png # can't send binary data, need to save first ...
 
-            # hide header (will jump into forecast otherwise)
-            driver.execute_script("document.getElementById('w0').remove()")
-            driver.execute_script("document.getElementById('w3').remove()")
-            driver.execute_script("document.getElementsByClassName('menue-head')[0].remove()")
+        # get location name
+        locName = ""
+        try:
+            locName = driver.find_elements_by_class_name("forecast-h1")[0].text + driver.find_elements_by_class_name("h3-landkreis")[0].text
+        except NoSuchElementException as nse:
+            # don't add text, keep empty
+            print("No location name found")
 
-            # save image
-            print("Saving image")
-            imagePath = "./images/forecast_image.png"
-            elem = driver.find_element_by_id("weather-forecast-compact")
-            elem.screenshot(imagePath)
-            # pngImage = elem.screenshot_as_png # can't send binary data, need to save first ...
-
-            # get location name
-            locName = ""
-            try:
-                locName = driver.find_elements_by_class_name("forecast-h1")[0].text + driver.find_elements_by_class_name("h3-landkreis")[0].text
-            except NoSuchElementException as nse:
-                # don't add text, keep empty
-                print("No location name found")
-
-            # send image
-            context.bot.send_photo(chat_id=update.message.chat_id, photo=open(imagePath, "rb"), caption=locName)
-        except Exception as exct:
-            errMsg = "Irgendwos hod bam Vorhersagen hoin ned highaud, bitte schau da en Log au."
-            self.log(str(exct), logging_type=logging.ERROR)
-            context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id, text=errMsg, parse_mode=telegram.ParseMode.MARKDOWN)
-        finally:
-            driver.close()
+        # send image
+        context.bot.send_photo(chat_id=update.message.chat_id, photo=open(imagePath, "rb"), caption=locName)
