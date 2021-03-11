@@ -232,7 +232,8 @@ class KachelmannBot(AbstractModule):
         # load search page        
 
         options = Options()
-        #            options.headless = True
+        # Enable headless mode to run on systems without a display (docker container)
+        options.headless = True
 
         driver = webdriver.Firefox(options=options, log_path='./log/geckodriver.log')
         # This function is being called as finally statement:
