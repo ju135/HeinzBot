@@ -18,8 +18,10 @@ services:
       - ./log:/var/www/htdocs/log
     networks:
       - web
+    links:
+      - db:db
     command: python3 heinz_bot.py
-    #command: tail -f /dev/null
+    # command: tail -f /dev/null
 
   db:
     image: mysql
