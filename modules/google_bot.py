@@ -85,23 +85,23 @@ class GoogleBot(AbstractModule):
 
                     # context.bot.send_photo(chat_id=chat_id, photo=imageUrl)
                 else:
-                    context.bot.send_animation(chat_id=chat_id, animation=imageUrl)
+                    self.send_and_save_video(update=update, context=context,
+                                             vide_url=imageUrl,
+                                             command="/gif",
+                                             caption="")
+
                 return True
             except Exception as e:
                 # some search results return huge images which aren't minimized. Telegram can't handle huge images
                 # unless they are sent as file. e.g. /image Krüger (tested on 06.12.2020) produces this exception
                 self.log(text="Image too large, Telegram can't handle so much pixels! Error: " + str(e),
                          logging_type=logging.ERROR)
-                update.message.reply_text(
-                    "Des Büdl is so riesig, Telegram kau mit so vü Pixel ned umgeh.. ☹ I probier is nächste Ergebnis!")
                 return False
 
         else:
             self.log(
                 text="Image Url wrong, image not available anymore or invalid image type which Telegram can't handle!",
                 logging_type=logging.INFO)
-            update.message.reply_text(
-                "Des Büdl gibts scho nimma oda Telegram kau den Büdl Typ ned.. ☹ I probier is nächste Ergebnis!")
             return False
 
     def retrieveJsonResponse(self, url):
@@ -127,5 +127,3 @@ class GoogleBot(AbstractModule):
             # request crashes if url not available (request timeout)
             self.log(text="Image Url wrong, webserver seems to be not accessible! Error: " + str(e),
                      logging_type=logging.ERROR)
-            update.message.reply_text(
-                "Mamamia, do hod Google nu a uroide Url gecacht, den Webserver gibts scho laung nimma.. Probier an aundan Suchbegriff!")

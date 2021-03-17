@@ -36,15 +36,16 @@ class RedditBot(AbstractModule):
         else:
             if submission.is_video:
                 print(submission.media['reddit_video']['fallback_url'])
+                link = self.downsize_dash_link(submission.media['reddit_video']['fallback_url'], maximum_size=360)
                 self.send_and_save_video(update=update, context=context,
-                                         vide_url=submission.media['reddit_video']['fallback_url'],
+                                         vide_url=link,
                                          command="/reddit",
                                          caption=submission.title)
 
             elif _get_external_video_link(submission) is not None:
                 link = _get_external_video_link(submission)
                 self.send_and_save_video(update=update, context=context,
-                                         vide_url=link,
+                                         vide_url=self.downsize_dash_link(link, maximum_size=360),
                                          command="/reddit",
                                          caption=submission.title)
             else:
@@ -65,8 +66,9 @@ class RedditBot(AbstractModule):
             update.message.reply_text("Sorry, nix gfunden.😢")
         else:
             if submission.is_video:
+                link = self.downsize_dash_link(submission.media['reddit_video']['fallback_url'], maximum_size=360)
                 self.send_and_save_video(update=update, context=context,
-                                         vide_url=submission.media['reddit_video']['fallback_url'],
+                                         vide_url=link,
                                          command="reddit",
                                          caption=submission.title)
             else:
