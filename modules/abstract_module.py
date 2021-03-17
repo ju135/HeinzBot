@@ -79,12 +79,13 @@ class AbstractModule(ABC):
     def save_media(self, update: Update, message,
                    command: str, query: str, type: str):
 
-        Database.instance().insert_into_reddit(chat_id=message.chat_id,
-                                               message_id=message.message_id,
-                                               command=command,
-                                               username=update.message.chat.username,
-                                               type=type,
-                                               searchtext=query)
+        Database.instance().insert_into_media(chat_id=message.chat_id,
+                                              message_id=message.message_id,
+                                              command=command,
+                                              username=update.message.chat.username,
+                                              user_id=update.message.from_user.id,
+                                              type=type,
+                                              searchtext=query)
 
     def send_and_save_picture(self, update: Update, context: CallbackContext, image_url: str, caption: str,
                               command: str):

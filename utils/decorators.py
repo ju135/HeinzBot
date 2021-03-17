@@ -2,6 +2,7 @@ import datetime
 from functools import wraps
 import logging
 from telegram.ext import Filters
+from constants.members import users
 
 
 def register_command(command, short_desc, long_desc, usage):
@@ -21,6 +22,20 @@ def register_module():
         return clazz
 
     return register_wrapper
+
+
+def members_only():
+    def decorator(func):
+        @wraps(func)
+        def command_func(obj, update, context, *args, **kwargs):
+            if update.message.from_user.id in users:
+                return func(obj, update, context, *args, **kwargs)
+            else:
+                update.message.reply_text("Kollege schau da moi deine Rechte au! Du host ka!")
+
+        return command_func
+
+    return decorator
 
 
 def register_message_watcher(filter: Filters):

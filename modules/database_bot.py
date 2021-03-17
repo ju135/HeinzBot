@@ -7,7 +7,7 @@ from telegram.ext import CallbackContext
 
 from modules.abstract_module import AbstractModule
 from repository.database import Database
-from utils.decorators import register_module, register_command, send_action, log_errors, register_callback_query_handler
+from utils.decorators import register_module, register_command, send_action, log_errors, register_callback_query_handler, members_only
 
 
 @register_module()
@@ -16,6 +16,7 @@ class DatabaseBot(AbstractModule):
                       long_desc="Lets you delete, get things from the database e.g for a clean chat without nude pics ;).",
                       usage=["/db [g](get),[d](delete) [command]", "/db d husky"])
     @log_errors()
+    @members_only()
     def database(self, update: Update, context: CallbackContext):
         self.log(text="Trying to delete entries and pictures", logging_type=logging.INFO)
         chat_id = update.message.chat_id
@@ -23,7 +24,11 @@ class DatabaseBot(AbstractModule):
 
         if text is not None:
             split = text.split(" ", 1)
-            if split[0] == "d":
+            if len(split) < 2:
+                context.bot.send_message(chat_id=chat_id, text="Kollege an suchtext musst schau augeben!",
+                                         parse_mode=telegram.ParseMode.MARKDOWN)
+                return
+            if split[0] == "d":  #
                 keyboard = [
                     [InlineKeyboardButton("Yes",
                                           callback_data=json.dumps({"answer": "database:yes", "data": split[1]})),
@@ -38,7 +43,7 @@ class DatabaseBot(AbstractModule):
                 context.bot.send_message(chat_id=chat_id, text=results, parse_mode=telegram.ParseMode.MARKDOWN)
 
     def get_data(self, chat_id, searchtext: str):
-        return Database.instance().get_from_reddit_by_command(chat_id=chat_id, searchtext=searchtext)
+        return Database.instance().get_from_media_by_command(chat_id=chat_id, searchtext=searchtext)
 
     @register_callback_query_handler(command=re.compile(".*(database).*"))
     def database_remove_callback(self, update: Update, context: CallbackContext):
@@ -54,7 +59,7 @@ class DatabaseBot(AbstractModule):
                 except Exception as err:
                     self.log(text="No danger! Image just not found for deletion", logging_type=logging.INFO)
 
-            Database.instance().delete_from_reddit_by_command(chat_id=chat_id, searchtext=callback['data'])
+            Database.instance().delete_from_media_by_command(chat_id=chat_id, searchtext=callback['data'])
             query.edit_message_text(text="Ois glöscht Kollege wir san wieder sauber!")
 
         else:

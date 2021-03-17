@@ -31,5 +31,3 @@ services:
       - heinz-db:/var/lib/mysql
     networks:
       - web
-    ports:
-      - '3306:3306'
