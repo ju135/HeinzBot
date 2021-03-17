@@ -19,6 +19,8 @@ services:
     networks:
       - web
     command: python3 heinz_bot.py
+    links:
+      - db:db
     #command: tail -f /dev/null
 
   db:
