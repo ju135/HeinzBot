@@ -17,4 +17,4 @@ class CallBackModule(AbstractModule):
                 handler.handle_update(update, context.dispatcher, check, context)
                 raise DispatcherHandlerStop()
 
-        update.message.reply_text("Herst Lorent, hab i mid dia gredt?")
+        update.callback_query.message.reply_text("Herst Lorent, hab i mid dia gredt?")

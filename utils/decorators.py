@@ -4,6 +4,7 @@ import logging
 import sys
 from inspect import getframeinfo
 from telegram.ext import Filters
+from constants.members import users
 
 
 def register_command(command, short_desc, long_desc, usage):
@@ -23,6 +24,20 @@ def register_module():
         return clazz
 
     return register_wrapper
+
+
+def members_only():
+    def decorator(func):
+        @wraps(func)
+        def command_func(obj, update, context, *args, **kwargs):
+            if update.message.from_user.id in users:
+                return func(obj, update, context, *args, **kwargs)
+            else:
+                update.message.reply_text("Kollege schau da moi deine Rechte au! Du host ka!")
+
+        return command_func
+
+    return decorator
 
 
 def register_message_watcher(filter: Filters):
@@ -114,3 +129,42 @@ def _get_caller_frame_info():
         tb = tb.tb_next
         frame_info = getframeinfo(tb)
     return frame_info
+
+
+class Singleton:
+    """
+    A non-thread-safe helper class to ease implementing singletons.
+    This should be used as a decorator -- not a metaclass -- to the
+    class that should be a singleton.
+
+    The decorated class can define one `__init__` function that
+    takes only the `self` argument. Also, the decorated class cannot be
+    inherited from. Other than that, there are no restrictions that apply
+    to the decorated class.
+
+    To get the singleton instance, use the `instance` method. Trying
+    to use `__call__` will result in a `TypeError` being raised.
+
+    """
+
+    def __init__(self, decorated):
+        self._decorated = decorated
+
+    def instance(self):
+        """
+        Returns the singleton instance. Upon its first call, it creates a
+        new instance of the decorated class and calls its `__init__` method.
+        On all subsequent calls, the already created instance is returned.
+
+        """
+        try:
+            return self._instance
+        except AttributeError:
+            self._instance = self._decorated()
+            return self._instance
+
+    def __call__(self):
+        raise TypeError('Singletons must be accessed through `instance()`.')
+
+    def __instancecheck__(self, inst):
+        return isinstance(inst, self._decorated)

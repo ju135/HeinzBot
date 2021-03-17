@@ -1,12 +1,12 @@
-import logging
 import random
+
 import praw
-from telegram import Update, InlineQueryResultPhoto, InlineQueryResultGif, InlineQueryResultArticle, \
-    InputTextMessageContent, InlineQueryResultMpeg4Gif, InlineQueryResultVideo, ParseMode
+from telegram import Update, InlineQueryResultPhoto, InlineQueryResultArticle, \
+    InputTextMessageContent, InlineQueryResultVideo
 from telegram.ext import CallbackContext
-from utils.api_key_reader import read_key
-import telegram
+
 from modules.abstract_module import AbstractModule
+from utils.api_key_reader import read_key
 from utils.decorators import register_module, register_command, register_incline_cap, log_errors
 
 CLIENT_ID = read_key("reddit-client-id")
@@ -36,12 +36,22 @@ class RedditBot(AbstractModule):
         else:
             if submission.is_video:
                 print(submission.media['reddit_video']['fallback_url'])
-                _send_video(context.bot, update, submission.media['reddit_video']['fallback_url'], submission.title)
+                self.send_and_save_video(update=update, context=context,
+                                         vide_url=submission.media['reddit_video']['fallback_url'],
+                                         command="/reddit",
+                                         caption=submission.title)
+
             elif _get_external_video_link(submission) is not None:
                 link = _get_external_video_link(submission)
-                _send_video(context.bot, update, link, submission.title)
+                self.send_and_save_video(update=update, context=context,
+                                         vide_url=link,
+                                         command="/reddit",
+                                         caption=submission.title)
             else:
-                _send_photo(context.bot, chat_id, submission.url, submission.title)
+                self.send_and_save_picture(update=update, context=context,
+                                           image_url=submission.url,
+                                           command="/reddit",
+                                           caption=submission.title)
 
     @register_command(command="funny",
                       short_desc="Sends a funny Reddit submission. 👌",
@@ -55,9 +65,15 @@ class RedditBot(AbstractModule):
             update.message.reply_text("Sorry, nix gfunden.😢")
         else:
             if submission.is_video:
-                _send_video(context.bot, update, submission.media['reddit_video']['fallback_url'], submission.title)
+                self.send_and_save_video(update=update, context=context,
+                                         vide_url=submission.media['reddit_video']['fallback_url'],
+                                         command="reddit",
+                                         caption=submission.title)
             else:
-                _send_photo(context.bot, chat_id, submission.url, submission.title)
+                self.send_and_save_picture(update=update, context=context,
+                                           image_url=submission.url,
+                                           command="/reddit",
+                                           caption=submission.title)
             # bot.send_photo(chat_id=chat_id, photo=url, caption=title)
 
     @register_incline_cap()
@@ -124,10 +140,11 @@ def _read_input_and_offset(query: str) -> (str, int):
 def _create_inline_result(submission, identifier: str):
     video_preview = _get_video_preview(submission)
     caption = f"{submission.subreddit_name_prefixed}: {submission.title}"
+    mod = AbstractModule()
     if video_preview is not None:
         return InlineQueryResultVideo(
             id=identifier,
-            video_url=_downsize_dash_link(video_preview["fallback_url"], 720),
+            video_url=mod.downsize_dash_link(video_preview["fallback_url"], 720),
             video_duration=video_preview["duration"],
             thumb_url=_get_thumbnail(submission),
             mime_type="video/mp4",
@@ -233,29 +250,6 @@ def _get_external_video_link(submission):
             "fallback_url" in submission.preview["reddit_video_preview"]:
         return submission.preview["reddit_video_preview"]["fallback_url"]
     return None
-
-
-def _downsize_dash_link(dash_link: str, maximum_size: int) -> str:
-    resolution = int(dash_link[dash_link.rindex('DASH_') + 5:].split('?')[0].split('.')[0])
-    if resolution > maximum_size:
-        return dash_link.replace(f"DASH_{resolution}", f"DASH_{maximum_size}")
-    return dash_link
-
-
-def _send_video(bot, update, url, caption):
-    chat_id = update.message.chat_id
-    bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_VIDEO)
-    new_url = _downsize_dash_link(url, 360)
-    try:
-        bot.send_video(chat_id=chat_id, video=new_url,
-                       caption=caption, supports_streaming=True)
-    except Exception as err:
-        update.message.reply_text("Irgendwos hot do ned highaut ☹️")
-
-
-def _send_photo(bot, chat_id, url, caption):
-    bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_PHOTO)
-    bot.send_photo(chat_id=chat_id, photo=url, caption=caption)
 
 
 def _get_subreddit_and_index(query) -> (str, int):

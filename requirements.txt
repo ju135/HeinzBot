@@ -10,3 +10,5 @@ googletrans
 schedule
 feedparser
 lxml
+PyMySQL
+python-dotenv

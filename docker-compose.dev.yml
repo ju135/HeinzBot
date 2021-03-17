@@ -1,5 +1,7 @@
 version: '2.2'
 
+volumes:
+  heinz-db:
 
 services:
   app:
@@ -8,6 +10,17 @@ services:
     restart: unless-stopped
     volumes:
       - .:/var/www/htdocs
-      - ./log:/var/www/htdocs/log
     network_mode: "host"
     command: /bin/sh -c "/var/www/htdocs/debug.sh"
+    #command: tail -f /dev/null
+
+  db:
+    image: mysql
+    container_name: "heinz-db"
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - heinz-db:/var/lib/mysql
+    ports:
+      - "3306:3306"

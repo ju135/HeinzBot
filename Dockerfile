@@ -27,6 +27,6 @@ WORKDIR /var/www/htdocs
 COPY requirements.txt /var/www/htdocs
 RUN pip3 install -r requirements.txt
 
-RUN useradd -ms /bin/bash heinz
+RUN useradd -ms /bin/bash heinz && chown -R 1000:1000 /var/www
 
 USER heinz

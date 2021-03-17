@@ -6,6 +6,7 @@ networks:
 
 volumes:
   python-app:
+  heinz-db:
 
 services:
   app:
@@ -19,3 +20,14 @@ services:
       - web
     command: python3 heinz_bot.py
     #command: tail -f /dev/null
+
+  db:
+    image: mysql
+    container_name: "heinz-db"
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - heinz-db:/var/lib/mysql
+    networks:
+      - web

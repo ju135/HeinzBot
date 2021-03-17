@@ -1,6 +1,12 @@
 import json
 import logging
 from abc import ABC
+from datetime import date
+from repository.database import Database
+
+from telegram import Update, ChatAction
+from telegram.ext import CallbackContext
+import telegram
 from inspect import getframeinfo, stack
 from telegram import Update
 
@@ -67,8 +73,49 @@ class AbstractModule(ABC):
         :return: the encoded text
         """
 
-        text = text.replace("-", "\-").replace(".", "\.").replace("!", "\!").replace("(", "\(").replace(")", "\)")\
-            .replace("+", "\+").replace("`", "\`").replace("*", "\*").replace("_", "\_").replace("{", "\{")\
+        text = text.replace("-", "\-").replace(".", "\.").replace("!", "\!").replace("(", "\(").replace(")", "\)") \
+            .replace("+", "\+").replace("`", "\`").replace("*", "\*").replace("_", "\_").replace("{", "\{") \
             .replace("}", "\}").replace("[", "\[").replace("]", "\]").replace("#", "\#")
 
         return text
+
+    def downsize_dash_link(self, dash_link: str, maximum_size: int) -> str:
+        resolution = int(dash_link[dash_link.rindex('DASH_') + 5:].split('?')[0].split('.')[0])
+        if resolution > maximum_size:
+            return dash_link.replace(f"DASH_{resolution}", f"DASH_{maximum_size}")
+        return dash_link
+
+    def save_media(self, update: Update, message,
+                   command: str, query: str, type: str):
+
+        Database.instance().insert_into_media(chat_id=message.chat_id,
+                                              message_id=message.message_id,
+                                              command=command,
+                                              username=update.message.chat.username,
+                                              user_id=update.message.from_user.id,
+                                              type=type,
+                                              searchtext=query)
+
+    def send_and_save_picture(self, update: Update, context: CallbackContext, image_url: str, caption: str,
+                              command: str):
+        chat_id = update.message.chat_id
+        query = self.get_command_parameter(command=command, update=update)
+
+        context.bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_PHOTO)
+        message = context.bot.send_photo(chat_id=chat_id, photo=image_url, caption=caption)
+        self.save_media(update=update, command=command, type="image", query=query, message=message)
+
+    def send_and_save_video(self, update: Update, context: CallbackContext, vide_url: str, caption: str,
+                            command: str):
+        chat_id = update.message.chat_id
+        query = self.get_command_parameter(command=command, update=update)
+
+        context.bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_VIDEO)
+        new_url = self.downsize_dash_link(vide_url, maximum_size=360)
+        try:
+            message = context.bot.send_video(chat_id=chat_id, video=new_url,
+                                             caption=caption, supports_streaming=True)
+            self.save_media(update=update, command=command, type="video", query=query, message=message)
+
+        except Exception as err:
+            update.message.reply_text("Irgendwos hot do ned highaut ☹️")
