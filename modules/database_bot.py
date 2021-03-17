@@ -7,8 +7,7 @@ from telegram.ext import CallbackContext
 
 from modules.abstract_module import AbstractModule
 from repository.database import Database
-from utils.decorators import register_module, register_command, send_action, log_errors, \
-    register_callback_query_handler, members_only
+from utils.decorators import register_module, register_command, send_action, log_errors, register_callback_query_handler, members_only
 
 
 @register_module()
@@ -16,8 +15,8 @@ class DatabaseBot(AbstractModule):
     @register_command(command="db", short_desc="Do something with the database.",
                       long_desc="Lets you delete, get things from the database e.g for a clean chat without nude pics ;).",
                       usage=["/db [g](get),[d](delete) [command]", "/db d husky"])
-    @log_errors()
     @members_only()
+    @log_errors()
     def database(self, update: Update, context: CallbackContext):
         self.log(text="Trying to delete entries and pictures", logging_type=logging.INFO)
         chat_id = update.message.chat_id
@@ -41,10 +40,6 @@ class DatabaseBot(AbstractModule):
 
             if split[0] == "g":
                 results = self.get_data(chat_id=chat_id, searchtext=split[1])
-                if len(results) == 0:
-                    context.bot.send_message(chat_id=chat_id, text="Olles schau glöscht!",
-                                             parse_mode=telegram.ParseMode.MARKDOWN)
-                    return
                 context.bot.send_message(chat_id=chat_id, text=results, parse_mode=telegram.ParseMode.MARKDOWN)
 
     def get_data(self, chat_id, searchtext: str):

@@ -1,4 +1,5 @@
 import json
+from os import path
 from telegram import Update
 from telegram.ext import CallbackContext
 from modules.abstract_module import AbstractModule
@@ -60,6 +61,10 @@ def _write_chat_id_json_content(json_data):
 
 
 def _read_chat_id_json_content():
+    if path.exists(CHAT_ID_FILE) is False:
+        file = open(CHAT_ID_FILE, "w")
+        json.dump({}, file)
+        file.close()
     file = open(CHAT_ID_FILE, "r")
     json_object = json.load(file)
     file.close()
