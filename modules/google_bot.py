@@ -7,6 +7,7 @@ from telegram.ext import CallbackContext
 from modules.abstract_module import AbstractModule
 from utils.decorators import register_module, register_command, send_action, log_errors
 
+
 @register_module()
 class GoogleBot(AbstractModule):
     @register_command(command="image", short_desc="Googlet noch an foto und schickts 👌🏼", long_desc="", usage=[""])
@@ -21,7 +22,8 @@ class GoogleBot(AbstractModule):
             return
         query = self.percent_encoding(query).split()
         query = '+'.join(query)
-        url = "https://www.googleapis.com/customsearch/v1?searchType=image&key=" + self.get_api_key("google_key") + "&cx=" + self.get_api_key("google_cx") + "&num=3&q=" + query
+        url = "https://www.googleapis.com/customsearch/v1?searchType=image&key=" + self.get_api_key(
+            "google_key") + "&cx=" + self.get_api_key("google_cx") + "&num=3&q=" + query
         response = self.retrieveJsonResponse(url)
 
         if int(response["searchInformation"]["totalResults"]) == 0:
@@ -35,7 +37,8 @@ class GoogleBot(AbstractModule):
                 imageCounter = imageCounter + 1
             if success is False:
                 self.log(text="All three queried image urls failed. Stopping.", logging_type=logging.INFO)
-                update.message.reply_text("Jetzt duad sis, i hob 3 Ergebnisse probiert, olle gengan nimma ☹ Probier bitte an aundan Suchbegriff!")
+                update.message.reply_text(
+                    "Jetzt duad sis, i hob 3 Ergebnisse probiert, olle gengan nimma ☹ Probier bitte an aundan Suchbegriff!")
 
     @register_command(command="gif", short_desc="Googlet noch an gif und schickts 👌🏼", long_desc="", usage=[""])
     @log_errors()
@@ -49,7 +52,8 @@ class GoogleBot(AbstractModule):
             return
         query = self.percent_encoding(query).split()
         query = '+'.join(query)
-        url = "https://www.googleapis.com/customsearch/v1?searchType=image&imgType=animated&key=" + self.get_api_key("google_key") + "&cx=" + self.get_api_key("google_cx") + "&num=3&q=" + query
+        url = "https://www.googleapis.com/customsearch/v1?searchType=image&imgType=animated&key=" + self.get_api_key(
+            "google_key") + "&cx=" + self.get_api_key("google_cx") + "&num=3&q=" + query
         response = self.retrieveJsonResponse(url)
 
         if int(response["searchInformation"]["totalResults"]) == 0:
@@ -63,7 +67,8 @@ class GoogleBot(AbstractModule):
                 imageCounter = imageCounter + 1
             if success is False:
                 self.log(text="All three queried gif urls failed. Stopping.", logging_type=logging.INFO)
-                update.message.reply_text("Jetzt duad sis, i hob 3 Ergebnisse probiert, olle gengan nimma ☹ Probier bitte an aundan Suchbegriff!")
+                update.message.reply_text(
+                    "Jetzt duad sis, i hob 3 Ergebnisse probiert, olle gengan nimma ☹ Probier bitte an aundan Suchbegriff!")
 
     def queryImage(self, response, update, context, queryType, counter):
         imageUrl = response["items"][counter]["link"]
@@ -73,20 +78,30 @@ class GoogleBot(AbstractModule):
             chat_id = update.message.chat_id
             try:
                 if queryType == "Image":
-                    context.bot.send_photo(chat_id=chat_id, photo=imageUrl)
+                    self.send_and_save_picture(update=update, context=context,
+                                               image_url=imageUrl,
+                                               command="/image",
+                                               caption="")
+
+                    # context.bot.send_photo(chat_id=chat_id, photo=imageUrl)
                 else:
-                    context.bot.send_animation(chat_id=chat_id, animation=imageUrl)
+                    self.send_and_save_video(update=update, context=context,
+                                             vide_url=imageUrl,
+                                             command="/gif",
+                                             caption="")
+
                 return True
             except Exception as e:
                 # some search results return huge images which aren't minimized. Telegram can't handle huge images
                 # unless they are sent as file. e.g. /image Krüger (tested on 06.12.2020) produces this exception
-                self.log(text="Image too large, Telegram can't handle so much pixels! Error: " + str(e), logging_type=logging.ERROR)
-                update.message.reply_text("Des Büdl is so riesig, Telegram kau mit so vü Pixel ned umgeh.. ☹ I probier is nächste Ergebnis!")
+                self.log(text="Image too large, Telegram can't handle so much pixels! Error: " + str(e),
+                         logging_type=logging.ERROR)
                 return False
 
         else:
-            self.log(text="Image Url wrong, image not available anymore or invalid image type which Telegram can't handle!", logging_type=logging.INFO)
-            update.message.reply_text("Des Büdl gibts scho nimma oda Telegram kau den Büdl Typ ned.. ☹ I probier is nächste Ergebnis!")
+            self.log(
+                text="Image Url wrong, image not available anymore or invalid image type which Telegram can't handle!",
+                logging_type=logging.INFO)
             return False
 
     def retrieveJsonResponse(self, url):
@@ -110,5 +125,5 @@ class GoogleBot(AbstractModule):
 
         except Exception as e:
             # request crashes if url not available (request timeout)
-            self.log(text="Image Url wrong, webserver seems to be not accessible! Error: " + str(e), logging_type=logging.ERROR)
-            update.message.reply_text("Mamamia, do hod Google nu a uroide Url gecacht, den Webserver gibts scho laung nimma.. Probier an aundan Suchbegriff!")
+            self.log(text="Image Url wrong, webserver seems to be not accessible! Error: " + str(e),
+                     logging_type=logging.ERROR)

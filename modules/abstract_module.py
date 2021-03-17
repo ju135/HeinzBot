@@ -111,9 +111,8 @@ class AbstractModule(ABC):
         query = self.get_command_parameter(command=command, update=update)
 
         context.bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_VIDEO)
-        new_url = self.downsize_dash_link(vide_url, maximum_size=360)
         try:
-            message = context.bot.send_video(chat_id=chat_id, video=new_url,
+            message = context.bot.send_video(chat_id=chat_id, video=vide_url,
                                              caption=caption, supports_streaming=True)
             self.save_media(update=update, command=command, type="video", query=query, message=message)
 
