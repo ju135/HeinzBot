@@ -3,7 +3,7 @@
 An implementation of a Telegram Bot with the following capabilities:
 
 * Sends gifs/images through a google search. 
-* Sends random Reddit submissions from given subreddits.
+* Sends random Reddit submissions from provided subreddits.
 * University
   * Sends the location of a course before it starts.
 * Is capable of sending austrian news.
@@ -12,7 +12,7 @@ An implementation of a Telegram Bot with the following capabilities:
 * Sends various quote images.
 * Sends austrian traffic information.
 * Sends various comics.
-  * daily check for new XKCD comics.
+* Checks daily for new XKCD comics and sends them if there are some. 
 * Sends the daily menue of good restaurants in Hagenberg.
 * Can invite colleagues for coffee at multiple locations.
 * Can show a a variety of weather information for the selected region:
@@ -21,6 +21,8 @@ An implementation of a Telegram Bot with the following capabilities:
   * Wind gusts and average
   * forecasts for a specific location
 * Can translate a given sentence into various languages.
+* Offers a voice game functionality where quotes with bad pronunciation have to be guessed.
+* Sends urban dictionary entries
 
 
 ## Possible Extensions

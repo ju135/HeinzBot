@@ -1,6 +1,8 @@
 import datetime
 from functools import wraps
 import logging
+import sys
+from inspect import getframeinfo
 from telegram.ext import Filters
 from constants.members import users
 
@@ -54,19 +56,26 @@ def register_incline_cap():
     return register_wrapper
 
 
-def log_errors():
+def log_errors(perform_finally_call=False):
     def decorator(func):
         @wraps(func)
         def command_func(obj, update, context, *args, **kwargs):
             try:
                 return func(obj, update, context, *args, **kwargs)
             except Exception as err:
-                obj.log(text="Something happened in " + func.__name__, logging_type=logging.ERROR)
-                obj.log(text="Error: {0}".format(err), logging_type=logging.ERROR)
+                frame_info = _get_caller_frame_info()
+                line = frame_info.lineno
+                function_name = frame_info.function
+                file_name = frame_info.filename.split('/')[-1].split('.')[0]
+                caller_description = f"{file_name}:{function_name}:{line}>"
+                obj.log_with_caller_description(text=str(err),
+                                                caller_description=caller_description,
+                                                logging_type=logging.ERROR)
                 update.message.reply_text("Irgendwos is passiert bitte schau da in Log au!")
-
+            finally:
+                if perform_finally_call and callable(obj.finally_function):
+                    obj.finally_function()
         return command_func
-
     return decorator
 
 
@@ -108,6 +117,18 @@ def send_action(action):
         return command_func
 
     return decorator
+
+
+def _get_caller_frame_info():
+    traceback = sys.exc_info()[2]
+    # start with the next traceback since the first is the decorator itself
+    tb = traceback.tb_next
+    frame_info = getframeinfo(tb)
+    # there could be multiple decorators on top of each other, so iterate through them
+    while frame_info.filename is __file__ and tb.tb_next is not None:
+        tb = tb.tb_next
+        frame_info = getframeinfo(tb)
+    return frame_info
 
 
 class Singleton:
