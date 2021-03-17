@@ -15,8 +15,8 @@ class DatabaseBot(AbstractModule):
     @register_command(command="db", short_desc="Do something with the database.",
                       long_desc="Lets you delete, get things from the database e.g for a clean chat without nude pics ;).",
                       usage=["/db [g](get),[d](delete) [command]", "/db d husky"])
-    @log_errors()
     @members_only()
+    @log_errors()
     def database(self, update: Update, context: CallbackContext):
         self.log(text="Trying to delete entries and pictures", logging_type=logging.INFO)
         chat_id = update.message.chat_id
