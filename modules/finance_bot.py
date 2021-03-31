@@ -22,10 +22,11 @@ class FinanceBot(AbstractModule):
     @register_command(command="stonks",
                       short_desc="Sends a chart of a specified finance 📈",
                       long_desc=f"This command sends a candle-chart of a specified finance "
-                                f"symbol in a given time period.\n"
+                                f"symbol in a given time period. Look [here](https://finance.yahoo.com/lookup/) "
+                                f"to find supported symbols.\n"
                                 f"Following time period specifications are supported: \n"
                                 f"_{', '.join(list(UserTimeInput.__members__))}_",
-                      usage=["/stonks BTC-EUR", "/stonks AAPL month", "/stonks DOGE-USD year"])
+                      usage=["/stonks $symbol $time-period", "/stonks BTC-EUR", "/stonks AAPL month", "/stonks DOGE-USD year"])
     @log_errors()
     @send_action(action=ChatAction.UPLOAD_PHOTO)
     def send_stock_command(self, update: Update, context: CallbackContext):
