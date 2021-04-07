@@ -23,6 +23,7 @@ An implementation of a Telegram Bot with the following capabilities:
 * Can translate a given sentence into various languages.
 * Offers a voice game functionality where quotes with bad pronunciation have to be guessed.
 * Sends urban dictionary entries
+* Sends stocks/finance charts 
 
 
 ## Possible Extensions
@@ -135,6 +136,7 @@ class ComicBot(AbstractModule):
 * Kachelmann-Wetter Storm/Rain/Wind - Tracking
 * Google translate API
 * Google Custom Search API
+* Yahoo Finance API
 
 ## Dependencies (see requirements.txt)
 
