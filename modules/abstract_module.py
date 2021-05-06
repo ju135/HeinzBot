@@ -73,9 +73,10 @@ class AbstractModule(ABC):
         :return: the encoded text
         """
 
-        text = text.replace("-", "\-").replace(".", "\.").replace("!", "\!").replace("(", "\(").replace(")", "\)") \
-            .replace("+", "\+").replace("`", "\`").replace("*", "\*").replace("_", "\_").replace("{", "\{") \
-            .replace("}", "\}").replace("[", "\[").replace("]", "\]").replace("#", "\#")
+        if text is not None:
+            text = text.replace("-", "\-").replace(".", "\.").replace("!", "\!").replace("(", "\(").replace(")", "\)") \
+                .replace("+", "\+").replace("`", "\`").replace("*", "\*").replace("_", "\_").replace("{", "\{") \
+                .replace("}", "\}").replace("[", "\[").replace("]", "\]").replace("#", "\#")
 
         return text
 

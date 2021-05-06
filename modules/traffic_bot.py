@@ -1,3 +1,4 @@
+import re
 import telegram
 import logging
 import feedparser
@@ -115,8 +116,11 @@ class TrafficBot(AbstractModule):
 
         trafficData = soup.body.find('div', attrs={'class': 'traffic-item'})
 
-        trafficUpdateTime = trafficData.select_one("h3").text
-        trafficUpdateTime = self.escape_markdown_characters(trafficUpdateTime)
+        trafficUpdateTime = trafficData.find(text=re.compile("aktualisiert"))
+
+        if trafficUpdateTime is not None:
+            trafficUpdateTime = self.escape_markdown_characters(trafficUpdateTime)
+            trafficUpdateTime = trafficUpdateTime.replace("aktualisiert am ", "")
 
         # Pretty formatting disabled due to Life Radios inconsistency regarding date/time typos.
         # trafficUpdateTime = time.strptime(trafficUpdateTime, "%d.%m.%Y, %H:%M Uhr")
@@ -124,11 +128,16 @@ class TrafficBot(AbstractModule):
 
         trafficInfo = trafficData.find('div', attrs={'class': 'content'})
 
-        advert = trafficInfo.select_one('p:last-of-type') # "Wenn ihr wisst, wo's staut oder wo geblitzt wird, ruft an.."
-        advert.decompose()
+        if trafficInfo is not None:
+            trafficInfo = trafficInfo.text
+            trafficInfo = self.escape_markdown_characters(trafficInfo)
+            trafficInfo = trafficInfo.strip()
 
-        trafficInfo = trafficInfo.text
-        trafficInfo = self.escape_markdown_characters(trafficInfo)
+        # checking for NoneTypes, replacing with empty string if found
+        if trafficUpdateTime is None:
+            trafficUpdateTime = self.escape_markdown_characters("(letztes Update)")
+        if trafficInfo is None:
+            trafficInfo = ""
 
         return "Verkehrsupdate von _" + trafficUpdateTime + "_\n" + trafficInfo
 
