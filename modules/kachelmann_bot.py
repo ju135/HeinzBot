@@ -185,7 +185,9 @@ class KachelmannBot(AbstractModule):
     #             "Possible forecast types are super HD (SHD) and HD (HD)",
     #   usage=["/forecast [SHD|HD] <location>", "/forecast SHD Hagenberg", "/forecast HD Ellmau"])
     def forecast(self, update: Update, context: CallbackContext):
-
+        context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                                 text="Command temporary disabled", parse_mode=telegram.ParseMode.MARKDOWN)
+        return
         queryText = self.get_command_parameter("/forecast", update)
 
         # split query
