@@ -27,8 +27,8 @@ class FinanceBot(AbstractModule):
                                 f"Following time period specifications are supported: \n"
                                 f"_{', '.join(list(UserTimeInput.__members__))}_",
                       usage=["/stonks $symbol $time-period", "/stonks BTC-EUR", "/stonks AAPL month", "/stonks DOGE-USD year"])
-    @log_errors()
     @send_action(action=ChatAction.UPLOAD_PHOTO)
+    @log_errors()
     def send_stock_command(self, update: Update, context: CallbackContext):
         query = self.get_command_parameter("/stonks", update)
         if not query:

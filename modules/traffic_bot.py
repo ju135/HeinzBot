@@ -19,8 +19,8 @@ class TrafficBot(AbstractModule):
                       long_desc="Searches for current traffic information in RSS feed of ÖAMTC and webpage of Life Radio. "
                                 "Standard location is Upper Austria, but can be defined by optional parameter `[state]` ",
                       usage=["/traffic\n/traffic [oö]\n/traffic Salzburg"])
-    @log_errors()
     @send_action(action=ChatAction.TYPING)
+    @log_errors()
     def traffic(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
         text = self.get_command_parameter("/traffic", update)

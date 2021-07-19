@@ -13,8 +13,8 @@ class TranslateBot(AbstractModule):
     @register_command(command="trans", short_desc="Translates the given sentence.",
                       long_desc="Translates the given sentence and returns the translation by setting a base language, translation language and providing a text. See `/trans languages` for a list of all supported languages and their corresponding key.",
                       usage=["/trans [lang-base] [lang-trans] [text]", "/trans en de Please translate this to German.", "/trans languages"])
-    @log_errors()
     @send_action(action=ChatAction.TYPING)
+    @log_errors()
     def translate(self, update: Update, context: CallbackContext):
         self.log(text="Trying to translate something..", logging_type=logging.INFO)
 

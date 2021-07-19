@@ -16,8 +16,8 @@ class SayBot(AbstractModule):
     @register_command(command="say", short_desc="Says the things you want him to say.",
                       long_desc="Says the things you want him to say by setting a language and a text.",
                       usage=["/say [lang] [text]", "/say de Random Text"])
-    @log_errors()
     @send_action(action=ChatAction.RECORD_AUDIO)
+    @log_errors()
     def say(self, update: Update, context: CallbackContext):
         try:
             self.log(text="Trying to say something", logging_type=logging.INFO)

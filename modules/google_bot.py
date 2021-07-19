@@ -11,8 +11,8 @@ from utils.decorators import register_module, register_command, send_action, log
 @register_module()
 class GoogleBot(AbstractModule):
     @register_command(command="image", short_desc="Googlet noch an foto und schickts 👌🏼", long_desc="", usage=[""])
-    @log_errors()
     @send_action(action=ChatAction.UPLOAD_PHOTO)
+    @log_errors()
     def get_image(self, update: Update, context: CallbackContext):
         imageCounter = 0
 
@@ -41,8 +41,8 @@ class GoogleBot(AbstractModule):
                     "Jetzt duad sis, i hob 3 Ergebnisse probiert, olle gengan nimma ☹ Probier bitte an aundan Suchbegriff!")
 
     @register_command(command="gif", short_desc="Googlet noch an gif und schickts 👌🏼", long_desc="", usage=[""])
-    @log_errors()
     @send_action(action=ChatAction.UPLOAD_VIDEO)
+    @log_errors()
     def get_gif(self, update: Update, context: CallbackContext):
         imageCounter = 0
 
