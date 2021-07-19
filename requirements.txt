@@ -13,5 +13,5 @@ feedparser
 lxml
 PyMySQL
 python-dotenv
-yfinance
+yfinance>=0.1.63
 mplfinance
