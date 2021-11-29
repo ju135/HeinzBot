@@ -41,9 +41,10 @@ class VoiceGameBot(AbstractModule):
             game_data = _read_game_data(chat_id)
             if game_data is not None:
                 author = "unknown"
-                if "quoteAuthor" in game_data:
+                if "quoteAuthor" in game_data and game_data["quoteAuthor"] != "":
                     author = game_data["quoteAuthor"]
-                update.message.reply_markdown(f"The solution is: \n\n"
+                word = _get_longest_word(game_data['quoteText'])
+                update.message.reply_markdown(f"The solution is: '{word}'\n\n"
                                               f"*{game_data['quoteText']}*\n"
                                               f"_Quote by {author}_")
                 _write_game_data(None, chat_id)
@@ -67,7 +68,7 @@ class VoiceGameBot(AbstractModule):
 
     @register_command(command="va", short_desc="Voice game answer command.",
                       long_desc="Write your answer to the voice game question and see if it's correct. "
-                                "You can also guess parts of the quote - the guess has to be at least 4 characters.",
+                                "You can also guess parts of the quote - the guess has to be at least 3 characters.",
                       usage=["/va [solution|guess]", "/va capacity", "/va Strength does not come from physical capacity. It comes from an indomitable will."])
     def voice_answer(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
@@ -80,18 +81,18 @@ class VoiceGameBot(AbstractModule):
         if solution_data is None or "quoteText" not in solution_data:
             update.message.reply_markdown("There is no voice game running in this chat. Start one with /voicegame.")
             return
-
-        solution = solution_data["quoteText"]
+        solution = _get_longest_word(solution_data["quoteText"])
+        solution_quote = solution_data["quoteText"]
         author = "unknown"
         if "quoteAuthor" in solution_data:
             author = solution_data["quoteAuthor"]
-        if _get_alphanumeric_lower_case(answer) == _get_alphanumeric_lower_case(solution):
-            update.message.reply_markdown(f"Correct!\n\n" 
-                                          f"*{solution}*\n"
-                                          f"_Quote by {author}_")
+        if answer.lower() == solution.lower():
+            update.message.reply_markdown(f"Correct! Here's a quote:\n\n" 
+                                          f"*{solution_quote}*\n"
+                                          f"_by {author}_")
             _write_game_data(None, chat_id)
-        elif len(answer) > 3 and answer.lower() in solution.lower():
-            update.message.reply_markdown("*Moist* - This part does exist in the quote.")
+        elif len(answer) > 2 and answer.lower() in solution.lower():
+            update.message.reply_markdown("*Moist* - This part does exist in the word.")
         else:
             update.message.reply_text("wrong.")
 
@@ -101,8 +102,8 @@ class VoiceGameBot(AbstractModule):
 
             if message is not None:
                 fn = _makeBase64Filename(message) + ".mp3"
-
-                words = gTTS(text=message, lang=language, slow=False)
+                word = _get_longest_word(message)
+                words = gTTS(text=word, lang=language, slow=False)
                 words.save(fn)
                 audio = open(fn, 'rb')
                 context.bot.send_voice(chat_id=update.message.chat_id, voice=audio, reply_to_message_id=update.message.message_id,
@@ -116,6 +117,14 @@ class VoiceGameBot(AbstractModule):
         except Exception as err:
             self.log(text="Error: {0}".format(err), logging_type=logging.ERROR)
             update.message.reply_text("Irgendwos is passiert bitte schau da in Log au!")
+
+
+def _get_longest_word(text: str) -> str:
+    alphanumeric = [character for character in text if character.isalnum() or character == " "]
+    alphanumeric = "".join(alphanumeric)
+    words = alphanumeric.split(" ")
+    word = max(words, key=len)
+    return word
 
 
 def _get_alphanumeric_lower_case(text: str) -> str:
