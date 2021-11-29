@@ -1,6 +1,8 @@
+import datetime
+import dateparser
+import pytz
 from telegram import Update, Message
 from telegram.ext import CallbackContext
-import datetime
 
 from modules.abstract_module import AbstractModule
 from utils.decorators import register_module, register_command, log_errors
@@ -15,21 +17,33 @@ def command(context: CallbackContext):
 @register_module()
 class RemindMeBot(AbstractModule):
     @register_command(command="remindme",
-                      short_desc="Reminds you of important stuff",
-                      long_desc=f"Add a long description here.."
-                                f"...",
-                      usage=["/remindme $time", "/remindme 2h", "/remindme 30min"])
+                      short_desc="Reminds you of important stuff ⏰",
+                      long_desc=f"Specify a time or time-interval together with this command and I will "
+                                f"remind you by replying to your initial message at the specified time.",
+                      usage=["/remindme $time", "/remindme 2h", "/remindme 30min", "/remindme 31.12.2021"])
     @log_errors()
     def remind_me_command(self, update: Update, context: CallbackContext):
         query = self.get_command_parameter("/remindme", update)
 
-        #if not query:
-        #    update.message.reply_text("Jetzt glei oda wos? Sunst miassast ma a Zeit augem.")
-        #    return
+        if not query:
+            update.message.reply_text("Jetzt glei oda wos? Sunst miassast ma a Zeit augem.")
+            return
 
-        time_change = datetime.timedelta(seconds=30, hours=-1) # Hours -1 to respect the timezone
-        trigger_time = datetime.datetime.now() + time_change
-        #update.message
-        context.dispatcher.job_queue.run_once(callback=command, when=trigger_time, context=update.message)
+        parsed_date = dateparser.parse(query, settings={'TIMEZONE': 'Europe/Vienna',
+                                                        'PREFER_DAY_OF_MONTH': 'first',
+                                                        'PREFER_DATES_FROM': 'future'})
+        if parsed_date is None:
+            update.message.reply_text("I versteh de Zeitangabe leider ned.. Bitte formuliers a bissl ondas.")
+            return
+
+        formatted_date = parsed_date.strftime("%d.%m.%Y, %H:%M:%S")
+        if parsed_date < datetime.datetime.now():
+            update.message.reply_text(f"Wüst mi pflanzen? Der Zeitpunkt ({formatted_date}) is jo scho vorbei.. "
+                                      f"Do kau i kan Reminder mochn.")
+            return
+
+        parsed_date = pytz.timezone('Europe/Vienna').localize(parsed_date)  # Set the timezone
+        update.message.reply_text(f"Passt, bitte oida - i möd mi dann zu dem Zeitpunkt: {formatted_date}")
+        context.dispatcher.job_queue.run_once(callback=command, when=parsed_date, context=update.message)
 
 
