@@ -10,7 +10,12 @@ from utils.random_text import get_random_string_of_messages_file
 
 
 def command(context: CallbackContext):
-    message: Message = context.job.context  # The message object is stored as job data
+    message: Message = context.job.context[0]  # The message object is stored as job data
+    additional_data = context.job.context[1]
+
+    if additional_data is not None:
+        message.reply_text(f"🚨🚨 {additional_data} 🚨🚨")
+        return
     message.reply_text(get_random_string_of_messages_file("constants/messages/reminder_messages.json"))
 
 
@@ -18,9 +23,10 @@ def command(context: CallbackContext):
 class RemindMeBot(AbstractModule):
     @register_command(command="remindme",
                       short_desc="Reminds you of important stuff ⏰",
-                      long_desc=f"Specify a time or time-interval together with this command and I will "
-                                f"remind you by replying to your initial message at the specified time.",
-                      usage=["/remindme $time", "/remindme 2h", "/remindme 30min", "/remindme 31.12.2021"])
+                      long_desc=f"Specify a time or time-interval together with an optional message  and "
+                                f"I will remind you by replying to your command at the specified time.",
+                      usage=["/remindme $time [$message]", "/remindme 2h", "/remindme 30min Time for coffee",
+                             "/remindme 1h30min Drink some water", "/remindme 31.12.2021 New year"])
     @log_errors()
     def remind_me_command(self, update: Update, context: CallbackContext):
         query = self.get_command_parameter("/remindme", update)
@@ -29,7 +35,14 @@ class RemindMeBot(AbstractModule):
             update.message.reply_text("Jetzt glei oda wos? Sunst miassast ma a Zeit augem.")
             return
 
-        parsed_date = dateparser.parse(query, settings={'TIMEZONE': 'Europe/Vienna',
+        query_parts = query.split(" ")
+        date_part = query_parts[0]
+        specified_message = None
+        # Everything after the first space counts as message to be reminded of
+        if len(query_parts) > 1:
+            specified_message = " ".join(query_parts[1:])
+
+        parsed_date = dateparser.parse(date_part, settings={'TIMEZONE': 'Europe/Vienna',
                                                         'PREFER_DAY_OF_MONTH': 'first',
                                                         'PREFER_DATES_FROM': 'future'})
         if parsed_date is None:
@@ -44,6 +57,8 @@ class RemindMeBot(AbstractModule):
 
         parsed_date = pytz.timezone('Europe/Vienna').localize(parsed_date)  # Set the timezone
         update.message.reply_text(f"Passt, bitte oida - i möd mi dann zu dem Zeitpunkt: {formatted_date}")
-        context.dispatcher.job_queue.run_once(callback=command, when=parsed_date, context=update.message)
+        context.dispatcher.job_queue.run_once(callback=command,
+                                              when=parsed_date,
+                                              context=[update.message, specified_message])
 
 
