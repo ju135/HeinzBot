@@ -1,7 +1,8 @@
 import datetime
 import dateparser
 import pytz
-from telegram import Update, Message
+import telegram
+from telegram import Update, Message, User
 from telegram.ext import CallbackContext
 
 from modules.abstract_module import AbstractModule
@@ -11,12 +12,25 @@ from utils.random_text import get_random_string_of_messages_file
 
 def command(context: CallbackContext):
     message: Message = context.job.context[0]  # The message object is stored as job data
-    additional_data = context.job.context[1]
+    specified_message = context.job.context[1]
+    from_user: User = context.job.context[2]
 
-    if additional_data is not None:
-        message.reply_text(f"🚨🚨 {additional_data} 🚨🚨")
-        return
-    message.reply_text(get_random_string_of_messages_file("constants/messages/reminder_messages.json"))
+    text = ""
+    if from_user is not None:
+        name = from_user.name
+        name = from_user.full_name if name is None else name
+        name = "Kollege" if name is None else name
+        user_tag = f"[{name}](tg://user?id={from_user.id})\n"
+        text += user_tag
+    if specified_message is not None:
+        text += f"🚨 {specified_message} 🚨"
+    else:
+        text += get_random_string_of_messages_file("constants/messages/reminder_messages.json")
+
+    context.bot.send_message(chat_id=message.chat_id,
+                             text=text,
+                             reply_to_message_id=message.message_id,
+                             parse_mode=telegram.ParseMode.MARKDOWN, disable_web_page_preview=True)
 
 
 @register_module()
@@ -58,12 +72,16 @@ class RemindMeBot(AbstractModule):
         parsed_date = pytz.timezone('Europe/Vienna').localize(parsed_date)  # Set the timezone
 
         message_to_reply = update.message
+        user_to_tag = None
         if update.message.reply_to_message is not None:
             message_to_reply = update.message.reply_to_message
+            if message_to_reply.from_user is not update.message.from_user:
+                # tag the requesting user when replying to a different message
+                user_to_tag = update.message.from_user
 
         update.message.reply_text(f"Passt, bitte oida - i möd mi dann zu dem Zeitpunkt: {formatted_date}")
         context.dispatcher.job_queue.run_once(callback=command,
                                               when=parsed_date,
-                                              context=[message_to_reply, specified_message])
+                                              context=[message_to_reply, specified_message, user_to_tag])
 
 
