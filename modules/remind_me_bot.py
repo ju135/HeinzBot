@@ -56,9 +56,14 @@ class RemindMeBot(AbstractModule):
             return
 
         parsed_date = pytz.timezone('Europe/Vienna').localize(parsed_date)  # Set the timezone
+
+        message_to_reply = update.message
+        if update.message.reply_to_message is not None:
+            message_to_reply = update.message.reply_to_message
+
         update.message.reply_text(f"Passt, bitte oida - i möd mi dann zu dem Zeitpunkt: {formatted_date}")
         context.dispatcher.job_queue.run_once(callback=command,
                                               when=parsed_date,
-                                              context=[update.message, specified_message])
+                                              context=[message_to_reply, specified_message])
 
 
