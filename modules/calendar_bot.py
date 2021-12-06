@@ -17,28 +17,37 @@ class CalendarBot(AbstractModule):
                       short_desc="Opens the current door of the calendar",
                       long_desc=f"Opens the current door of the calendar, "
                                 f"but only works in the chat-group of the maintainers.",
-                      usage=["/open"])
+                      usage=["/open [$date]", ["/open", "/open 01.12.2021"]])
     @log_errors()
     def remind_me_command(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
-        self.run_command(chat_id, context)
+        query = self.get_command_parameter("/open", update)
+        if query is None:
+            self.run_command(chat_id, context)
+            return
+        date_to_retrieve = dateparser.parse(query, locales=["de-AT"],
+                                            settings={'TIMEZONE': 'Europe/Vienna',
+                                                      'PREFER_DAY_OF_MONTH': 'first',
+                                                      'PREFER_DATES_FROM': 'future'})
+        self.run_command(chat_id, context, date_to_retrieve)
 
     @run_daily(name="daily_calendar", time=datetime.time(hour=9 - 1, minute=0, second=0))
-    def send_comic_if_new(self, context: CallbackContext, chat_id: str):
+    def send_daily_calendar(self, context: CallbackContext, chat_id: str):
         # No daily message when not in the kb-chat
         kb_chat_id = read_key("kb_chat_id")
         if chat_id != kb_chat_id:
             return
         self.run_command(chat_id, context)
 
-    def run_command(self, chat_id: str, context):
+    def run_command(self, chat_id: str, context, date_to_retrieve=None):
         # only allow this command in the kb-chat
         kb_chat_id = read_key("kb_chat_id")
         if chat_id != kb_chat_id:
             context.bot.send_message(chat_id=chat_id, text="Sorry, this command is only working in the maintainers chat.")
             return
         calendar_secret = read_key("calendar_secret")
-        date_to_retrieve = dateparser.parse("02.12.2021", locales=["de-AT"], settings={'TIMEZONE': 'Europe/Vienna'})
+        if date_to_retrieve is None:
+            date_to_retrieve = datetime.datetime.now()
         current_day_string1 = date_to_retrieve.strftime("%Y/%m/%d")  # Creates a string like "2021/12/05"
         current_day_string2 = date_to_retrieve.strftime("%Y%m%d")  # Creates a string like "20211205"
         url = f"https://{calendar_secret}/tz.php?std_time_offset=0&document_width=562&return={current_day_string1}"
