@@ -1,6 +1,7 @@
 import requests
 import bs4
 import datetime
+import dateparser
 
 from telegram import Update
 from telegram.ext import CallbackContext
@@ -37,8 +38,9 @@ class CalendarBot(AbstractModule):
             context.bot.send_message(chat_id=chat_id, text="Sorry, this command is only working in the maintainers chat.")
             return
         calendar_secret = read_key("calendar_secret")
-        current_day_string1 = datetime.datetime.now().strftime("%Y/%m/%d")  # Creates a string like "2021/12/05"
-        current_day_string2 = datetime.datetime.now().strftime("%Y%m%d")  # Creates a string like "20211205"
+        date_to_retrieve = dateparser.parse("02.12.2021", locales=["de-AT"], settings={'TIMEZONE': 'Europe/Vienna'})
+        current_day_string1 = date_to_retrieve.strftime("%Y/%m/%d")  # Creates a string like "2021/12/05"
+        current_day_string2 = date_to_retrieve.strftime("%Y%m%d")  # Creates a string like "20211205"
         url = f"https://{calendar_secret}/tz.php?std_time_offset=0&document_width=562&return={current_day_string1}"
         response = requests.get(url)
         bs_content = bs4.BeautifulSoup(response.content, 'html.parser')

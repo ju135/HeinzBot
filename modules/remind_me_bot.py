@@ -56,7 +56,7 @@ class RemindMeBot(AbstractModule):
         if len(query_parts) > 1:
             specified_message = " ".join(query_parts[1:])
 
-        parsed_date = dateparser.parse(date_part, settings={'TIMEZONE': 'Europe/Vienna',
+        parsed_date = dateparser.parse(date_part, locales=["de-AT"], settings={'TIMEZONE': 'Europe/Vienna',
                                                         'PREFER_DAY_OF_MONTH': 'first',
                                                         'PREFER_DATES_FROM': 'future'})
         if parsed_date is None:
