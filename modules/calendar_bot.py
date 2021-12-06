@@ -2,6 +2,7 @@ import requests
 import bs4
 import datetime
 import dateparser
+from urllib.parse import urlparse
 
 from telegram import Update
 from telegram.ext import CallbackContext
@@ -17,7 +18,8 @@ class CalendarBot(AbstractModule):
                       short_desc="Opens the current door of the calendar",
                       long_desc=f"Opens the current door of the calendar, "
                                 f"but only works in the chat-group of the maintainers.",
-                      usage=["/open [$date]", ["/open", "/open 01.12.2021"]])
+                      usage=["/open [other] [$date]", ["/open", "/open other",
+                                                       "/open 01.12.2021", "/open other 01.12.2021"]])
     @log_errors()
     def remind_me_command(self, update: Update, context: CallbackContext):
         chat_id = update.message.chat_id
@@ -25,27 +27,44 @@ class CalendarBot(AbstractModule):
         if query is None:
             self.run_command(chat_id, context)
             return
+
+        choose_other_api = False
+        if "other" in query:
+            query = query.replace("other", "")
+            choose_other_api = True
+
         date_to_retrieve = dateparser.parse(query, locales=["de-AT"],
                                             settings={'TIMEZONE': 'Europe/Vienna',
                                                       'PREFER_DAY_OF_MONTH': 'first',
                                                       'PREFER_DATES_FROM': 'future'})
-        self.run_command(chat_id, context, date_to_retrieve)
+        self.run_command(chat_id, context, date_to_retrieve, choose_other_api)
 
-    @run_daily(name="daily_calendar", time=datetime.time(hour=9 - 1, minute=0, second=0))
-    def send_daily_calendar(self, context: CallbackContext, chat_id: str):
+    @run_daily(name="daily_calendar_morning", time=datetime.time(hour=9 - 1, minute=0, second=0))
+    def send_daily_calendar_morning(self, context: CallbackContext, chat_id: str):
         # No daily message when not in the kb-chat
         kb_chat_id = read_key("kb_chat_id")
         if chat_id != kb_chat_id:
             return
         self.run_command(chat_id, context)
 
-    def run_command(self, chat_id: str, context, date_to_retrieve=None):
+    @run_daily(name="daily_calendar_afternoon", time=datetime.time(hour=14 - 1, minute=30, second=0))
+    def send_daily_calendar_afternoon(self, context: CallbackContext, chat_id: str):
+        # No daily message when not in the kb-chat
+        kb_chat_id = read_key("kb_chat_id")
+        if chat_id != kb_chat_id:
+            return
+        self.run_command(chat_id, context, other=True)
+
+    def run_command(self, chat_id: str, context, date_to_retrieve=None, other=False):
         # only allow this command in the kb-chat
         kb_chat_id = read_key("kb_chat_id")
         if chat_id != kb_chat_id:
             context.bot.send_message(chat_id=chat_id, text="Sorry, this command is only working in the maintainers chat.")
             return
-        calendar_secret = read_key("calendar_secret")
+        if other:
+            calendar_secret = read_key("calendar_secret2")
+        else:
+            calendar_secret = read_key("calendar_secret1")
         if date_to_retrieve is None:
             date_to_retrieve = datetime.datetime.now()
         current_day_string1 = date_to_retrieve.strftime("%Y/%m/%d")  # Creates a string like "2021/12/05"
@@ -61,7 +80,7 @@ class CalendarBot(AbstractModule):
         block_before_content = response2.text.split("\"" + current_day_string2 + "\":{\"name\":")[1]
         content_description = block_before_content.split("\"")[1]
         link = block_before_content.split("\"video\":")[1].split("\"")[1].replace("\\", "")
-
+        link = urlparse(link).hostname + urlparse(link).path
         if link is None or link == "":
             context.bot.send_message(chat_id=chat_id, text="Unfortunately, no link could be found.")
             return
