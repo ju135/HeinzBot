@@ -33,7 +33,7 @@ class CalendarBot(AbstractModule):
             query = query.replace("other", "")
             choose_other_api = True
 
-        date_to_retrieve = dateparser.parse(query, locales=["de-AT"],
+        date_to_retrieve = dateparser.parse(query, locales=["de-AT", "en-AT"],
                                             settings={'TIMEZONE': 'Europe/Vienna',
                                                       'PREFER_DAY_OF_MONTH': 'first',
                                                       'PREFER_DATES_FROM': 'future'})
