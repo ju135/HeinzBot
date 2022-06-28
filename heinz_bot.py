@@ -13,6 +13,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Inlin
     CallbackQueryHandler
 
 from modules.job_register_bot import register_methods_in_file, send_awake_to_subscriber
+from modules.remind_me_bot import schedule_remind_me_jobs_from_db
 from utils.api_key_reader import read_key
 
 BOT_LOGGER = 'BotLogger'
@@ -137,6 +138,7 @@ def main():
     dp = updater.dispatcher
     load_modules(dp)
     send_awake_to_subscriber(dp)
+    schedule_remind_me_jobs_from_db(dp)
 
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                         level=logging.INFO)
