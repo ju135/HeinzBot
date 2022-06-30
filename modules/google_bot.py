@@ -32,13 +32,14 @@ class GoogleBot(AbstractModule):
         else:
             success = self.queryImage(response, update, context, "Image", imageCounter)
             imageCounter = imageCounter + 1
-            while success is False and imageCounter < 3:
+            max_amount_query_attempts = 10
+            while success is False and imageCounter < max_amount_query_attempts:
                 success = self.queryImage(response, update, context, "Image", imageCounter)
                 imageCounter = imageCounter + 1
             if success is False:
-                self.log(text="All three queried image urls failed. Stopping.", logging_type=logging.INFO)
+                self.log(text=f"All {max_amount_query_attempts} queried image urls failed. Stopping.", logging_type=logging.INFO)
                 update.message.reply_text(
-                    "Jetzt duad sis, i hob 3 Ergebnisse probiert, olle gengan nimma ☹ Probier bitte an aundan Suchbegriff!")
+                    f"Jetzt duad sis, i hob {max_amount_query_attempts} Ergebnisse probiert, olle gengan nimma ☹ Probier bitte an aundan Suchbegriff!")
 
     @register_command(command="gif", short_desc="Googlet noch an gif und schickts 👌🏼", long_desc="", usage=[""])
     @send_action(action=ChatAction.UPLOAD_VIDEO)
@@ -62,13 +63,14 @@ class GoogleBot(AbstractModule):
         else:
             success = self.queryImage(response, update, context, "Gif", imageCounter)
             imageCounter = imageCounter + 1
-            while success is False and imageCounter < 3:
+            max_amount_query_attempts = 10
+            while success is False and imageCounter < max_amount_query_attempts:
                 success = self.queryImage(response, update, context, "Gif", imageCounter)
                 imageCounter = imageCounter + 1
             if success is False:
-                self.log(text="All three queried gif urls failed. Stopping.", logging_type=logging.INFO)
+                self.log(text=f"All {max_amount_query_attempts} queried gif urls failed. Stopping.", logging_type=logging.INFO)
                 update.message.reply_text(
-                    "Jetzt duad sis, i hob 3 Ergebnisse probiert, olle gengan nimma ☹ Probier bitte an aundan Suchbegriff!")
+                    f"Jetzt duad sis, i hob {max_amount_query_attempts} Ergebnisse probiert, olle gengan nimma ☹ Probier bitte an aundan Suchbegriff!")
 
     def queryImage(self, response, update, context, queryType, counter):
         imageUrl = response["items"][counter]["link"]
