@@ -10,6 +10,8 @@ from utils.decorators import register_module, register_command, send_action, log
 
 @register_module()
 class GoogleBot(AbstractModule):
+    max_amount_query_attempts = 10
+
     @register_command(command="image", short_desc="Googlet noch an foto und schickts 👌🏼", long_desc="", usage=[""])
     @send_action(action=ChatAction.UPLOAD_PHOTO)
     @log_errors()
@@ -23,7 +25,7 @@ class GoogleBot(AbstractModule):
         query = self.percent_encoding(query).split()
         query = '+'.join(query)
         url = "https://www.googleapis.com/customsearch/v1?searchType=image&key=" + self.get_api_key(
-            "google_key") + "&cx=" + self.get_api_key("google_cx") + "&num=3&q=" + query
+            "google_key") + "&cx=" + self.get_api_key("google_cx") + f"&num={self.max_amount_query_attempts}&q=" + query
         response = self.retrieveJsonResponse(url)
 
         if int(response["searchInformation"]["totalResults"]) == 0:
@@ -32,14 +34,13 @@ class GoogleBot(AbstractModule):
         else:
             success = self.queryImage(response, update, context, "Image", imageCounter)
             imageCounter = imageCounter + 1
-            max_amount_query_attempts = 10
-            while success is False and imageCounter < max_amount_query_attempts:
+            while success is False and imageCounter < self.max_amount_query_attempts:
                 success = self.queryImage(response, update, context, "Image", imageCounter)
                 imageCounter = imageCounter + 1
             if success is False:
-                self.log(text=f"All {max_amount_query_attempts} queried image urls failed. Stopping.", logging_type=logging.INFO)
+                self.log(text=f"All {self.max_amount_query_attempts} queried image urls failed. Stopping.", logging_type=logging.INFO)
                 update.message.reply_text(
-                    f"Jetzt duad sis, i hob {max_amount_query_attempts} Ergebnisse probiert, olle gengan nimma ☹ Probier bitte an aundan Suchbegriff!")
+                    f"Jetzt duad sis, i hob {self.max_amount_query_attempts} Ergebnisse probiert, olle gengan nimma ☹ Probier bitte an aundan Suchbegriff!")
 
     @register_command(command="gif", short_desc="Googlet noch an gif und schickts 👌🏼", long_desc="", usage=[""])
     @send_action(action=ChatAction.UPLOAD_VIDEO)
@@ -54,7 +55,7 @@ class GoogleBot(AbstractModule):
         query = self.percent_encoding(query).split()
         query = '+'.join(query)
         url = "https://www.googleapis.com/customsearch/v1?searchType=image&imgType=animated&key=" + self.get_api_key(
-            "google_key") + "&cx=" + self.get_api_key("google_cx") + "&num=3&q=" + query
+            "google_key") + "&cx=" + self.get_api_key("google_cx") + f"&num={self.max_amount_query_attempts}&q=" + query
         response = self.retrieveJsonResponse(url)
 
         if int(response["searchInformation"]["totalResults"]) == 0:
@@ -63,14 +64,14 @@ class GoogleBot(AbstractModule):
         else:
             success = self.queryImage(response, update, context, "Gif", imageCounter)
             imageCounter = imageCounter + 1
-            max_amount_query_attempts = 10
-            while success is False and imageCounter < max_amount_query_attempts:
+
+            while success is False and imageCounter < self.max_amount_query_attempts:
                 success = self.queryImage(response, update, context, "Gif", imageCounter)
                 imageCounter = imageCounter + 1
             if success is False:
-                self.log(text=f"All {max_amount_query_attempts} queried gif urls failed. Stopping.", logging_type=logging.INFO)
+                self.log(text=f"All {self.max_amount_query_attempts} queried gif urls failed. Stopping.", logging_type=logging.INFO)
                 update.message.reply_text(
-                    f"Jetzt duad sis, i hob {max_amount_query_attempts} Ergebnisse probiert, olle gengan nimma ☹ Probier bitte an aundan Suchbegriff!")
+                    f"Jetzt duad sis, i hob {self.max_amount_query_attempts} Ergebnisse probiert, olle gengan nimma ☹ Probier bitte an aundan Suchbegriff!")
 
     def queryImage(self, response, update, context, queryType, counter):
         imageUrl = response["items"][counter]["link"]
