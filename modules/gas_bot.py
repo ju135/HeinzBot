@@ -1,7 +1,7 @@
 import json
 import requests
 
-from telegram import Update
+from telegram import Update, ParseMode
 from telegram.ext import CallbackContext
 
 from modules.abstract_module import AbstractModule
@@ -51,22 +51,27 @@ class GasBot(AbstractModule):
                         for gas_station in gas_station_data:
                             if gas_station_index > 10:
                                 break
+                            if len(gas_station['prices']) == 0 and gas_station_index == 0:
+                                update.message.reply_text("San leider grod kane Preise verfügbar :(")
+                                return
                             for price in gas_station['prices']:
                                 if gas_station_index == 0:
                                     reply_message = f"Bester Preis für {price['label']} in der " \
-                                                    f"Nähe: {price['amount']}€ bei \"{gas_station['name']}\" " \
+                                                    f"Nähe: \n<b><u>{str(price['amount']).replace('.', ',')}€</u></b> bei \"{gas_station['name']}\" " \
                                                     f"in {gas_station['location']['city']}, " \
                                                     f"{gas_station['location']['address']}"
                                     if len(gas_station_data) > 1:
-                                        reply_message += "\nWeitere Preise:\n"
+                                        reply_message += "\n<i>Weitere Preise:</i>\n"
                                 else:
-                                    reply_message += f"{price['amount']}€ bei \"{gas_station['name']}\" " \
+                                    reply_message += f"<b>{str(price['amount']).replace('.', ',')}€</b> bei \"{gas_station['name']}\" " \
                                                      f"in {gas_station['location']['city']}, " \
                                                      f"{gas_station['location']['address']}\n"
                                 # Only care about the first price of each gas-station
                                 break
                             gas_station_index += 1
 
-                        update.message.reply_text(reply_message)
+                        context.bot.send_message(chat_id=self.get_chat_id(update),
+                                                 text=reply_message,
+                                                 parse_mode=ParseMode.HTML)
                         return
         update.message.reply_text("Sorry, de PLZ hob i leider ned gfunden..")
