@@ -1,9 +1,12 @@
-import pymysql.cursors
-from utils.decorators import Singleton
-from datetime import datetime
 import os
+from datetime import datetime
+
 from dotenv import load_dotenv
+from pony import orm
+from pony.orm import *
+
 from definitions import ROOT_DIR
+from utils.decorators import Singleton
 
 
 @Singleton
@@ -12,10 +15,9 @@ class Database:
 
     def __init__(self):
         # Connect to the database
+        print("Starting db")
         load_dotenv(dotenv_path=ROOT_DIR + "/.env")
         self.connect()
-        self.create_media_table()
-        self.create_remind_me_jobs_table()
 
     def get_env_var(self, key):
         return os.getenv(key)
@@ -26,35 +28,16 @@ class Database:
         pw = self.get_env_var("MYSQL_PASSWORD")
         host = self.get_env_var("DB_HOST")
 
-        self.connection = pymysql.connect(host=host,
-                                          user=user,
-                                          password=pw,
-                                          database=db,
-                                          cursorclass=pymysql.cursors.DictCursor)
+        self.connection = orm.Database()
+        sql_debug(True)
 
-    def create_remind_me_jobs_table(self):
-        self.connect()
-        with self.connection:
-            with self.connection.cursor() as cursor:
-                # Create a new record
-                sql = """create table if not exists remind_me_jobs
-                            (  
-                            id int auto_increment
-                                primary key,
-                            chat_id varchar(30) not null,
-                            message_id varchar(30) not null,
-                            user_id varchar(30) null,
-                            username varchar(30) null,
-                            specified_message varchar(255) null,
-                            trigger_time timestamp not null,
-                            created_at timestamp null
-                        );"""
-
-                cursor.execute(sql)
-
-            # connection is not autocommit by default. So you must commit to save
-            # your changes.
-            self.connection.commit()
+        self.connection.bind(provider='mysql',
+                             host=host,
+                             create_db=True,
+                             user=user,
+                             password=pw,
+                             db=db)
+        self.connection.generate_mapping(create_tables=True)
 
     def insert_into_remind_me_jobs(self, chat_id, message_id, user_id, username, specified_message, trigger_time):
         self.connect()
@@ -64,7 +47,8 @@ class Database:
                 # Create a new record
                 sql = "INSERT INTO `remind_me_jobs` (`chat_id`, `message_id`, `user_id`, `username`, " \
                       "`specified_message`, `trigger_time`, `created_at`) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-                cursor.execute(sql, (chat_id, message_id, user_id, username, specified_message, trigger_time, datetime.now()))
+                cursor.execute(sql, (
+                    chat_id, message_id, user_id, username, specified_message, trigger_time, datetime.now()))
 
             remind_me_job_id = self.connection.insert_id()
             self.connection.commit()
@@ -107,39 +91,14 @@ class Database:
                 cursor.execute(sql, datetime.now())
             self.connection.commit()
 
-    def create_media_table(self):
-        self.connect()
-        with self.connection:
-            with self.connection.cursor() as cursor:
-                # Create a new record
-                sql = """create table if not exists media
-                            (  
-                            id int auto_increment
-                                primary key,
-                            deleted bool default false null,
-                            chat_id varchar(30) null,
-                            username varchar(30) null,
-                            user_id varchar(30) null,
-                            created_at timestamp null,
-                            message_id varchar(30) null,
-                            type varchar(20) null,
-                            command varchar(255) null,
-                            searchtext varchar(255) null
-                        );"""
-
-                cursor.execute(sql)
-
-            # connection is not autocommit by default. So you must commit to save
-            # your changes.
-            self.connection.commit()
-
     def insert_into_media(self, chat_id, message_id, command, username, user_id, type, searchtext):
         self.connect()
         with self.connection:
             with self.connection.cursor() as cursor:
                 # Create a new record
                 sql = "INSERT INTO `media` (`chat_id`, `message_id`, `command`, `username`, `user_id`, `created_at`, `type`, `searchtext`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-                cursor.execute(sql, (chat_id, message_id, command, username, user_id, datetime.now(), type, searchtext.lower()))
+                cursor.execute(sql, (
+                    chat_id, message_id, command, username, user_id, datetime.now(), type, searchtext.lower()))
 
             # connection is not autocommit by default. So you must commit to save
             # your changes.

@@ -137,8 +137,8 @@ def main():
     updater = Updater(read_key("telegram"), use_context=True)
     dp = updater.dispatcher
     load_modules(dp)
-    send_awake_to_subscriber(dp)
-    schedule_remind_me_jobs_from_db(dp)
+    # send_awake_to_subscriber(dp)
+    # schedule_remind_me_jobs_from_db(dp)
 
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                         level=logging.INFO)
