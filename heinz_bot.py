@@ -132,7 +132,7 @@ def run_schedules():
 
 def main():
     enable_logging()
-    start_new_thread(run_schedules, ())
+    # start_new_thread(run_schedules, ())
 
     updater = Updater(read_key("telegram"), use_context=True)
     dp = updater.dispatcher
@@ -143,9 +143,10 @@ def main():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                         level=logging.INFO)
 
+    print("Start polling")
     updater.start_polling()
 
 
 if __name__ == '__main__':
-    Database.instance()
+    # Database.instance()
     main()

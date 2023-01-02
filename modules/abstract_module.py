@@ -2,6 +2,8 @@ import json
 import logging
 from abc import ABC
 from datetime import date
+
+from microservices.media_service.client import MediaService
 from repository.database import Database
 
 from telegram import Update, ChatAction
@@ -88,14 +90,13 @@ class AbstractModule(ABC):
 
     def save_media(self, update: Update, message,
                    command: str, query: str, type: str):
-
-        Database.instance().insert_into_media(chat_id=message.chat_id,
-                                              message_id=message.message_id,
-                                              command=command,
-                                              username=update.message.chat.username,
-                                              user_id=update.message.from_user.id,
-                                              type=type,
-                                              searchtext=query)
+        MediaService().create_media(chat_id=message.chat_id,
+                                    message_id=message.message_id,
+                                    command=command,
+                                    username=update.message.chat.username,
+                                    user_id=update.message.from_user.id,
+                                    type=type,
+                                    searchtext=query)
 
     def send_and_save_picture(self, update: Update, context: CallbackContext, image_url: str, caption: str,
                               command: str):
@@ -104,6 +105,7 @@ class AbstractModule(ABC):
 
         context.bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_PHOTO)
         message = context.bot.send_photo(chat_id=chat_id, photo=image_url, caption=caption)
+
         self.save_media(update=update, command=command, type="image", query=query, message=message)
 
     def send_and_save_video(self, update: Update, context: CallbackContext, vide_url: str, caption: str,
