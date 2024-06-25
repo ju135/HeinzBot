@@ -37,7 +37,7 @@ class TrafficBot(AbstractModule):
 
         ## begin LifeRadio
         liferadio = ""
-        if not text or text.casefold() == "ooe" or text.casefold() == "oö" or text.casefold() == "oberoesterreich" or text.casefold() == "Oberösterreich":
+        if not text or text.casefold() == "ooe" or text.casefold() == "oö" or text.casefold() == "oberoesterreich" or text.casefold() == "oberösterreich":
             headline2 = "\n*Life Radio*\n"
             liferadio = self.gatherLifeRadioData()
             liferadio = headline2 + liferadio
@@ -118,9 +118,9 @@ class TrafficBot(AbstractModule):
         # if no information provided, there is always a single message with text saying "no information"
         if "from" not in traffic_data["messages"][0]:
             traffic_info = "keine Meldungen"
-        for trafficEntry in traffic_data["messages"]:
-            if "from" in trafficEntry:
-                traffic_info += trafficEntry["text"] + "\n"
+        for traffic_entry in traffic_data["messages"]:
+            if "from" in traffic_entry:
+                traffic_info += traffic_entry["text"] + "\n"
 
         traffic_info = self.escape_markdown_characters(traffic_info)
 
