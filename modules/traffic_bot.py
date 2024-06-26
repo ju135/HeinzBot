@@ -1,15 +1,14 @@
-import re
 import telegram
+import requests
+import json
 import logging
 import feedparser
 import time
 import locale
-import urllib
-import bs4
 
 from telegram import Update, ChatAction
 from telegram.ext import CallbackContext
-from urllib.request import urlopen
+from datetime import datetime
 from modules.abstract_module import AbstractModule
 from utils.decorators import register_module, register_command, send_action, log_errors
 
@@ -38,7 +37,7 @@ class TrafficBot(AbstractModule):
 
         ## begin LifeRadio
         liferadio = ""
-        if not text or text == "ooe" or text == "oö" or text == "oberoesterreich" or text == "Oberösterreich":
+        if not text or text.casefold() == "ooe" or text.casefold() == "oö" or text.casefold() == "oberoesterreich" or text.casefold() == "oberösterreich":
             headline2 = "\n*Life Radio*\n"
             liferadio = self.gatherLifeRadioData()
             liferadio = headline2 + liferadio
@@ -110,36 +109,26 @@ class TrafficBot(AbstractModule):
 
     def gatherLifeRadioData(self):
         self.log(text="Getting items from Life Radio website..", logging_type=logging.INFO)
-        req = urllib.request.Request("https://www.liferadio.at/verkehr")
-        open_url = urlopen(req)
-        soup = bs4.BeautifulSoup(open_url, features="lxml")
+        r = requests.get("https://www.liferadio.at/api/traffic")
+        traffic_data = json.loads(r.text)
 
-        trafficData = soup.body.find('div', attrs={'class': 'traffic-item'})
+        traffic_update_time = traffic_data["createdAt"]
 
-        trafficUpdateTime = trafficData.find(text=re.compile("aktualisiert"))
+        traffic_info = ""
+        # if no information provided, there is always a single message with text saying "no information"
+        if "from" not in traffic_data["messages"][0]:
+            traffic_info = "keine Meldungen"
+        for traffic_entry in traffic_data["messages"]:
+            if "from" in traffic_entry:
+                traffic_info += traffic_entry["text"] + "\n"
 
-        if trafficUpdateTime is not None:
-            trafficUpdateTime = self.escape_markdown_characters(trafficUpdateTime)
-            trafficUpdateTime = trafficUpdateTime.replace("aktualisiert am ", "")
+        traffic_info = self.escape_markdown_characters(traffic_info)
 
-        # Pretty formatting disabled due to Life Radios inconsistency regarding date/time typos.
-        # trafficUpdateTime = time.strptime(trafficUpdateTime, "%d.%m.%Y, %H:%M Uhr")
-        # trafficUpdateTime = time.strftime("%a, %d\. %b, %H:%M", trafficUpdateTime)
+        if traffic_update_time is not None:
+            traffic_update_time = datetime.fromisoformat(traffic_update_time)
+            traffic_update_time = traffic_update_time.strftime("%a, %d\. %b, %H:%M")
 
-        trafficInfo = trafficData.find('div', attrs={'class': 'content'})
-
-        if trafficInfo is not None:
-            trafficInfo = trafficInfo.text
-            trafficInfo = self.escape_markdown_characters(trafficInfo)
-            trafficInfo = trafficInfo.strip()
-
-        # checking for NoneTypes, replacing with empty string if found
-        if trafficUpdateTime is None:
-            trafficUpdateTime = self.escape_markdown_characters("(letztes Update)")
-        if trafficInfo is None:
-            trafficInfo = ""
-
-        return "Verkehrsupdate von _" + trafficUpdateTime + "_\n" + trafficInfo
+        return "Verkehrsupdate von _" + traffic_update_time + "_\n" + traffic_info
 
     def locationSwitcher(self, location):
         url = "https://www.oeamtc.at/feeds/verkehr/"
